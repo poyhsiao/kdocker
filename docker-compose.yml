@@ -187,6 +187,32 @@ services:
     networks:
       - backend
 
+### Caddy
+  caddy:
+    build:
+      context: ./caddy
+      args:
+        - CADDY_PLUGINS=${CADDY_PLUGINS}
+        - CADDY_LICENSE=${CADDY_LICENSE}
+        - HTTP_PORT=${HTTP_PORT}
+        - HTTPS_PORT=${HTTPS_PORT}
+        - HTTP_OTHER_PORT=${HTTP_OTHER_PORT}
+    volumes_from:
+      - applications
+    volumes:
+      - ${CADDY_CUSTOM_CADDYFILE}:/etc/CaddyFile
+      - ${CADDY_HOST_LOG_PATH}:/var/log/caddy
+      - ${DATA_SAVE_PATH}:/root/.caddy
+    ports:
+      - "80:${HTTP_PORT}"
+      - "443:${HTTPS_PORT}"
+      - "2018:${HTTP_OTHER_PORT}"
+    depends_on:
+      - php-fpm
+    networks:
+      - frontend
+      - backend
+
 ### Networks Setup
 
 networks: 
