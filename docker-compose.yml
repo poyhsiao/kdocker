@@ -17,9 +17,12 @@ services:
     build:
       context: ./workspace
       args:
+        - PHP_VERSION=${PHP_VERSION}
+        - TZ=${TIMEZONE}
         - PUID=${PUID}
         - PGID=${PGID}
         - USER=${USER}
+        - CANVAS_SUPPORT=${WORKSPACE_CANVAS_SUPPORT}
         - INSTALL_APC=${PHP_FPM_INSTALL_APC}
         - INSTALL_FTP=${PHP_FPM_INSTALL_FTP}
         - INSTALL_XSL=${PHP_FPM_INSTALL_XSL}
@@ -56,7 +59,7 @@ services:
         - INSTALL_XMLWRITER=${PHP_FPM_INSTALL_XMLWRITER}
         - INSTALL_SOAP=${PHP_FPM_INSTALL_SOAP}
         - INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL}
-        - INSTALL_PG_CLIENT=${PHP_FPM_INSTALL_PG_CLIENT}
+        - INSTALL_PG_CLIENT=${WORKSPACE_INSTALL_PG_CLIENT}
         - INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG}
         - INSTALL_BLACKFIRE=${PHP_FPM_INSTALL_BLACKFIRE}
         - INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS}
@@ -76,6 +79,7 @@ services:
         - INSTALL_GHOSTSCRIPT=${PHP_FPM_INSTALL_GHOSTSCRIPT}
         - INSTALL_LDAP=${PHP_FPM_INSTALL_LDAP}
         - INSTALL_MSSQL=${PHP_FPM_INSTALL_MSSQL}
+        - INSTALL_V8JS=${PHP_FPM_INSTALL_V8JS}
         - INSTALL_IMAGE_OPTIMIZERS=${PHP_FPM_INSTALL_IMAGE_OPTIMIZERS}
         - INSTALL_IMAGEMAGICK=${PHP_FPM_INSTALL_IMAGEMAGICK}
         - INSTALL_DRUSH=${WORKSPACE_INSTALL_DRUSH}
@@ -88,7 +92,6 @@ services:
         - INSTALL_SYMFONY=${WORKSPACE_INSTALL_SYMFONY}
         - INSTALL_PYTHON=${WORKSPACE_INSTALL_PYTHON}
         - INSTALL_PYTHON3=${WORKSPACE_INSTALL_PYTHON3}
-        - PYTHON3_VERSION=${WORKSPACE_PYTHON3_VERSION}
         - CHROME_DRIVER_VERSION=${WORKSPACE_CHROME_DRIVER_VERSION}
         - INSTALL_DUSK_DEPS=${WORKSPACE_INSTALL_DUSK_DEPS}
         - NODEJS_VERSION=${WORKSPACE_NODEJS_VERSION}
@@ -96,7 +99,8 @@ services:
         # - NODEJS_YARN_VERSION=${WORKSPACE_NODEJS_YARN_VERSION}
         - NODEJS_NVM_VERSION=${WORKSPACE_NODEJS_NVM_VERSION}
         - INSTALL_WORKSPACE_SSH=${WORKSPACE_INSTALL_WORKSPACE_SSH}
-      dockerfile: "Dockerfile-${PHP_VERSION}"
+    volumes:
+      - ${LOG_DATA_SAVE_PATH}/workspace:/var/log
     volumes_from:
       - applications
     extra_hosts:
@@ -113,6 +117,8 @@ services:
     build:
       context: ./php-fpm
       args:
+        - TZ=${TIMEZONE}
+        - PHP_VERSION=${PHP_VERSION}
         - INSTALL_APC=${PHP_FPM_INSTALL_APC}
         - INSTALL_FTP=${PHP_FPM_INSTALL_FTP}
         - INSTALL_XSL=${PHP_FPM_INSTALL_XSL}
@@ -166,16 +172,17 @@ services:
         - INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI}
         - INSTALL_TOKENIZER=${PHP_FPM_INSTALL_TOKENIZER}
         - INSTALL_INTL=${PHP_FPM_INSTALL_INTL}
+        - INSTALL_V8JS=${PHP_FPM_INSTALL_V8JS}
         - INSTALL_GHOSTSCRIPT=${PHP_FPM_INSTALL_GHOSTSCRIPT}
         - INSTALL_LDAP=${PHP_FPM_INSTALL_LDAP}
         - INSTALL_MSSQL=${PHP_FPM_INSTALL_MSSQL}
         - INSTALL_IMAGE_OPTIMIZERS=${PHP_FPM_INSTALL_IMAGE_OPTIMIZERS}
         - INSTALL_IMAGEMAGICK=${PHP_FPM_INSTALL_IMAGEMAGICK}
-      dockerfile: "Dockerfile-${PHP_VERSION}"
     volumes_from:
       - applications
     volumes:
       - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
+      - ${LOG_DATA_SAVE_PATH}/php-fpm:/var/log
     expose:
       - "9000"
     depends_on:
@@ -192,6 +199,7 @@ services:
     build:
       context: ./caddy
       args:
+        - TZ=${TIMEZONE}
         - CADDY_PLUGINS=${CADDY_PLUGINS}
         - CADDY_LICENSE=${CADDY_LICENSE}
         - HTTP_PORT=${HTTP_PORT}
@@ -201,8 +209,8 @@ services:
       - applications
     volumes:
       - ${CADDY_CUSTOM_CADDYFILE}:/etc/CaddyFile
-      - ${CADDY_HOST_LOG_PATH}:/var/log/caddy
-      - ${DATA_SAVE_PATH}:/root/.caddy
+      - ${LOG_DATA_SAVE_PATH}/caddy:/var/log
+      - ${DATA_SAVE_PATH}/caddy:/root/.caddy
     ports:
       - "80:${HTTP_PORT}"
       - "443:${HTTPS_PORT}"
@@ -211,6 +219,310 @@ services:
       - php-fpm
     networks:
       - frontend
+      - backend
+
+### Nginx
+  nginx:
+    build:
+      context: ./nginx
+      args:
+        - NGINX_VERSION=${NGINX_VERSION}
+        - TZ=${TIMEZONE}
+        - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
+        - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
+    volumes_from:
+      - applications
+    volumes:
+      - ${LOG_DATA_SAVE_PATH}/nginx:/var/log/nginx
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${NGINX_SITES_PATH}:/etc/nginx/sites-enabled:ro
+    ports:
+      - "80:${HTTP_PORT}"
+      - "443:${HTTPS_PORT}"
+      - "2018:${HTTP_OTHER_PORT}"
+    depends_on:
+      - php-fpm
+    networks:
+      - frontend
+      - backend
+
+### Mariadb
+  mariadb:
+    build:
+      context: ./mariadb
+      args:
+        - TZ=${TIMEZONE}
+        - MARIADB_VERSION=${MARIADB_VERSION}
+    volumes:
+      - ${DATA_SAVE_PATH}/mariadb:/var/lib/mysql
+      - ${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:${MARIADB_PORT}"
+    environment:
+      - MYSQL_DATABASE=${MARIADB_DATABASE}
+      - MYSQL_USER=${MARIADB_USER}
+      - MYSQL_PASSWORD=${MARIADB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+    networks:
+      - backend
+
+### MySQL
+  mysql:
+    build:
+      context: ./mysql
+      args:
+        - TZ=${TIMEZONE}
+        - PERCONA_VERSION=${PERCONA_VERSION}
+    volumes:
+      - ${DATA_SAVE_PATH}/mysql:/var/lib/mysql
+      - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+      - ${LOG_DATA_SAVE_PATH}/mysql:/var/log
+    ports:
+      - "3306:${MYSQL_PORT}"
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${TIMEZONE}
+    networks:
+      - backend
+
+### Percona
+  percona:
+    build:
+      context: ./percona
+      args:
+        - TZ=${TIMEZONE}
+        - PERCONA_VERSION=${PERCONA_VERSION}
+    volumes:
+      - ${LOG_DATA_SAVE_PATH}/percona:/var/log
+    environment:
+      - MYSQL_DATABASE=${PERCONA_DATABASE}
+      - MYSQL_USER=${PERCONA_USER}
+      - MYSQL_PASSWORD=${PERCONA_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${PERCONA_ROOT_PASSWORD}
+      - TZ=${TIMEZONE}
+    networks:
+      - backend
+
+### PostgreSQL
+  postgres:
+    build:
+      context: ./postgres
+      args:
+        - POSTGRES_VERSION=${POSTGRES_VERSION}
+        - TZ=${TIMEZONE}
+    volumes:
+      - ${DATA_SAVE_PATH}/postgres:/var/lib/postgresql
+      - ${LOG_DATA_SAVE_PATH}/postgres:/var/log
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - 5432:${POSTGRES_PORT}
+    networks:
+      - backend
+
+### PostgreSQL PostGIS
+  postgres-postgis:
+    build:
+      context: ./postgres-postgis
+      args:
+        - TZ=${TIMEZONE}
+        - POSTGIS_VERSION=${POSTGIS_VERSION}
+    volumes:
+      - ${DATA_SAVE_PATH}/postgis:/var/lib/postgresql
+      - ${LOG_DATA_SAVE_PATH}/postgis:/var/log
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - 5432:${POSTGIS_PORT}
+    networks:
+      - backend
+
+### Elasticsearch
+  elasticsearch:
+    build:
+      context: ./elasticsearch
+      args:
+        - ELASTICSEARCH_VERSION=${ELASTICSEARCH_VERSION}
+        - ELASTICSEARCH_ENABLE_SECURITY=${ELASTICSEARCH_ENABLE_SECURITY}
+        - ELASTICSEARCH_SMARTCN_ANALYZER=${ELASTICSEARCH_SMARTCN_ANALYZER}
+        - ELASTICSEARCH_IK_ANALYZER=${ELASTICSEARCH_IK_ANALYZER}
+        - ELASTICSEARCH_ANSJ_ANALYZER=${ELASTICSEARCH_ANSJ_ANALYZER}
+    environment:
+      - "http.host=${ELASTICSEARCH_HTTP_HOST}"
+      - "transport.host=${ELASTICSEARCH_TRANSPORT_HOST}"
+      - xpack.security.enabled=${ELASTICSEARCH_ENABLE_SECURITY}
+      - xpack.monitoring.enable=${ELASTICSEARCH_ENABLE_SECURITY}
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms${ELASTICSEARCH_MIN_MEMORY} -Xmx${ELASTICSEARCH_MAX_MEMORY}"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: ${ELASTICSEARCH_LIMIT_MEMORY}
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ${LOG_DATA_SAVE_PATH}/elasticsearch:/var/log
+      - ${DATA_SAVE_PATH}/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9200:${ELASTICSEARCH_HOST_HTTP_PORT}
+      - 9300:${ELASTICSEARCH_HOST_TRANSPORT_PORT}
+    networks:
+      - backend
+
+### Mongodb
+  mongo:
+    build:
+      context: ./mongo
+      args:
+        - TZ=${TIMEZONE}
+        - MONGO_VERSION=${MONGO_VERSION}
+    volumes:
+      - ${DATA_SAVE_PATH}/mongo:/data/db
+      - ${LOG_DATA_SAVE_PATH}/mongo:/var/log
+    ports:
+      - 27017:${MONGO_PORT}
+    networks:
+      - backend
+
+### Redis
+  redis:
+    build:
+      context: ./redis
+      args:
+        - TZ=${TIMEZONE}
+        - REDIS_VERSION=${REDIS_VERSION}
+    volumes:
+      - ${DATA_SAVE_PATH}/redis:/data
+      - ${LOG_DATA_SAVE_PATH}/redis:/var/log
+    ports:
+      - 6379:${REDIS_PORT}
+    networks:
+      - backend
+
+### Memcached
+  memcached:
+    build:
+      context: ./memcached
+      args:
+        - TZ=${TIMEZONE}
+        - MEMCACHED_VERSION=${MEMCACHED_VERSION}
+    volumes:
+      - ${LOG_DATA_SAVE_PATH}/memcached:/var/log
+    ports:
+      - 11211:${MEMCACHED_PORT}
+    networks:
+      - backend
+
+### Kibana
+  kibana:
+    build:
+      context: ./kibana
+      args:
+        - KIBANA_VERSION=${KIBANA_VERSION}
+        - KIBANA_ENABLE_SECURITY=${KIBANA_ENABLE_SECURITY}
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:${ELASTICSEARCH_HOST_HTTP_PORT}
+      - XPACK_MONITORING_ENABLED=${KIBANA_ENABLE_SECURITY}
+      - XPACK_SECURITY_ENABLED=${KIBANA_ENABLE_SECURITY}
+    volumes:
+      - ./kibana/config:/usr/share/kibana/config:ro
+      - ${LOG_DATA_SAVE_PATH}/kibana:/var/log
+      - ${DATA_SAVE_PATH}/kibana:/usr/share/kibana/data
+    links:
+      - elasticsearch
+    ports:
+      - 5601:${KIBANA_PORT}
+    depends_on:
+      - elasticsearch
+    networks:
+      - frontend
+      - backend
+
+### Logstash
+  logstash:
+    build:
+      context: ./logstash
+      args:
+        - LOGSTASH_VERSION=${LOGSTASH_VERSION}
+    environment:
+      - "LS_JAVA_OPTS=-Xms${LOGSTASH_MIN_MEMORY} -Xmx${LOGSTASH_MAX_MEMORY}"
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ${LOG_DATA_SAVE_PATH}/logstash:/var/log
+      - ${DATA_SAVE_PATH}/logstash:/usr/share/logstash/data
+    links:
+      - elasticsearch
+    ports:
+      - 5002:${LOGSTASH_PORT}
+    depends_on:
+      - elasticsearch
+    networks:
+      - backend
+
+### Rethinkdb
+  rethinkdb:
+    build:
+      context: ./rethinkdb
+      args:
+        - RETHINKDB_VERSION=${RETHINKDB_VERSION}
+        - TZ=${TIMEZONE}
+    volumes:
+      - ${DATA_SAVE_PATH}/rethinkdb:/data/rethinkdb_data
+      - ${LOG_DATA_SAVE_PATH}/rethinkdb:/var/log
+    ports:
+      - 8080:${RETHINKDB_PORT}
+    networks:
+      - backend
+
+### rabbitmq
+  rabbitmq:
+    build:
+      context: ./rabbitmq
+      args:
+        - RABBITMQ_VERSION=${RABBITMQ_VERSION}
+        - TZ=${TIMEZONE}
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_VHOST}
+      - RABBITMQ_ERLANG_COOKIE=${RABBITMQ_COOKIE}
+    volumes:
+      - ${LOG_DATA_SAVE_PATH}/rabbitmq:/var/log
+      - ${DATA_SAVE_PATH}/rabbitmq:/var/lib/rabbitmq
+    ports:
+      - 5672:${RABBITMQ_NODE_HOST_PORT}
+      - 15672:${RABBIT_MANAGEMENT_HTTP_HOST_PORT}
+      - 15671:${RABBIT_MANAGEMENT_HTTPS_HOST_PORT}
+    networks:
+      - backend
+
+### php-worker (supervisord)
+  php-worker:
+    build:
+      context: ./php-worker
+      args:
+        - PHP_VERSION=${PHP_VERSION}
+        - INSTALL_PGSQL=${PHP_WORKER_INSTALL_PGSQL}
+        # - INSTALL_MEMCACHED=${PHP_WORKER_INSTALL_MEMCACHED}
+        - TZ=${TIMEZONE}
+    volumes:
+      - ${LOG_DATA_SAVE_PATH}/php-worker:/var/log
+      - ./php-worker/supervisord.conf:/etc/supervisord.conf:ro
+    volumes_from:
+      - applications
+    depends_on:
+      - workspace
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+    networks:
       - backend
 
 ### Networks Setup

@@ -4,6 +4,16 @@ MAINTAINER Kim Hsiao <white.shopping@gmail.com>
 
 LABEL CADDY_VERSION=0.10.11
 
+##############################
+# Set Timezone
+##############################
+USER root
+
+ARG TZ=UTC
+ENV TZ ${TZ}
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
+    echo ${TZ} > /etc/timezone
+
 RUN apk update && \
     apk upgrade && \
     apk --no-cache add bash tini git openssh-client && \

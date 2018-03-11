@@ -1,6 +1,19 @@
-FROM php:7.1-fpm
+ARG PHP_VERSION=7.1
+FROM php:${PHP_VERSION}-fpm
 
 MAINTAINER Kim Hsiao <white.shopping@gmail.com>
+
+LABEL PHP_VERSION=${PHP_VERSION}
+
+##############################
+# Set Timezone
+##############################
+USER root
+
+ARG TZ=UTC
+ENV TZ ${TZ}
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
+    echo ${TZ} > /etc/timezone
 
 ##############################
 # Set global system env
@@ -14,7 +27,7 @@ RUN apt-get update && \
     libz-dev \
     libpq-dev \
     libjpeg62-turbo-dev \
-    libpng12-dev \
+    libpng-dev \
     libfreetype6-dev \
     libssl-dev \
     libmcrypt-dev \
@@ -25,10 +38,17 @@ RUN apt-get update && \
 # Install basic php extensions
 ##############################
 
-# mcrypt extension
-RUN docker-php-ext-install mcrypt && \
-    # pdo_mysql extension
-    docker-php-ext-install pdo_mysql && \
+ARG PHP_VERSION=7.1
+ENV PHP_VERSION ${PHP_VERSION}
+
+# only install mcrypt extsion for php 7.0
+RUN if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ]; then \
+    apt-get install -y --no-install-recommends libmcrypt-dev && \
+    docker-php-ext-install mcrypt \
+;fi
+
+# pdo_mysql extension
+RUN docker-php-ext-install pdo_mysql && \
     # pdo_pgsql extension
     docker-php-ext-install pdo_pgsql && \
     # pdo_sqlite extension
@@ -694,6 +714,72 @@ RUN if [ ${INSTALL_INTL} = true ]; then \
     apt-get install -y --no-install-recommends zlib1g-dev libicu-dev g++ && \
     docker-php-ext-configure intl && \
     docker-php-ext-install intl \
+;fi
+
+#####################################
+# PHP V8JS
+#####################################
+
+ARG INSTALL_V8JS=false
+ENV INSTALL_V8JS ${INSTALL_V8JS}
+
+RUN if [ ${INSTALL_V8JS} = true ]; then \
+    apt-get install -y --no-install-recommends git && \
+    #
+    # Check https://github.com/phpv8/v8js/blob/php7/README.Linux.md to install necessary libraries
+    #
+    # Get v8 and compile it
+    #
+    apt-get install -y --no-install-recommends \
+    libglib2.0-dev \
+    patchelf && \
+    cd /tmp && \
+    git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git && \
+    export PATH=`pwd`/depot_tools:"$PATH" && \
+    #
+    # Download v8
+    #
+    fetch v8 && \
+    cd v8 && \
+    gclient sync && \
+    #
+    # Setup GN
+    #
+    tools/dev/v8gen.py -vv x64.release -- is_component_build=true && \
+    #
+    # Build
+    #
+    ninja -C out.gn/x64.release/ && \
+    #
+    # Install to /opt/v8
+    #
+    mkdir -p /opt/v8/lib && \
+    mkdir -p /opt/v8/include && \
+    cp out.gn/x64.release/lib*.so out.gn/x64.release/*_blob.bin \
+    out.gn/x64.release/icudtl.dat /opt/v8/lib/ && \
+    cp -R include/* /opt/v8/include/ && \
+    #
+    # only on debian
+    #
+    for A in /opt/v8/lib/*.so; do patchelf --set-rpath '$ORIGIN' $A; done \
+;fi
+
+ARG PHP_VERSION=7.1
+ENV PHP_VERSION ${PHP_VERSION}
+    #
+    # Compile php-v8js itself
+    #
+RUN if [ ${INSTALL_V8JS} = true ]; then \
+    cd /tmp && \
+    git clone https://github.com/phpv8/v8js.git && \
+    cd v8js && \
+    phpize && \
+    ./configure --with-v8js=/opt/v8 LDFLAGS="-lstdc++" && \
+    make && \
+    make test && \
+    make install && \
+    mkdir -p /etc/php/${PHP_VERSION}/cli && \
+    echo "extension=v8js.so" >> /etc/php/${PHP_VERSION}/cli/php.ini \
 ;fi
 
 #####################################

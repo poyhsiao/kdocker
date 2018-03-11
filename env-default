@@ -4,11 +4,12 @@
 #
 # PHP version
 #
-# available options can be 5.6, 7.0, 7.1, 7.2
+# available options can be 7.0, 7.1, 7.2
+# NOT support PHP version under 7.0
 #
 #####################################
 
-PHP_VERSION=7.1
+PHP_VERSION=7.2
 
 #####################################
 # Volumes
@@ -33,21 +34,7 @@ USER=kim
 #####################################
 
 WORKSPACE_SSH_PORT=22220
-WORKSPACE_INSTALL_SOAP=true
-WORKSPACE_INSTALL_LDAP=true
-WORKSPACE_INSTALL_IMAP=true
-WORKSPACE_INSTALL_XDEBUG=true
-WORKSPACE_INSTALL_MONGO=true
-WORKSPACE_INSTALL_AMQP=true
-WORKSPACE_INSTALL_PHPREDIS=true
-WORKSPACE_INSTALL_SWOOLE=true
-WORKSPACE_INSTALL_DRUSH=false
-WORKSPACE_INSTALL_DRUPAL_CONSOLE=false
-WORKSPACE_INSTALL_AEROSPIKE=false
-WORKSPACE_INSTALL_V8JS=true
-# WORKSPACE_V8JS_VERSION=6.5
-# WORKSPACE_V8JS_VERSION=archived
-WORKSPACE_V8JS_VERSION=5.4
+WORKSPACE_CANVAS_SUPPORT=true
 WORKSPACE_INSTALL_LARAVEL_ENVOY=true
 WORKSPACE_INSTALL_LARAVEL_INSTALLER=true
 WORKSPACE_INSTALL_DEPLOYER=false
@@ -58,9 +45,10 @@ WORKSPACE_INSTALL_IMAGE_OPTIMIZERS=true
 WORKSPACE_INSTALL_SYMFONY=true
 WORKSPACE_INSTALL_PYTHON=true
 WORKSPACE_INSTALL_PYTHON3=true
-WORKSPACE_PYTHON3_VERSION=3.4
 WORKSPACE_INSTALL_IMAGEMAGICK=true
-WORKSPACE_INSTALL_PG_CLIENT=true
+WORKSPACE_INSTALL_PG_CLIENT=false
+WORKSPACE_INSTALL_DRUSH=false
+WORKSPACE_INSTALL_DRUPAL_CONSOLE=false
 WORKSPACE_CHROME_DRIVER_VERSION=2.32
 WORKSPACE_INSTALL_DUSK_DEPS=false
 WORKSPACE_NODEJS_VERSION=6
@@ -109,7 +97,7 @@ PHP_FPM_INSTALL_XMLRPC=true
 PHP_FPM_INSTALL_XMLWRITER=false
 PHP_FPM_INSTALL_SOAP=true
 PHP_FPM_INSTALL_PGSQL=true
-PHP_FPM_INSTALL_PG_CLIENT=true
+PHP_FPM_INSTALL_PG_CLIENT=false
 PHP_FPM_INSTALL_XDEBUG=true
 PHP_FPM_INSTALL_BLACKFIRE=false
 PHP_FPM_INSTALL_PHPREDIS=true
@@ -126,6 +114,7 @@ PHP_FPM_INSTALL_OPCACHE=true
 PHP_FPM_INSTALL_MYSQLI=true
 PHP_FPM_INSTALL_TOKENIZER=true
 PHP_FPM_INSTALL_INTL=true
+PHP_FPM_INSTALL_V8JS=false
 PHP_FPM_INSTALL_GHOSTSCRIPT=true
 PHP_FPM_INSTALL_LDAP=false
 PHP_FPM_INSTALL_MSSQL=false
@@ -140,7 +129,199 @@ CADDY_PLUGINS=http.awslambda,http.cache,http.cors,http.expires,http.forwardproxy
 CADDY_LICENSE=personal
 CADDY_CUSTOM_CADDYFILE=./Caddyfile
 CADDY_HOST_LOG_PATH=../logs/caddy
-DATA_SAVE_PATH=../storage/caddy
+
+#####################################
+# Nginx
+#####################################
+
+NGINX_VERSION=1.13
+# available: 1.13(latest), 1.12, plz check https://hub.docker.com/_/nginx/ for detail information
+
+NGINX_SITES_PATH=./nginx/sites-enabled
+NGINX_PHP_UPSTREAM_CONTAINER=php-fpm
+NGINX_PHP_UPSTREAM_PORT=9000
+
+#####################################
+#
+# MySQL family:
+#
+# Mariadb
+#
+#####################################
+
+MARIADB_VERSION=10.3 
+# available: 10.3, 10.2(latest), 10.1, 10.0, 5.5. may reference mariadb docker hub versions 
+
+MARIADB_DATABASE=default
+MARIADB_USER=default
+MARIADB_PASSWORD=secret
+MARIADB_PORT=3306
+MARIADB_ROOT_PASSWORD=root
+MARIADB_ENTRYPOINT_INITDB=./mariadb/docker-entrypoint-initdb.d
+
+#####################################
+#
+# MySQL family:
+#
+# MySQL
+#
+#####################################
+
+MYSQL_VERSION=8.0
+# available: 8.0, 5.7, 5.6, 5.5
+
+MYSQL_DATABASE=default
+MYSQL_USER=default
+MYSQL_PASSWORD=secret
+MYSQL_PORT=3306
+MYSQL_ROOT_PASSWORD=root
+MYSQL_ENTRYPOINT_INITDB=./mysql/docker-entrypoint-initdb.d
+
+#####################################
+#
+# MySQL family:
+#
+# Percona
+#
+#####################################
+
+PERCONA_VERSION=5.7
+# available: 5.7, 5.6, 5.5
+
+PERCONA_DATABASE=default
+PERCONA_USER=default
+PERCONA_PASSWORD=secret
+PERCONA_PORT=3306
+PERCONA_ROOT_PASSWORD=root
+PERCONA_ENTRYPOINT_INITDB=./percona/docker-entrypoint-initdb.d
+
+#####################################
+# PostgreSQL
+#####################################
+
+POSTGRES_VERSION=alpine
+# available version: 10, 9.6, 9.5, 9.4, 9.3 and/or with alpine
+
+POSTGRES_DB=default
+POSTGRES_USER=default
+POSTGRES_PASSWORD=secret
+POSTGRES_PORT=5432
+
+#####################################
+# PostgreSQL PostGis
+#####################################
+
+POSTGIS_VERSION=10-alpine
+# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2 and/or with alpine
+
+POSTGIS_PORT=5432
+
+#####################################
+# PostgreSQL with GIS
+#####################################
+
+POSTGIS_VERSION=10-alpine
+# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0 and/or with alpine
+
+#####################################
+# Elasticsearch
+#####################################
+
+ELASTICSEARCH_VERSION=6.2.2
+# available version: plz check official website: https://www.docker.elastic.co
+
+ELASTICSEARCH_SMARTCN_ANALYZER=true
+ELASTICSEARCH_IK_ANALYZER=true
+ELASTICSEARCH_ANSJ_ANALYZER=true
+ELASTICSEARCH_HOST_HTTP_PORT=9200
+ELASTICSEARCH_HOST_TRANSPORT_PORT=9300
+ELASTICSEARCH_HTTP_HOST=0.0.0.0
+ELASTICSEARCH_TRANSPORT_HOST=127.0.0.1
+ELASTICSEARCH_ENABLE_SECURITY=false
+ELASTICSEARCH_ENABLE_PLUGINS=true
+ELASTICSEARCH_LICENSE_TYPE=basic
+ELASTICSEARCH_MIN_MEMORY=512m
+ELASTICSEARCH_MAX_MEMORY=512m
+ELASTICSEARCH_LIMIT_MEMORY=1g
+
+#####################################
+# mongodb
+#####################################
+
+MONGO_VERSION=3.6
+# available versions: 3.7, 3.6, 3.4, 3.2, 3.0, plz check https://hub.docker.com/_/mongo/ for detail
+
+MONGO_PORT=27017
+
+#####################################
+# redis
+#####################################
+
+REDIS_VERSION=4.0-alpine
+# available versions: 4.0, 3.2. plz check https://hub.docker.com/_/redis/ for detail information
+
+REDIS_PORT=6379
+
+#####################################
+# memcached
+#####################################
+
+MEMCACHED_VERSION=1.5-alpine
+# available versions: 1.5(1.5.6) alpine. plz check https://hub.docker.com/_/memcached/ for detail information
+
+MEMCACHED_PORT=11211
+
+#####################################
+# kibana
+#####################################
+
+KIBANA_VERSION=6.2.2
+# available version: plz check official website: https://www.docker.elastic.co
+
+KIBANA_ENABLE_SECURITY=false
+KIBANA_PORT=5601
+
+#####################################
+# logstash
+#####################################
+
+LOGSTASH_VERSION=6.2.2
+# available versions: plz check official website: https://www.docker.elastic.co
+LOGSTASH_MIN_MEMORY=256m
+LOGSTASH_MAX_MEMORY=256m
+LOGSTASH_PORT=5001
+
+#####################################
+# rethinkdb
+#####################################
+
+RETHINKDB_VERSION=2.3
+# available versions: only 2.3 for now. plz check official website: https://hub.docker.com/_/rethinkdb/ for detail information
+
+RETHINKDB_PORT=8080
+
+#####################################
+# rabbitmq
+#####################################
+
+RABBITMQ_VERSION=3.7
+# available versions: 3.6, 3.7, plz check official website: https://hub.docker.com/_/rabbitmq/ for detail information
+
+RABBITMQ_USER=test
+RABBITMQ_PASSWORD=test
+RABBITMQ_VHOST=/
+RABBITMQ_COOKIE=test
+RABBITMQ_NODE_HOST_PORT=5672
+RABBIT_MANAGEMENT_HTTP_HOST_PORT=15672
+RABBIT_MANAGEMENT_HTTPS_HOST_PORT=15671
+
+#####################################
+# php-worker
+#####################################
+
+PHP_WORKER_INSTALL_PGSQL=true
+# PHP_WORKER_INSTALL_MEMCACHED=true
+## current not support
 
 #####################################
 # NETWORK setting
@@ -150,10 +331,21 @@ HTTP_PORT=80
 HTTPS_PORT=443
 HTTP_OTHER_PORT=2018
 
-
 #####################################
 # Misc setting
 #####################################
+
+# timezone setting
+TIMEZONE=UTC
+
+# global log saving path
+LOG_DATA_SAVE_PATH=./logs
+
+# global data saving path
+DATA_SAVE_PATH=./storage
+
+# If the location is China
+CHANGE_SOURCE=false
 
 # Replace with your docker host ip (will be appended to /etc/hosts)
 DOCKER_HOST_IP=10.0.75.3
