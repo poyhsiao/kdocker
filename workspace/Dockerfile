@@ -587,9 +587,9 @@ ARG INSTALL_PHPREDIS=false
 
 RUN if [ ${INSTALL_PHPREDIS} = true ]; then \
     # Install Php Redis Extension
-    printf "\n" | pecl install -o -f redis \
-    &&  rm -rf /tmp/pear \
-    &&  docker-php-ext-enable redis \
+    printf "\n" | pecl install -o -f redis && \
+    rm -rf /tmp/pear && \
+    docker-php-ext-enable redis \
 ;fi
 
 #####################################
@@ -793,6 +793,17 @@ RUN if [ ${INSTALL_LDAP} = true ]; then \
     apt-get install -y --no-install-recommends libldap2-dev && \
     docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ && \
     docker-php-ext-install ldap \
+;fi
+
+#####################################
+# pcntl:
+#####################################
+
+ARG INSTALL_PCNTL=false
+
+RUN if [ ${INSTALL_PCNTL} = true ]; then \
+    docker-php-ext-install pcntl && \
+    docker-php-ext-enable pcntl \
 ;fi
 
 #####################################
@@ -1309,8 +1320,6 @@ USER ${USER}
 # ARG YARN_VERSION=latest
 # ENV YARN_VERSION ${NODEJS_YARN_VERSION}
 
-ARG YARN_DIR=/home/docker/.yarn
-ENV YARN_DIR=/home/${USER}/.yarn
 
 RUN [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
     curl -o- -L https://yarnpkg.com/install.sh | bash && \
@@ -1322,11 +1331,11 @@ RUN [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
 USER root
 
 ENV YARB_PATH /home/${USER}/.yarn
-ENV ROOT_YARN_COMMAND "export YARN_DIR=\"${YARN_DIR}\""
+ENV ROOT_YARN_COMMAND "export YARN_DIR=\"/home/${USER}/.yarn\""
 
 RUN echo "" >> ~/.bashrc && \
     echo $ROOT_NVM_COMMAND >> ~/.bashrc && \
-    echo 'export PATH="$YARN_DIR/bin:$PATH"' >> ~/.bashrc
+    echo 'export PATH="/home/$YARN_DIR/bin:$PATH"' >> ~/.bashrc
 
 
 #####################################
@@ -1361,6 +1370,9 @@ RUN chmod -R 644 /etc/cron.d
 ##############################
 # Final step
 ##############################
+
+# change user shell as bash by default
+RUN chsh -s /bin/bash ${USER}
 
 # Clean up
 USER root
