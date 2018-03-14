@@ -102,6 +102,10 @@ services:
         - INSTALL_WORKSPACE_SSH=${WORKSPACE_INSTALL_WORKSPACE_SSH}
     volumes:
       - ${LOG_DATA_SAVE_PATH}/workspace:/var/log
+      - ./workspace/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro
+      - ./workspace/aerospike.ini:/usr/local/etc/php/conf.d/aerospike.ini:ro
+      - ./workspace/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
+      - ./workspace/crontab:/etc/cron.d
     volumes_from:
       - applications
     extra_hosts:
@@ -183,8 +187,11 @@ services:
     volumes_from:
       - applications
     volumes:
-      - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
+      - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini:ro
       - ${LOG_DATA_SAVE_PATH}/php-fpm:/var/log
+      - ./php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro
+      - ./php-fpm/aerospike.ini:/usr/local/etc/php/conf.d/aerospike.ini:ro
+      - ./php-fpm/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
     expose:
       - "9000"
     depends_on:

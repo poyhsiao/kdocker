@@ -508,7 +508,7 @@ RUN if [ ${INSTALL_XDEBUG} = true ]; then \
 ;fi
 
 # Copy xdebug configuration for remote debugging
-COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+# COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 #####################################
 # Blackfire:
@@ -650,7 +650,7 @@ ARG INSTALL_AEROSPIKE=false
 ENV INSTALL_AEROSPIKE ${INSTALL_AEROSPIKE}
 
 # Copy aerospike configration for remote debugging
-COPY ./aerospike.ini /usr/local/etc/php/conf.d/aerospike.ini
+# COPY ./aerospike.ini /usr/local/etc/php/conf.d/aerospike.ini
 
 RUN if [ ${INSTALL_AEROSPIKE} = true ]; then \
     # Install the php aerospike extension
@@ -666,9 +666,9 @@ RUN if [ ${INSTALL_AEROSPIKE} = true ]; then \
     rm /tmp/aerospike-client-php.tar.gz \
 ;fi
 
-RUN if [ ${INSTALL_AEROSPIKE} = false ]; then \
-    rm /usr/local/etc/php/conf.d/aerospike.ini \
-;fi
+# RUN if [ ${INSTALL_AEROSPIKE} = false ]; then \
+#     rm /usr/local/etc/php/conf.d/aerospike.ini \
+# ;fi
 
 #####################################
 # Opcache:
@@ -681,7 +681,7 @@ RUN if [ ${INSTALL_OPCACHE} = true ]; then \
 ;fi
 
 # Copy opcache configration
-COPY ./opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+# COPY ./opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 #####################################
 # Mysqli Modifications:
@@ -742,6 +742,9 @@ RUN if [ ${INSTALL_V8JS} = true ]; then \
     # Get v8 and compile it
     #
     apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    python \
     libglib2.0-dev \
     patchelf && \
     cd /tmp && \
@@ -790,7 +793,7 @@ RUN if [ ${INSTALL_V8JS} = true ]; then \
     make test && \
     make install && \
     mkdir -p /etc/php/${PHP_VERSION}/cli && \
-    echo "extension=v8js.so" >> /etc/php/${PHP_VERSION}/cli/php.ini \
+    echo "extension=v8js.so" >> /usr/local/etc/php/conf.d/v8js.ini \
 ;fi
 
 #####################################
