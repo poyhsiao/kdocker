@@ -1,7 +1,6 @@
 FROM alpine:edge
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL CADDY_VERSION=0.10.11
 
 ##############################
@@ -16,8 +15,8 @@ RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
 
 RUN apk update && \
     apk upgrade && \
-    apk --no-cache add bash tini git openssh-client && \
-    apk --no-cache add --virtual devs tar curl
+    apk --no-cache add --update bash tini git openssh-client && \
+    apk --no-cache add --update --virtual .devs tar curl
 
 ## install caddy server with plugins
 
@@ -38,7 +37,7 @@ RUN cd /tmp && \
 
 # remove devs
 
-RUN apk del devs && \
+RUN apk del .devs && \
     rm -rf /tmp/*
 
 # copy setting file to target

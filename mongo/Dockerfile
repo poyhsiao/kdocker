@@ -1,8 +1,7 @@
 ARG MONGO_VERSION=3.6
 FROM mongo:${MONGO_VERSION}
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL MONGO_VERSION=${MONGO_VERSION}
 
 ##############################

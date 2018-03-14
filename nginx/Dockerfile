@@ -1,8 +1,7 @@
 ARG NGINX_VERSION=1.13
 FROM nginx:${NGINX_VERSION}-alpine
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL NGINX_VERSION=${NGINX_VERSION}
 
 ##############################

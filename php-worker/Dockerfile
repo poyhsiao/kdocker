@@ -1,9 +1,8 @@
 ARG PHP_VERSION=7.1
 FROM php:${PHP_VERSION}-alpine
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
-LABEL PHP_VERSION=${PHP_VERSION}
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
+LABEL PHP_VERSION=${PHP_VERSION}-alpine
 
 ##############################
 # Set Timezone
@@ -21,7 +20,7 @@ RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
 
 RUN apk update && \
     apk upgrade && \
-    apk add --virtual buildenv \
+    apk add --update --virtual .buildenv \
     build-base \
     autoconf \
     libmemcached-dev \
@@ -57,6 +56,13 @@ RUN docker-php-ext-install \
     pdo \
     pdo_mysql \
     pdo_sqlite
+
+#####################################
+#
+# mcrypt:
+#
+# only availble under PHP 7.0
+#####################################
 
 RUN if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ]; then \
     docker-php-ext-install mcrypt \
@@ -245,7 +251,7 @@ RUN if [ ${INSTALL_MEMCACHED} = true ]; then \
 # Clear apk packages cache
 ##############################
 
-RUN apk del buildenv && \
+RUN apk del .buildenv && \
     rm /var/cache/apk/* && \
     rm -rf /tmp/* && \
     mkdir -p /var/www

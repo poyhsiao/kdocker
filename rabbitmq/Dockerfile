@@ -1,8 +1,7 @@
 ARG RABBITMQ_VERSION=3.7
 FROM rabbitmq:${RABBITMQ_VERSION}-alpine
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL RABBITMQ_VERSION=${RABBITMQ_VERSION}
 
 ##############################

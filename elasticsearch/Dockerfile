@@ -1,8 +1,7 @@
 ARG ELASTICSEARCH_VERSION=6.2.2
 FROM docker.elastic.co/elasticsearch/elasticsearch-oss:${ELASTICSEARCH_VERSION}
 
-MAINTAINER Kim Hsiao <kim@deepblu.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL ELASTICSEARCH_VERSION=${ELASTICSEARCH_VERSION}
 
 #########################

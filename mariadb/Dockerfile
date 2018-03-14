@@ -1,8 +1,7 @@
 ARG MARIADB_VERSION=10.3
 FROM mariadb:${MARIADB_VERSION}
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL MARIADB_VERSION=${MARIADB_VERSION}
 
 ##############################

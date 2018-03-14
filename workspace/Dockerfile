@@ -1,8 +1,7 @@
 ARG PHP_VERSION=7.1
 FROM php:${PHP_VERSION}-cli
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL PHP_VERSION=${PHP_VERSION}
 
 ##############################
@@ -12,16 +11,9 @@ LABEL PHP_VERSION=${PHP_VERSION}
 RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get install -y --no-install-recommends \
-    apt-utils \
     locales \
-    libmemcached-dev \
     libz-dev \
-    libpq-dev \
-    libjpeg62-turbo-dev \
-    libpng-dev \
-    libfreetype6-dev \
     libssl-dev \
-    libsqlite3-dev \
     checkinstall && \
     pecl channel-update pecl.php.net
 
@@ -31,12 +23,12 @@ RUN apt-get install -y --no-install-recommends \
     wget \
     curl \
     git \
-    netcat
+    netcat \
+    vim
 
 ### Install canvas required packages
 
 ARG CANVAS_SUPPORT=false
-ENV CANVAS_SUPPORT ${CANVAS_SUPPORT}
 
 RUN if [ ${CANVAS_SUPPORT} = true ]; then \
     apt-get install -y --no-install-recommends \
@@ -89,30 +81,77 @@ RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo ${TZ} > /etc/timezone
 
 ##############################
-# Install basic php extensions
+# Set PHP version
 ##############################
 
 ARG PHP_VERSION=7.1
 ENV PHP_VERSION ${PHP_VERSION}
 
+##############################
+# Mcrypt:
+##############################
+
 # only install mcrypt extsion for php 7.0
-RUN if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ]; then \
+ARG INSTALL_MCRYPT=false
+
+RUN if [ ${INSTALL_MCRYPT} = true ] && [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ]; then \
     apt-get install -y --no-install-recommends libmcrypt-dev && \
     docker-php-ext-install mcrypt \
 ;fi
 
-# pdo_mysql extension
-RUN docker-php-ext-install pdo_mysql && \
+##############################
+# PDO MySQL:
+##############################
+
+ARG INSTALL_PDO_MYSQL=false
+
+RUN if [ ${INSTALL_PDO_MYSQL} = true ]; then \
+    # pdo_mysql extension
+    docker-php-ext-install pdo_mysql \
+;fi
+
+##############################
+# PDO PostgreSQL:
+##############################
+
+ARG INSTALL_PDO_PGSQLL=false
+
+RUN if [ ${INSTALL_PDO_PGSQL} = true ]; then \
+    apt-get install -y --no-install-recommends libpq-dev && \
     # pdo_pgsql extension
-    docker-php-ext-install pdo_pgsql && \
+    docker-php-ext-install pdo_pgsql \
+;fi
+
+##############################
+# PDO sqlite:
+##############################
+
+ARG INSTALL_PDO_SQLITE=false
+
+RUN if [ ${INSTALL_PDO_SQLITE} = true ]; then \
+    apt-get install -y --no-install-recommends libsqlite3-dev && \
     # pdo_sqlite extension
-    docker-php-ext-install pdo_sqlite && \
+    docker-php-ext-install pdo_sqlite \
+;fi
+
+##############################
+# GD:
+##############################
+
+ARG INSTALL_GD=false
+
+RUN if [ ${INSTALL_GD} = true ]; then \
+    apt-get install -y --no-install-recommends \
+        libjpeg62-turbo-dev \
+        libpng-dev \
+        libfreetype6-dev && \
     # gd extension
     docker-php-ext-configure gd \
         --enable-gd-native-ttf \
         --with-jpeg-dir=/usr/lib \
         --with-freetype-dir=/usr/include/freetype2 && \
-    docker-php-ext-install gd
+    docker-php-ext-install gd \
+;fi 
 
 #####################################
 # APC:
@@ -445,6 +484,40 @@ RUN if [ ${INSTALL_SYSVSHM} = true ]; then \
 ;fi
 
 #####################################
+# bz2:
+#####################################
+
+ARG INSTALL_BZ2=false
+
+RUN if [ ${INSTALL_BZ2} = true ]; then \
+    apt-get install -y --no-install-recommends libbz2-dev && \
+    docker-php-ext-install bz2 \
+;fi
+
+#####################################
+# enchant:
+#####################################
+
+ARG INSTALL_ENCHANT=false
+
+RUN if [ ${INSTALL_ENCHANT} = true ]; then \
+    apt-get install -y --no-install-recommends libenchant-dev && \
+    docker-php-ext-install enchant \
+;fi
+
+#####################################
+# yaml:
+#####################################
+
+ARG INSTALL_YAML=false
+
+RUN if [ ${INSTALL_YAML} = true ]; then \
+    apt-get install -y --no-install-recommends libyaml-dev && \
+    pecl install yaml && \
+    docker-php-ext-enable yaml \
+;fi
+
+#####################################
 # tidy:
 #####################################
 
@@ -534,6 +607,7 @@ RUN if [ ${INSTALL_SOAP} = true ]; then \
 ARG INSTALL_PGSQL=false
 
 RUN if [ ${INSTALL_PGSQL} = true ]; then \
+    apt-get install -y --no-install-recommends libpq-dev && \
     # Install the pgsql extension
     docker-php-ext-install pgsql \
 ;fi
@@ -562,9 +636,6 @@ RUN if [ ${INSTALL_XDEBUG} = true ]; then \
     docker-php-ext-enable xdebug \
 ;fi
 
-# Copy xdebug configuration for remote debugging
-# COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
-
 #####################################
 # Blackfire:
 #####################################
@@ -572,11 +643,11 @@ RUN if [ ${INSTALL_XDEBUG} = true ]; then \
 ARG INSTALL_BLACKFIRE=false
 
 RUN if [ ${INSTALL_XDEBUG} = false -a ${INSTALL_BLACKFIRE} = true ]; then \
-    version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
-    && curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/amd64/$version \
-    && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp \
-    && mv /tmp/blackfire-*.so $(php -r "echo ini_get('extension_dir');")/blackfire.so \
-    && printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8707\n" > $PHP_INI_DIR/conf.d/blackfire.ini \
+    version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")  && \
+    curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/amd64/$version && \
+    tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp && \
+    mv /tmp/blackfire-*.so $(php -r "echo ini_get('extension_dir');")/blackfire.so && \
+    printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8707\n" > $PHP_INI_DIR/conf.d/blackfire.ini \
 ;fi
 
 #####################################
@@ -670,6 +741,7 @@ RUN if [ ${INSTALL_GMP} = true ]; then \
 ARG INSTALL_MEMCACHED=false
 
 RUN if [ ${INSTALL_MEMCACHED} = true ]; then \
+    apt-get install -y --no-install-recommends libmemcached-dev && \
     # Install the php memcached extension
     curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-dev/php-memcached/archive/php7.tar.gz" && \
     mkdir -p memcached && \
@@ -704,9 +776,6 @@ RUN if [ ${INSTALL_EXIF} = true ]; then \
 ARG INSTALL_AEROSPIKE=false
 ENV INSTALL_AEROSPIKE ${INSTALL_AEROSPIKE}
 
-# Copy aerospike configration for remote debugging
-# COPY ./aerospike.ini /usr/local/etc/php/conf.d/aerospike.ini
-
 RUN if [ ${INSTALL_AEROSPIKE} = true ]; then \
     # Install the php aerospike extension
     curl -L -o /tmp/aerospike-client-php.tar.gz "https://github.com/aerospike/aerospike-client-php/archive/master.tar.gz" && \
@@ -721,10 +790,6 @@ RUN if [ ${INSTALL_AEROSPIKE} = true ]; then \
     rm /tmp/aerospike-client-php.tar.gz \
 ;fi
 
-# RUN if [ ${INSTALL_AEROSPIKE} = false ]; then \
-#     rm /usr/local/etc/php/conf.d/aerospike.ini \
-# ;fi
-
 #####################################
 # Opcache:
 #####################################
@@ -734,9 +799,6 @@ ARG INSTALL_OPCACHE=false
 RUN if [ ${INSTALL_OPCACHE} = true ]; then \
     docker-php-ext-install opcache \
 ;fi
-
-# Copy opcache configration
-# COPY ./opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 #####################################
 # Mysqli Modifications:
@@ -940,8 +1002,6 @@ RUN if [ ${INSTALL_V8JS} = true ]; then \
     for A in /opt/v8/lib/*.so; do patchelf --set-rpath '$ORIGIN' $A; done \
 ;fi
 
-ARG PHP_VERSION=7.1
-ENV PHP_VERSION ${PHP_VERSION}
     #
     # Compile php-v8js itself
     #
@@ -959,11 +1019,22 @@ RUN if [ ${INSTALL_V8JS} = true ]; then \
 ;fi
 
 #####################################
+# libevent:
+#####################################
+
+ARG INSTALL_EVENT=false
+
+RUN if [ ${INSTALL_EVENT} = true ]; then \
+    apt-get install -y --no-install-recommends libevent-dev && \
+    pecl install event && \
+    docker-php-ext-enable event \
+;fi
+
+#####################################
 # Image optimizers:
 #####################################
 
 ARG INSTALL_IMAGE_OPTIMIZERS=false
-ENV INSTALL_IMAGE_OPTIMIZERS ${INSTALL_IMAGE_OPTIMIZERS}
 
 RUN if [ ${INSTALL_IMAGE_OPTIMIZERS} = true ]; then \
     apt-get install -yf --no-install-recommends jpegoptim optipng pngquant gifsicle \
@@ -974,7 +1045,6 @@ RUN if [ ${INSTALL_IMAGE_OPTIMIZERS} = true ]; then \
 #####################################
 
 ARG INSTALL_IMAGEMAGICK=false
-ENV INSTALL_IMAGEMAGICK ${INSTALL_IMAGEMAGICK}
 
 RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
     apt-get install -y --no-install-recommends libmagickwand-dev imagemagick && \ 
@@ -1016,9 +1086,9 @@ RUN composer global install && \
 #####################################
 USER root
 
-ENV DRUSH_VERSION 8.1.2
 ARG INSTALL_DRUSH=false
-ENV INSTALL_DRUSH ${INSTALL_DRUSH}
+
+ENV DRUSH_VERSION 8.1.2
 
 RUN if [ ${INSTALL_DRUSH} = true ]; then \
     apt-get -y install mysql-client && \
@@ -1034,7 +1104,6 @@ RUN if [ ${INSTALL_DRUSH} = true ]; then \
 USER root
 
 ARG INSTALL_DRUPAL_CONSOLE=false
-ENV INSTALL_DRUPAL_CONSOLE ${INSTALL_DRUPAL_CONSOLE}
 
 RUN if [ ${INSTALL_DRUPAL_CONSOLE} = true ]; then \
     apt-get -y install --no-install-recommends mysql-client && \
@@ -1059,7 +1128,6 @@ RUN echo "" >> ~/.bashrc && \
 USER ${USER}
 
 ARG INSTALL_LARAVEL_ENVOY=false
-ENV INSTALL_LARAVEL_ENVOY ${INSTALL_LARAVEL_ENVOY}
 
 RUN if [ ${INSTALL_LARAVEL_ENVOY} = true ]; then \
     # Install the Laravel Envoy
@@ -1072,7 +1140,6 @@ RUN if [ ${INSTALL_LARAVEL_ENVOY} = true ]; then \
 USER ${USER}
 
 ARG INSTALL_LARAVEL_INSTALLER=false
-ENV INSTALL_LARAVEL_INSTALLER ${INSTALL_LARAVEL_INSTALLER}
 
 RUN if [ ${INSTALL_LARAVEL_INSTALLER} = true ]; then \
     # Install the Laravel Installer
@@ -1087,7 +1154,6 @@ RUN if [ ${INSTALL_LARAVEL_INSTALLER} = true ]; then \
 USER ${USER}
 
 ARG INSTALL_DEPLOYER=false
-ENV INSTALL_DEPLOYER ${INSTALL_DEPLOYER}
 
 RUN if [ ${INSTALL_DEPLOYER} = true ]; then \
     # Install the Deployer
@@ -1100,7 +1166,6 @@ RUN if [ ${INSTALL_DEPLOYER} = true ]; then \
 USER root
 
 ARG INSTALL_LINUXBREW=false
-ENV INSTALL_LINUXBREW ${INSTALL_LINUXBREW}
 
 RUN if [ ${INSTALL_LINUXBREW} = true ]; then \
     # Preparation
@@ -1132,7 +1197,6 @@ RUN if [ ${INSTALL_LINUXBREW} = true ]; then \
 USER root
 
 ARG INSTALL_MC=false
-ENV INSTALL_MC ${INSTALL_MC}
 
 COPY mc/config.json /root/.mc/config.json
 
@@ -1147,7 +1211,6 @@ RUN if [ ${INSTALL_MC} = true ]; then\
 USER root
 
 ARG INSTALL_SYMFONY=false
-ENV INSTALL_SYMFONY ${INSTALL_SYMFONY}
 
 RUN if [ ${INSTALL_SYMFONY} = true ]; then \
   mkdir -p /usr/local/bin \
@@ -1171,10 +1234,8 @@ RUN if [ ${INSTALL_SYMFONY} = true ]; then \
 USER root
 
 ARG INSTALL_PYTHON=false
-ENV INSTALL_PYTHON ${INSTALL_PYTHON}
 
 ARG INSTALL_PYTHON3=false
-ENV INSTALL_PYTHON3 ${INSTALL_PYTHON3}
 
 RUN if [ ${INSTALL_PYTHON} = true ]; then \
   apt-get update && \
@@ -1205,7 +1266,6 @@ RUN if [ ${INSTALL_PYTHON3} = true ]; then \
 USER root
 
 ARG INSTALL_TERRAFORM=false
-ENV INSTALL_TERRAFORM ${INSTALL_TERRAFORM}
 
 RUN if [ ${INSTALL_TERRAFORM} = true ]; then \
     curl -O https://releases.hashicorp.com/terraform/0.10.6/terraform_0.10.6_linux_amd64.zip && \
@@ -1223,7 +1283,6 @@ ARG CHROME_DRIVER_VERSION=stable
 ENV CHROME_DRIVER_VERSION ${CHROME_DRIVER_VERSION}
 
 ARG INSTALL_DUSK_DEPS=false
-ENV INSTALL_DUSK_DEPS ${INSTALL_DUSK_DEPS}
 
 RUN if [ ${INSTALL_DUSK_DEPS} = true ]; then \
   apt-get -y --no-install-recommends install xdg-utils \
@@ -1346,7 +1405,6 @@ RUN echo "" >> ~/.bashrc && \
 # ssh:
 #####################################
 ARG INSTALL_WORKSPACE_SSH=false
-ENV INSTALL_WORKSPACE_SSH ${INSTALL_WORKSPACE_SSH}
 
 ADD insecure_id_rsa /tmp/id_rsa
 ADD insecure_id_rsa.pub /tmp/id_rsa.pub
@@ -1366,10 +1424,7 @@ RUN if [ ${INSTALL_WORKSPACE_SSH} = true ]; then \
 #####################################
 # Crontab
 #####################################
-# USER root
-
-# COPY ./crontab /etc/cron.d
-# RUN chmod -R 644 /etc/cron.d
+# Only links from settings
 
 ##############################
 # Final step

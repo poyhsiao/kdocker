@@ -1,8 +1,7 @@
 ARG PHP_VERSION=7.1
 FROM php:${PHP_VERSION}-fpm
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL PHP_VERSION=${PHP_VERSION}
 
 ##############################
@@ -16,49 +15,92 @@ RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo ${TZ} > /etc/timezone
 
 ##############################
-# Set global system env
+# Set global system libs
 ##############################
 
 RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get install -y --no-install-recommends \
-    curl \
-    libmemcached-dev \
     libz-dev \
-    libpq-dev \
-    libjpeg62-turbo-dev \
-    libpng-dev \
-    libfreetype6-dev \
     libssl-dev \
-    libmcrypt-dev \
-    libsqlite3-dev && \
+    curl && \
     pecl channel-update pecl.php.net
 
 ##############################
-# Install basic php extensions
+# Set PHP version
 ##############################
 
 ARG PHP_VERSION=7.1
 ENV PHP_VERSION ${PHP_VERSION}
 
+
+##############################
+# Mcrypt:
+##############################
+
 # only install mcrypt extsion for php 7.0
-RUN if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ]; then \
+ARG INSTALL_MCRYPT=false
+
+RUN if [ ${INSTALL_MCRYPT} = true ] && [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ]; then \
     apt-get install -y --no-install-recommends libmcrypt-dev && \
     docker-php-ext-install mcrypt \
 ;fi
 
-# pdo_mysql extension
-RUN docker-php-ext-install pdo_mysql && \
+##############################
+# PDO MySQL:
+##############################
+
+ARG INSTALL_PDO_MYSQL=false
+
+RUN if [ ${INSTALL_PDO_MYSQL} = true ]; then \
+    # pdo_mysql extension
+    docker-php-ext-install pdo_mysql \
+;fi
+
+##############################
+# PDO PostgreSQL:
+##############################
+
+ARG INSTALL_PDO_PGSQL=false
+
+RUN if [ ${INSTALL_PDO_PGSQL} = true ]; then \
+    apt-get install -y --no-install-recommends libpq-dev && \
     # pdo_pgsql extension
-    docker-php-ext-install pdo_pgsql && \
+    docker-php-ext-install pdo_pgsql \
+;fi
+
+##############################
+# PDO sqlite:
+##############################
+
+ARG INSTALL_PDO_SQLITE=false
+
+RUN if [ ${INSTALL_PDO_SQLITE} = true ]; then \
+    apt-get install -y --no-install-recommends libsqlite3-dev && \
     # pdo_sqlite extension
-    docker-php-ext-install pdo_sqlite && \
+    docker-php-ext-install pdo_sqlite \
+;fi
+
+##############################
+# GD:
+##############################
+
+ARG INSTALL_GD=false
+
+RUN if [ ${INSTALL_GD} = true ]; then \
+    apt-get install -y --no-install-recommends \
+        libjpeg62-turbo-dev \
+        libpng-dev \
+        libfreetype6-dev && \
+    #
     # gd extension
+    #
     docker-php-ext-configure gd \
         --enable-gd-native-ttf \
         --with-jpeg-dir=/usr/lib \
         --with-freetype-dir=/usr/include/freetype2 && \
-    docker-php-ext-install gd
+    docker-php-ext-install gd \
+;fi    
 
 #####################################
 # APC:
@@ -391,6 +433,41 @@ RUN if [ ${INSTALL_SYSVSHM} = true ]; then \
 ;fi
 
 #####################################
+# bz2:
+#####################################
+
+ARG INSTALL_BZ2=false
+
+RUN if [ ${INSTALL_BZ2} = true ]; then \
+    apt-get install -y --no-install-recommends libbz2-dev && \
+    docker-php-ext-install bz2 \
+;fi
+
+#####################################
+# enchant:
+#####################################
+
+ARG INSTALL_ENCHANT=false
+
+RUN if [ ${INSTALL_ENCHANT} = true ]; then \
+    apt-get install -y --no-install-recommends libenchant-dev && \
+    docker-php-ext-install enchant \
+;fi
+
+#####################################
+# yaml:
+#####################################
+
+ARG INSTALL_YAML=false
+
+RUN if [ ${INSTALL_YAML} = true ]; then \
+    apt-get install -y --no-install-recommends libyaml-dev && \
+    pecl install yaml && \
+    docker-php-ext-enable yaml \
+;fi
+
+
+#####################################
 # tidy:
 #####################################
 
@@ -423,18 +500,6 @@ RUN if [ ${INSTALL_XML} = true ]; then \
     # Install xml
     apt-get install -y --no-install-recommends libxml2-dev && \
     docker-php-ext-install xml \
-;fi
-
-#####################################
-# xmlreader:
-#####################################
-
-ARG INSTALL_XMLREADER=false
-
-RUN if [ ${INSTALL_XMLREADER} = true ]; then \
-    # Install xmlreader
-    apt-get install -y libxml2-dev && \
-    docker-php-ext-install xmlreader \
 ;fi
 
 #####################################
@@ -482,17 +547,6 @@ ARG INSTALL_PGSQL=false
 RUN if [ ${INSTALL_PGSQL} = true ]; then \
     # Install the pgsql extension
     docker-php-ext-install pgsql \
-;fi
-
-#####################################
-# pgsql client
-#####################################
-
-ARG INSTALL_PG_CLIENT=false
-
-RUN if [ ${INSTALL_PG_CLIENT} = true ]; then \
-    # Install the pgsql client
-    apt-get install -y --no-install-recommends postgresql-client \
 ;fi
 
 #####################################
@@ -615,6 +669,7 @@ RUN if [ ${INSTALL_GMP} = true ]; then \
 ARG INSTALL_MEMCACHED=false
 
 RUN if [ ${INSTALL_MEMCACHED} = true ]; then \
+    apt-get install -y --no-install-recommends libmemcached-dev && \
     # Install the php memcached extension
     curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-dev/php-memcached/archive/php7.tar.gz" && \
     mkdir -p memcached && \
@@ -647,10 +702,6 @@ RUN if [ ${INSTALL_EXIF} = true ]; then \
 #####################################
 
 ARG INSTALL_AEROSPIKE=false
-ENV INSTALL_AEROSPIKE ${INSTALL_AEROSPIKE}
-
-# Copy aerospike configration for remote debugging
-# COPY ./aerospike.ini /usr/local/etc/php/conf.d/aerospike.ini
 
 RUN if [ ${INSTALL_AEROSPIKE} = true ]; then \
     # Install the php aerospike extension
@@ -665,10 +716,6 @@ RUN if [ ${INSTALL_AEROSPIKE} = true ]; then \
     ) && \
     rm /tmp/aerospike-client-php.tar.gz \
 ;fi
-
-# RUN if [ ${INSTALL_AEROSPIKE} = false ]; then \
-#     rm /usr/local/etc/php/conf.d/aerospike.ini \
-# ;fi
 
 #####################################
 # Opcache:
@@ -732,7 +779,6 @@ RUN if [ ${INSTALL_PCNTL} = true ]; then \
 #####################################
 
 ARG INSTALL_V8JS=false
-ENV INSTALL_V8JS ${INSTALL_V8JS}
 
 RUN if [ ${INSTALL_V8JS} = true ]; then \
     apt-get install -y --no-install-recommends git && \
@@ -778,8 +824,6 @@ RUN if [ ${INSTALL_V8JS} = true ]; then \
     for A in /opt/v8/lib/*.so; do patchelf --set-rpath '$ORIGIN' $A; done \
 ;fi
 
-ARG PHP_VERSION=7.1
-ENV PHP_VERSION ${PHP_VERSION}
     #
     # Compile php-v8js itself
     #
@@ -794,6 +838,18 @@ RUN if [ ${INSTALL_V8JS} = true ]; then \
     make install && \
     mkdir -p /etc/php/${PHP_VERSION}/cli && \
     echo "extension=v8js.so" >> /usr/local/etc/php/conf.d/v8js.ini \
+;fi
+
+#####################################
+# libevent:
+#####################################
+
+ARG INSTALL_EVENT=false
+
+RUN if [ ${INSTALL_EVENT} = true ]; then \
+    apt-get install -y --no-install-recommends libevent-dev && \
+    pecl install event && \
+    docker-php-ext-enable event \
 ;fi
 
 #####################################
@@ -825,7 +881,6 @@ RUN if [ ${INSTALL_LDAP} = true ]; then \
 #####################################
 
 ARG INSTALL_MSSQL=false
-ENV INSTALL_MSSQL ${INSTALL_MSSQL}
 
 RUN if [ ${INSTALL_MSSQL} = true ]; then \
     #####################################
@@ -853,7 +908,6 @@ RUN if [ ${INSTALL_MSSQL} = true ]; then \
 #####################################
 
 ARG INSTALL_IMAGE_OPTIMIZERS=false
-ENV INSTALL_IMAGE_OPTIMIZERS ${INSTALL_IMAGE_OPTIMIZERS}
 
 RUN if [ ${INSTALL_IMAGE_OPTIMIZERS} = true ]; then \
     apt-get install -y --no-install-recommends jpegoptim optipng pngquant gifsicle \
@@ -864,7 +918,6 @@ RUN if [ ${INSTALL_IMAGE_OPTIMIZERS} = true ]; then \
 #####################################
 
 ARG INSTALL_IMAGEMAGICK=false
-ENV INSTALL_IMAGEMAGICK ${INSTALL_IMAGEMAGICK}
 
 RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
     apt-get install -y --no-install-recommends libmagickwand-dev imagemagick && \ 

@@ -1,8 +1,7 @@
 ARG MYSQL_VERSION=latest
 FROM mysql:${MYSQL_VERSION}
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL MYSQ_VERSION=${MYSQL_VERSION}
 
 ##############################

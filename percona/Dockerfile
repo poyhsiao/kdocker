@@ -1,8 +1,7 @@
 ARG PERCONA_VERSION=5.7
 FROM percona:${PERCONA_VERSION}
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL PERCONA_VERSION="${PERCONA_VERSION}"
 
 ##############################

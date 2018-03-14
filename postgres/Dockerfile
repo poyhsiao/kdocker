@@ -1,8 +1,7 @@
 ARG POSTGRES_VERSION=alpine
 FROM postgres:${POSTGRES_VERSION}
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL POSTGRES_VERSION=${POSTGRES_VERSION}
 
 ##############################

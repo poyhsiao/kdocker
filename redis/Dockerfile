@@ -1,8 +1,7 @@
 ARG REDIS_VERSION=4.0-alpine
 FROM redis:${REDIS_VERSION}
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL REDIS_VERSION=${REDIS_VERSION}
 
 ##############################

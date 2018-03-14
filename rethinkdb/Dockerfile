@@ -1,8 +1,7 @@
 ARG RETHINKDB_VERSION=2.3
 FROM rethinkdb:${RETHINKDB_VERSION}
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL RETHINKDB_VERSION=${RETHINKDB_VERSION}
 
 ##############################

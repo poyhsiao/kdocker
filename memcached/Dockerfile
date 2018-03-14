@@ -1,8 +1,7 @@
 ARG MEMCACHED_VERSION=1.5.6-alpine
 FROM memcached:${MEMCACHED_VERSION}
 
-MAINTAINER Kim Hsiao <white.shopping@gmail.com>
-
+LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL MEMCACHED_VERSION=${MEMCACHED_VERSION}
 
 ##############################
