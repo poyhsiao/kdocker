@@ -114,7 +114,7 @@ RUN if [ ${INSTALL_PDO_MYSQL} = true ]; then \
 # PDO PostgreSQL:
 ##############################
 
-ARG INSTALL_PDO_PGSQLL=false
+ARG INSTALL_PDO_PGSQL=false
 
 RUN if [ ${INSTALL_PDO_PGSQL} = true ]; then \
     apt-get install -y --no-install-recommends libpq-dev && \
