@@ -160,9 +160,9 @@ RUN if [ ${INSTALL_GD} = true ]; then \
 ARG INSTALL_APC=false
 
 RUN if [ ${INSTALL_APC} = true ]; then \
-    # Install php-apc
-    apt-get -y install --no-install-recommends php-apc && \
-    pecl install apc \
+    # Install apcu
+    pecl install apcu && \
+    echo "extension=apcu.so" >> /usr/local/etc/php/conf.d/apcu.ini \
 ;fi
 
 
@@ -776,6 +776,8 @@ RUN if [ ${INSTALL_EXIF} = true ]; then \
 ARG INSTALL_AEROSPIKE=false
 ENV INSTALL_AEROSPIKE ${INSTALL_AEROSPIKE}
 
+COPY ./aerospike.ini /usr/local/etc/php/conf.d/aerospike.ini
+
 RUN if [ ${INSTALL_AEROSPIKE} = true ]; then \
     # Install the php aerospike extension
     curl -L -o /tmp/aerospike-client-php.tar.gz "https://github.com/aerospike/aerospike-client-php/archive/master.tar.gz" && \
@@ -788,6 +790,8 @@ RUN if [ ${INSTALL_AEROSPIKE} = true ]; then \
         && make install \
     ) && \
     rm /tmp/aerospike-client-php.tar.gz \
+;else \
+    rm /usr/local/etc/php/conf.d/aerospike.ini \
 ;fi
 
 #####################################
