@@ -870,7 +870,18 @@ RUN if [ `echo ${PHP_VERSION} | cut -c1-3` != 7.2 ] && [ ${INSTALL_SUHOSIN} = tr
     ./configure && \
     make && \
     make install && \
-    echo "suhosin.so" >> /usr/local/etc/php/conf.d/suhosin.ini \
+    echo "extension=suhosin.so" >> /usr/local/etc/php/conf.d/suhosin.ini \
+;fi
+
+#####################################
+# Inotify:
+#####################################
+
+ARG INSTALL_INOTIFY=false
+
+RUN if [ ${INSTALL_INOTIFY} = true ]; then \
+    pecl install inotify && \
+    echo "extension=inotify.so" >> /usr/local/etc/php/conf.d/inotify.ini \
 ;fi
 
 #####################################

@@ -1074,6 +1074,17 @@ RUN if [ `echo ${PHP_VERSION} | cut -c1-3` != 7.2 ] && [ ${INSTALL_SUHOSIN} = tr
 ;fi
 
 #####################################
+# Inotify:
+#####################################
+
+ARG INSTALL_INOTIFY=false
+
+RUN if [ ${INSTALL_INOTIFY} = true ]; then \
+    pecl install inotify && \
+    echo "extension=inotify.so" >> /usr/local/etc/php/conf.d/inotify.ini \
+;fi
+
+#####################################
 # PHP Composer:
 #####################################
 
