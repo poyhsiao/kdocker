@@ -1057,6 +1057,23 @@ RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
 ;fi
 
 #####################################
+# Suhosin:
+#####################################
+
+ARG INSTALL_SUHOSIN=false
+
+RUN if [ `echo ${PHP_VERSION} | cut -c1-3` != 7.2 ] && [ ${INSTALL_SUHOSIN} = true ]; then \
+    cd /tmp && \
+    git clone https://github.com/sektioneins/suhosin7.git suhosin && \
+    cd suhosin && \
+    phpize && \
+    ./configure && \
+    make && \
+    make install && \
+    echo "suhosin.so" >> /usr/local/etc/php/conf.d/suhosin.ini \
+;fi
+
+#####################################
 # PHP Composer:
 #####################################
 
