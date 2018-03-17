@@ -1350,17 +1350,16 @@ RUN if [ ${INSTALL_DUSK_DEPS} = true ]; then \
 #########################
 
 # Check if nvm needs to be installed
+ARG INSTALL_NODEJS=false
+ENV INSTALL_NODEJS ${INSTALL_NODEJS}
+
 ARG NODEJS_VERSION=stable
 ENV NODEJS_VERSION ${NODEJS_VERSION}
 
 ARG NODEJS_VERSION_BACKUP=false
 ENV NODEJS_VERSION_BACKUP ${NODEJS_VERSION_BACKUP}
 
-ARG NVM_DIR=/home/docker/.nvm
 ENV NVM_DIR /home/${USER}/.nvm
-
-ARG YARN_VERSION=latest
-ENV YARN_VERSION ${NODEJS_YARN_VERSION}
 
 ARG NODEJS_NVM_VERSION=v0.33.5
 ENV NODEJS_NVM_VERSION ${NODEJS_NVM_VERSION}
@@ -1368,43 +1367,41 @@ ENV NODEJS_NVM_VERSION ${NODEJS_NVM_VERSION}
 # Install nvm
 USER ${USER}
 
-##
-# install backup node version
-##
-
-##
-# set nvm default environment
-##
-RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/${NODEJS_NVM_VERSION}/install.sh | bash && \
-    . $NVM_DIR/nvm.sh && \
-    nvm install ${NODEJS_VERSION} && \
-    nvm use ${NODEJS_VERSION} && \
-    nvm alias default ${NODEJS_VERSION} && \
-    npm install -g nodemon pm2 eslint gulp node-inspector mocha node-gyp && \
-    if [ NODEJS_VERSION_BACKUP != false ]; then \
-    nvm install ${NODEJS_VERSION_BACKUP} && \
-    nvm alias backup ${NODEJS_VERSION_BACKUP} && \
-    npm install -g nodemon pm2 eslint gulp node-inspector mocha node-gyp \
-    ;fi && \
-    nvm use default
+RUN if [ ${INSTALL_NODEJS} = true ]; then \
+        #
+        # set nvm default environment
+        #
+        curl -o- https://raw.githubusercontent.com/creationix/nvm/${NODEJS_NVM_VERSION}/install.sh | bash && \
+        . $NVM_DIR/nvm.sh && \
+        nvm install ${NODEJS_VERSION} && \
+        nvm use ${NODEJS_VERSION} && \
+        nvm alias default ${NODEJS_VERSION} && \
+        npm install -g nodemon pm2 eslint gulp mocha node-gyp && \
+        #
+        # install backup node version
+        #
+        if [ NODEJS_VERSION_BACKUP != false ]; then \
+            nvm install ${NODEJS_VERSION_BACKUP} && \
+            nvm alias backup ${NODEJS_VERSION_BACKUP} && \
+            npm install -g nodemon pm2 eslint gulp mocha node-gyp \
+        ;fi && \
+        nvm use default \
+    ;fi
 
 # Install nvm setting to bashrc setting
-RUN echo "" >> ~/.bashrc && \
-    echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc && \
-    echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm' >> ~/.bashrc
-
-# RUN if [ NODEJS_VERSION_BACKUP != false ]; then \
-#     nvm install ${NODEJS_VERSION_BACKUP} && \
-#     nvm alias ${NODEJS_VERSION_BACKUP} backup && \
-#     npm install -g nodemon pm2 eslint gulp node-inspector mocha node-gyp \
-# ;fi
+RUN if [ ${INSTALL_NODEJS} = true ]; then \
+        echo "" >> ~/.bashrc && \
+        echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc && \
+        echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm' >> ~/.bashrc \
+    ;fi
 
 # Add nvm binaries to root's .bashrc
 USER root
 
 ENV ROOT_NVM_COMMAND "export NVM_DIR=\"${NVM_DIR}\""
 
-RUN echo "" >> ~/.bashrc && \
+RUN if [ ${INSTALL_NODEJS} = true ]; then \
+    echo "" >> ~/.bashrc && \
     echo $ROOT_NVM_COMMAND >> ~/.bashrc && \
     echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm' >> ~/.bashrc \
 ;fi
@@ -1415,25 +1412,36 @@ RUN echo "" >> ~/.bashrc && \
 
 USER ${USER}
 
-# ARG YARN_VERSION=latest
-# ENV YARN_VERSION ${NODEJS_YARN_VERSION}
+ARG INSTALL_YARN=false
 
+ARG YARN_VERSION=latest
+ENV YARN_VERSION ${YARN_VERSION}
 
-RUN [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
-    curl -o- -L https://yarnpkg.com/install.sh | bash && \
-    echo "" >> ~/.bashrc && \
-    echo 'export PATH=$HOME/yarn/bin:$PATH' >> ~/.bashrc
+RUN if [ ${INSTALL_NODEJS} = true ] && [ ${INSTALL_YARN} = true ]; then \
+        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
+        #
+        # set yarn version
+        #
+        if [ ${YARN_VERSION} = latest ]; then \
+            curl -o- -L https://yarnpkg.com/install.sh | bash \
+        ;else \
+            curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version ${YARN_VERSION} \
+        ;fi && \
+        echo "" >> ~/.bashrc && \
+        echo 'export PATH=$HOME/yarn/bin:$PATH' >> ~/.bashrc \
+    ;fi
 
 # ADD YARN binaries to root's .bashrc
-
 USER root
 
 ENV YARB_PATH /home/${USER}/.yarn
 ENV ROOT_YARN_COMMAND "export YARN_DIR=\"/home/${USER}/.yarn\""
 
-RUN echo "" >> ~/.bashrc && \
-    echo $ROOT_NVM_COMMAND >> ~/.bashrc && \
-    echo 'export PATH="/home/$YARN_DIR/bin:$PATH"' >> ~/.bashrc
+RUN if [ ${INSTALL_NODEJS} = true ] && [ ${INSTALL_YARN} = true ]; then \
+        echo "" >> ~/.bashrc && \
+        echo $ROOT_NVM_COMMAND >> ~/.bashrc && \
+        echo 'export PATH="/home/$YARN_DIR/bin:$PATH"' >> ~/.bashrc \
+    ;fi
 
 
 #####################################
