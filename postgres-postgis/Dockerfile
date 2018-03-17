@@ -1,5 +1,5 @@
-ARG POSTGIS_VERSION=10-alpine
-FROM mdillon/postgis:${POSTGIS_VERSION}
+ARG POSTGIS_VERSION=10
+FROM mdillon/postgis:${POSTGIS_VERSION}-alpine
 
 LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
 LABEL POSTGIS_VERSION=${POSTGIS_VERSION}

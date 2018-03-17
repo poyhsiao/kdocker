@@ -208,8 +208,8 @@ PERCONA_ENTRYPOINT_INITDB=./percona/docker-entrypoint-initdb.d
 # PostgreSQL
 #####################################
 
-POSTGRES_VERSION=alpine
-# available version: 10, 9.6, 9.5, 9.4, 9.3 and/or with alpine
+POSTGRES_VERSION=10
+# available version: 10, 9.6, 9.5, 9.4, 9.3 with alpine
 
 POSTGRES_DB=default
 POSTGRES_USER=default
@@ -220,8 +220,8 @@ POSTGRES_PORT=5432
 # PostgreSQL PostGis
 #####################################
 
-POSTGIS_VERSION=10-alpine
-# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2 and/or with alpine
+POSTGIS_VERSION=10
+# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2 with alpine
 
 POSTGIS_PORT=5432
 
@@ -229,8 +229,8 @@ POSTGIS_PORT=5432
 # PostgreSQL with GIS
 #####################################
 
-POSTGIS_VERSION=10-alpine
-# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0 and/or with alpine
+POSTGIS_VERSION=10
+# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0 with alpine
 
 #####################################
 # Elasticsearch
@@ -266,7 +266,7 @@ MONGO_PORT=27017
 # redis
 #####################################
 
-REDIS_VERSION=4.0-alpine
+REDIS_VERSION=4.0
 # available versions: 4.0, 3.2. plz check https://hub.docker.com/_/redis/ for detail information
 
 REDIS_PORT=6379
@@ -275,7 +275,7 @@ REDIS_PORT=6379
 # memcached
 #####################################
 
-MEMCACHED_VERSION=1.5-alpine
+MEMCACHED_VERSION=1.5
 # available versions: 1.5(1.5.6) alpine. plz check https://hub.docker.com/_/memcached/ for detail information
 
 MEMCACHED_PORT=11211
@@ -345,6 +345,9 @@ HTTP_OTHER_PORT=2018
 #####################################
 # Misc setting
 #####################################
+
+# numbers of cpu (core)
+NPROC=2
 
 # timezone setting
 TIMEZONE=UTC

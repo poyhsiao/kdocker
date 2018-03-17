@@ -8,6 +8,9 @@ LABEL PHP_VERSION=${PHP_VERSION}
 # Set global system env
 ##############################
 
+ARG NPROC=1
+ENV NPROC ${NPROC}
+
 RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get install -y --no-install-recommends \
@@ -96,7 +99,7 @@ ARG INSTALL_MCRYPT=false
 
 RUN if [ ${INSTALL_MCRYPT} = true ] && [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ]; then \
     apt-get install -y --no-install-recommends libmcrypt-dev && \
-    docker-php-ext-install mcrypt \
+    docker-php-ext-install -j${NPROC} mcrypt \
 ;fi
 
 ##############################
@@ -107,7 +110,7 @@ ARG INSTALL_PDO_MYSQL=false
 
 RUN if [ ${INSTALL_PDO_MYSQL} = true ]; then \
     # pdo_mysql extension
-    docker-php-ext-install pdo_mysql \
+    docker-php-ext-install -j${NPROC} pdo_mysql \
 ;fi
 
 ##############################
@@ -119,7 +122,7 @@ ARG INSTALL_PDO_PGSQL=false
 RUN if [ ${INSTALL_PDO_PGSQL} = true ]; then \
     apt-get install -y --no-install-recommends libpq-dev && \
     # pdo_pgsql extension
-    docker-php-ext-install pdo_pgsql \
+    docker-php-ext-install -j${NPROC} pdo_pgsql \
 ;fi
 
 ##############################
@@ -131,7 +134,7 @@ ARG INSTALL_PDO_SQLITE=false
 RUN if [ ${INSTALL_PDO_SQLITE} = true ]; then \
     apt-get install -y --no-install-recommends libsqlite3-dev && \
     # pdo_sqlite extension
-    docker-php-ext-install pdo_sqlite \
+    docker-php-ext-install -j${NPROC} pdo_sqlite \
 ;fi
 
 ##############################
@@ -150,7 +153,7 @@ RUN if [ ${INSTALL_GD} = true ]; then \
         --enable-gd-native-ttf \
         --with-jpeg-dir=/usr/lib \
         --with-freetype-dir=/usr/include/freetype2 && \
-    docker-php-ext-install gd \
+    docker-php-ext-install -j${NPROC} gd \
 ;fi 
 
 #####################################
@@ -174,7 +177,7 @@ ARG INSTALL_FTP=false
 
 RUN if [ ${INSTALL_FTP} = true ]; then \
     # Install ftp
-    docker-php-ext-install ftp \
+    docker-php-ext-install -j${NPROC} ftp \
 ;fi
 
 
@@ -187,7 +190,7 @@ ARG INSTALL_XSL=false
 RUN if [ ${INSTALL_XSL} = true ]; then \
     # Install xsl
     apt-get install -y --no-install-recommends libxslt-dev && \
-    docker-php-ext-install xsl \
+    docker-php-ext-install -j${NPROC} xsl \
 ;fi
 
 
@@ -199,7 +202,7 @@ ARG INSTALL_CALENDAR=false
 
 RUN if [ ${INSTALL_CALENDAR} = true ]; then \
     # Install calendar
-    docker-php-ext-install calendar \
+    docker-php-ext-install -j${NPROC} calendar \
 ;fi
 
 
@@ -211,7 +214,7 @@ ARG INSTALL_CTYPE=false
 
 RUN if [ ${INSTALL_CTYPE} = true ]; then \
     # Install ctype
-    docker-php-ext-install ctype \
+    docker-php-ext-install -j${NPROC} ctype \
 ;fi
 
 #####################################
@@ -222,7 +225,7 @@ ARG INSTALL_DBA=false
 
 RUN if [ ${INSTALL_DBA} = true ]; then \
     # Install dba
-    docker-php-ext-install dba \
+    docker-php-ext-install -j${NPROC} dba \
 ;fi
 
 #####################################
@@ -233,7 +236,7 @@ ARG INSTALL_DOM=false
 
 RUN if [ ${INSTALL_DOM} = true ]; then \
     # Install dom
-    docker-php-ext-install dom \
+    docker-php-ext-install -j${NPROC} dom \
 ;fi
 
 #####################################
@@ -244,7 +247,7 @@ ARG INSTALL_JSON=false
 
 RUN if [ ${INSTALL_JSON} = true ]; then \
     # Install json
-    docker-php-ext-install json \
+    docker-php-ext-install -j${NPROC} json \
 ;fi
 
 #####################################
@@ -255,7 +258,7 @@ ARG INSTALL_HASH=false
 
 RUN if [ ${INSTALL_HASH} = true ]; then \
     # Install ftp
-    docker-php-ext-install hash \
+    docker-php-ext-install -j${NPROC} hash \
 ;fi
 
 #####################################
@@ -266,7 +269,7 @@ ARG INSTALL_SOCKETS=false
 
 RUN if [ ${INSTALL_SOCKETS} = true ]; then \
     # Install sockets
-    docker-php-ext-install sockets \
+    docker-php-ext-install -j${NPROC} sockets \
 ;fi
 
 
@@ -278,7 +281,7 @@ ARG INSTALL_PDO=false
 
 RUN if [ ${INSTALL_PDO} = true ]; then \
     # Install pdo
-    docker-php-ext-install pdo \
+    docker-php-ext-install -j${NPROC} pdo \
 ;fi
 
 #####################################
@@ -289,7 +292,7 @@ ARG INSTALL_MBSTRING=false
 
 RUN if [ ${INSTALL_MBSTRING} = true ]; then \
     # Install mbstring
-    docker-php-ext-install mbstring \
+    docker-php-ext-install -j${NPROC} mbstring \
 ;fi
 
 #####################################
@@ -304,7 +307,7 @@ RUN if [ ${INSTALL_IMAP} = true ]; then \
         libc-client-dev \
         libkrb5-dev && \
     docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
-    docker-php-ext-install imap \
+    docker-php-ext-install -j${NPROC} imap \
 ;fi
 
 #####################################
@@ -316,7 +319,7 @@ ARG INSTALL_CURL=false
 RUN if [ ${INSTALL_CURL} = true ]; then \
     # Install curl
     apt-get install -y --no-install-recommends libcurl4-openssl-dev && \
-    docker-php-ext-install curl \
+    docker-php-ext-install -j${NPROC} curl \
 ;fi
 
 #####################################
@@ -327,7 +330,7 @@ ARG INSTALL_FILEINFO=false
 
 RUN if [ ${INSTALL_FILEINFO} = true ]; then \
     # Install fileinfo
-    docker-php-ext-install fileinfo \
+    docker-php-ext-install -j${NPROC} fileinfo \
 ;fi
 
 #####################################
@@ -338,7 +341,7 @@ ARG INSTALL_GETTEXT=false
 
 RUN if [ ${INSTALL_GETTEXT} = true ]; then \
     # Install gettext
-    docker-php-ext-install gettext \
+    docker-php-ext-install -j${NPROC} gettext \
 ;fi
 
 #####################################
@@ -349,7 +352,7 @@ ARG INSTALL_ICONV=false
 
 RUN if [ ${INSTALL_ICONV} = true ]; then \
     # Install iconv
-    docker-php-ext-install iconv \
+    docker-php-ext-install -j${NPROC} iconv \
 ;fi
 
 #####################################
@@ -360,7 +363,7 @@ ARG INSTALL_PHAR=false
 
 RUN if [ ${INSTALL_PHAR} = true ]; then \
     # Install phar
-    docker-php-ext-install phar \
+    docker-php-ext-install -j${NPROC} phar \
 ;fi
 
 #####################################
@@ -371,7 +374,7 @@ ARG INSTALL_POSIX=false
 
 RUN if [ ${INSTALL_POSIX} = true ]; then \
     # Install posix
-    docker-php-ext-install posix \
+    docker-php-ext-install -j${NPROC} posix \
 ;fi
 
 #####################################
@@ -387,7 +390,7 @@ RUN if [ ${INSTALL_PSPELL} = true ]; then \
         aspell-en \
         aspell-de && \
     docker-php-ext-configure pspell --with-pspell=/usr && \
-    docker-php-ext-install pspell \
+    docker-php-ext-install -j${NPROC} pspell \
 ;fi
 
 #####################################
@@ -401,7 +404,7 @@ RUN if [ ${INSTALL_READLINE} = true ]; then \
     apt-get install -y --no-install-recommends \
         libedit-dev \
         libreadline-dev && \
-    docker-php-ext-install readline \
+    docker-php-ext-install -j${NPROC} readline \
 ;fi
 
 #####################################
@@ -413,7 +416,7 @@ ARG INSTALL_RECODE=false
 RUN if [ ${INSTALL_RECODE} = true ]; then \
     # Install recode
     apt-get install -y --no-install-recommends librecode-dev && \
-    docker-php-ext-install recode \
+    docker-php-ext-install -j${NPROC} recode \
 ;fi
 
 #####################################
@@ -424,7 +427,7 @@ ARG INSTALL_SHMOP=false
 
 RUN if [ ${INSTALL_SHMOP} = true ]; then \
     # Install shmop
-    docker-php-ext-install shmop \
+    docker-php-ext-install -j${NPROC} shmop \
 ;fi
 
 #####################################
@@ -436,7 +439,7 @@ ARG INSTALL_SIMPLEXML=false
 RUN if [ ${INSTALL_SIMPLEXML} = true ]; then \
     # Install simplexml
     apt-get install -y --no-install-recommends libxml2-dev && \
-    docker-php-ext-install simplexml \
+    docker-php-ext-install -j${NPROC} simplexml \
 ;fi
 
 #####################################
@@ -447,7 +450,7 @@ ARG INSTALL_SNMP=false
 
 RUN if [ ${INSTALL_SNMP} = true ]; then \
     # Install snmp
-    docker-php-ext-install snmp \
+    docker-php-ext-install -j${NPROC} snmp \
 ;fi
 
 #####################################
@@ -458,7 +461,7 @@ ARG INSTALL_SYSVMSG=false
 
 RUN if [ ${INSTALL_SYSVMSG} = true ]; then \
     # Install sysvmsg
-    docker-php-ext-install sysvmsg \
+    docker-php-ext-install -j${NPROC} sysvmsg \
 ;fi
 
 #####################################
@@ -469,7 +472,7 @@ ARG INSTALL_SYSVSEM=false
 
 RUN if [ ${INSTALL_SYSVSEM} = true ]; then \
     # Install sysvsem
-    docker-php-ext-install sysvsem \
+    docker-php-ext-install -j${NPROC} sysvsem \
 ;fi
 
 #####################################
@@ -480,7 +483,7 @@ ARG INSTALL_SYSVSHM=false
 
 RUN if [ ${INSTALL_SYSVSHM} = true ]; then \
     # Install sysvshm
-    docker-php-ext-install sysvshm \
+    docker-php-ext-install -j${NPROC} sysvshm \
 ;fi
 
 #####################################
@@ -491,7 +494,7 @@ ARG INSTALL_BZ2=false
 
 RUN if [ ${INSTALL_BZ2} = true ]; then \
     apt-get install -y --no-install-recommends libbz2-dev && \
-    docker-php-ext-install bz2 \
+    docker-php-ext-install -j${NPROC} bz2 \
 ;fi
 
 #####################################
@@ -502,7 +505,7 @@ ARG INSTALL_ENCHANT=false
 
 RUN if [ ${INSTALL_ENCHANT} = true ]; then \
     apt-get install -y --no-install-recommends libenchant-dev && \
-    docker-php-ext-install enchant \
+    docker-php-ext-install -j${NPROC} enchant \
 ;fi
 
 #####################################
@@ -526,7 +529,7 @@ ARG INSTALL_TIDY=false
 RUN if [ ${INSTALL_TIDY} = true ]; then \
     # Install tidy
     apt-get install -y --no-install-recommends libtidy-dev && \
-    docker-php-ext-install tidy \
+    docker-php-ext-install -j${NPROC} tidy \
 ;fi
 
 #####################################
@@ -537,7 +540,7 @@ ARG INSTALL_WDDX=false
 
 RUN if [ ${INSTALL_WDDX} = true ]; then \
     # Install wddx
-    docker-php-ext-install wddx \
+    docker-php-ext-install -j${NPROC} wddx \
 ;fi
 
 #####################################
@@ -549,7 +552,7 @@ ARG INSTALL_XML=false
 RUN if [ ${INSTALL_XML} = true ]; then \
     # Install xml
     apt-get install -y --no-install-recommends libxml2-dev && \
-    docker-php-ext-install xml \
+    docker-php-ext-install -j${NPROC} xml \
 ;fi
 
 #####################################
@@ -561,7 +564,7 @@ ARG INSTALL_XMLREADER=false
 RUN if [ ${INSTALL_XMLREADER} = true ]; then \
     # Install xmlreader
     apt-get install -y libxml2-dev && \
-    docker-php-ext-install xmlreader \
+    docker-php-ext-install -j${NPROC} xmlreader \
 ;fi
 
 #####################################
@@ -573,7 +576,7 @@ ARG INSTALL_XMLRPC=false
 RUN if [ ${INSTALL_XMLRPC} = true ]; then \
     # Install xmlrpc
     apt-get install -y --no-install-recommends libxml2-dev && \
-    docker-php-ext-install xmlrpc \
+    docker-php-ext-install -j${NPROC} xmlrpc \
 ;fi
 
 #####################################
@@ -585,7 +588,7 @@ ARG INSTALL_XMLWRITER=false
 RUN if [ ${INSTALL_XMLWRITER} = true ]; then \
     # Install xmlwriter
     apt-get install -y --no-install-recommends libxml2-dev && \
-    docker-php-ext-install xmlwriter \
+    docker-php-ext-install -j${NPROC} xmlwriter \
 ;fi
 
 
@@ -597,7 +600,7 @@ ARG INSTALL_SOAP=false
 
 RUN if [ ${INSTALL_SOAP} = true ]; then \
     # Install the soap extension
-    docker-php-ext-install soap \
+    docker-php-ext-install -j${NPROC} soap \
 ;fi
 
 #####################################
@@ -609,7 +612,7 @@ ARG INSTALL_PGSQL=false
 RUN if [ ${INSTALL_PGSQL} = true ]; then \
     apt-get install -y --no-install-recommends libpq-dev && \
     # Install the pgsql extension
-    docker-php-ext-install pgsql \
+    docker-php-ext-install -j${NPROC} pgsql \
 ;fi
 
 #####################################
@@ -708,7 +711,7 @@ ARG INSTALL_ZIP_ARCHIVE=false
 
 RUN if [ ${INSTALL_ZIP_ARCHIVE} = true ]; then \
     # Install the zip extension
-    docker-php-ext-install zip \
+    docker-php-ext-install -j${NPROC} zip \
 ;fi
 
 #####################################
@@ -719,7 +722,7 @@ ARG INSTALL_BCMATH=false
 
 RUN if [ ${INSTALL_BCMATH} = true ]; then \
     # Install the bcmath extension
-    docker-php-ext-install bcmath \
+    docker-php-ext-install -j${NPROC} bcmath \
 ;fi
 
 #####################################
@@ -731,7 +734,7 @@ ARG INSTALL_GMP=false
 RUN if [ ${INSTALL_GMP} = true ]; then \
     # Install the GMP extension
 	apt-get install -y --no-install-recommends libgmp-dev && \ 
-    docker-php-ext-install gmp \
+    docker-php-ext-install -j${NPROC} gmp \
 ;fi
 
 #####################################
@@ -750,7 +753,7 @@ RUN if [ ${INSTALL_MEMCACHED} = true ]; then \
         cd memcached \
         && phpize \
         && ./configure \
-        && make -j$(nproc) \
+        && make -j${NPROC} \
         && make install \
     ) && \
     rm -r memcached && \
@@ -766,7 +769,7 @@ ARG INSTALL_EXIF=false
 
 RUN if [ ${INSTALL_EXIF} = true ]; then \
     # Enable Exif PHP extentions requirements
-    docker-php-ext-install exif \
+    docker-php-ext-install -j${NPROC} exif \
 ;fi
 
 #####################################
@@ -801,7 +804,7 @@ RUN if [ ${INSTALL_AEROSPIKE} = true ]; then \
 ARG INSTALL_OPCACHE=false
 
 RUN if [ ${INSTALL_OPCACHE} = true ]; then \
-    docker-php-ext-install opcache \
+    docker-php-ext-install -j${NPROC} opcache \
 ;fi
 
 #####################################
@@ -811,7 +814,7 @@ RUN if [ ${INSTALL_OPCACHE} = true ]; then \
 ARG INSTALL_MYSQLI=false
 
 RUN if [ ${INSTALL_MYSQLI} = true ]; then \
-    docker-php-ext-install mysqli \
+    docker-php-ext-install -j${NPROC} mysqli \
 ;fi
 
 #####################################
@@ -821,7 +824,7 @@ RUN if [ ${INSTALL_MYSQLI} = true ]; then \
 ARG INSTALL_TOKENIZER=false
 
 RUN if [ ${INSTALL_TOKENIZER} = true ]; then \
-    docker-php-ext-install tokenizer \
+    docker-php-ext-install -j${NPROC} tokenizer \
 ;fi
 
 #####################################
@@ -834,7 +837,7 @@ RUN if [ ${INSTALL_INTL} = true ]; then \
     # Install intl and requirements
     apt-get install -y zlib1g-dev libicu-dev g++ && \
     docker-php-ext-configure intl && \
-    docker-php-ext-install intl \
+    docker-php-ext-install -j${NPROC} intl \
 ;fi
 
 #####################################
@@ -858,7 +861,7 @@ ARG INSTALL_LDAP=false
 RUN if [ ${INSTALL_LDAP} = true ]; then \
     apt-get install -y --no-install-recommends libldap2-dev && \
     docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ && \
-    docker-php-ext-install ldap \
+    docker-php-ext-install -j${NPROC} ldap \
 ;fi
 
 #####################################
@@ -868,7 +871,7 @@ RUN if [ ${INSTALL_LDAP} = true ]; then \
 ARG INSTALL_PCNTL=false
 
 RUN if [ ${INSTALL_PCNTL} = true ]; then \
-    docker-php-ext-install pcntl && \
+    docker-php-ext-install -j${NPROC} pcntl && \
     docker-php-ext-enable pcntl \
 ;fi
 
@@ -914,7 +917,7 @@ RUN if [ ${INSTALL_MSSQL} = true ]; then \
         unixodbc libgss3 odbcinst devscripts debhelper dh-exec dh-autoreconf libreadline-dev libltdl-dev \
         && dget -u -x http://http.debian.net/debian/pool/main/u/unixodbc/unixodbc_2.3.1-3.dsc \
         && cd unixodbc-*/ \
-        && ./configure && make && make install \
+        && ./configure && make -j${NPROC} && make install \
         && cp -v ./exe/odbc_config /usr/local/bin/ && \
     #
     # Fake uname for install.sh
@@ -991,7 +994,7 @@ RUN if [ ${INSTALL_V8JS} = true ]; then \
     #
     # Build
     #
-    ninja -C out.gn/x64.release/ && \
+    ninja -l${NPROC} -C out.gn/x64.release/ && \
     #
     # Install to /opt/v8
     #
@@ -1015,7 +1018,7 @@ RUN if [ ${INSTALL_V8JS} = true ]; then \
     cd v8js && \
     phpize && \
     ./configure --with-v8js=/opt/v8 LDFLAGS="-lstdc++" && \
-    make && \
+    make -j${NPROC} && \
     make test && \
     make install && \
     mkdir -p /etc/php/${PHP_VERSION}/cli && \
@@ -1068,7 +1071,7 @@ RUN if [ `echo ${PHP_VERSION} | cut -c1-3` != 7.2 ] && [ ${INSTALL_SUHOSIN} = tr
     cd suhosin && \
     phpize && \
     ./configure && \
-    make && \
+    make -j${NPROC} && \
     make install && \
     echo "suhosin.so" >> /usr/local/etc/php/conf.d/suhosin.ini \
 ;fi

@@ -18,6 +18,7 @@ services:
       context: ./workspace
       args:
         - PHP_VERSION=${PHP_VERSION}
+        - NPROC=${NPROC}
         - TZ=${TIMEZONE}
         - PUID=${PUID}
         - PGID=${PGID}
@@ -133,6 +134,7 @@ services:
       args:
         - TZ=${TIMEZONE}
         - PHP_VERSION=${PHP_VERSION}
+        - NPROC=${NPROC}
         - INSTALL_MCRYPT=${PHP_FPM_INSTALL_MCRYPT}
         - INSTALL_PDO_MYSQL=${PHP_FPM_INSTALL_PDO_MYSQL}
         - INSTALL_PDO_PGSQL=${PHP_FPM_INSTALL_PDO_PGSQL}
