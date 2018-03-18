@@ -7,9 +7,9 @@ services:
   applications:
     image: tianon/true
     volumes:
-      - ${APPLICATION}${POINTER1}:/var/www${POINTER1}
-      - ${APPLICATION}${POINTER2}:/var/www${POINTER2}
-      - ${APPLICATION}${POINTER3}:/var/www${POINTER3}
+      - ${LOCAL_PATH1}:/var/www${POINTER1}
+      - ${LOCAL_PATH2}:/var/www${POINTER2}
+      - ${LOCAL_PATH3}:/var/www${POINTER3}
 
 ### Workspace Utilities Container
 
