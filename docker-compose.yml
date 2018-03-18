@@ -585,6 +585,27 @@ services:
     networks:
       - backend
 
+### phpmyadmin
+  phpmyadmin:
+    build:
+      context: ./phpmyadmin
+      args:
+        - PMA_VERSION=${PMA_VERSION}
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=${PMA_HOST}
+      - PMA_PORT=${PMA_PORT}
+      - PMA_USER=${PMA_USER}
+      - PMA_PASSWORD=${PMA_PASSWORD}
+    ports:
+      - ${PMA_EXT_PORT}:80
+    depends_on:
+      - ${PMA_DB_ENGINE}
+    restart: always
+    networks:
+      - backend
+      - frontend
+
 ### Networks Setup
 
 networks: 
