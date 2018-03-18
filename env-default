@@ -15,8 +15,8 @@ PHP_VERSION=7.2
 # Volumes
 #####################################
 LOCAL_PATH1=../web/pt1
-LOCAL_PATH1=../web/pt2
-LOCAL_PATH1=../web/pt3
+LOCAL_PATH2=../web/pt2
+LOCAL_PATH3=../web/pt3
 
 POINTER1=/pt1
 POINTER2=/pt2
