@@ -14,7 +14,7 @@ PHP_VERSION=7.2
 #####################################
 # Volumes
 #####################################
-LOCAL_PATH1=../web/pt1
+LOCAL_PATH1=../../gitlab/bookmarker-laravel
 LOCAL_PATH2=../web/pt2
 LOCAL_PATH3=../web/pt3
 
@@ -56,7 +56,7 @@ WORKSPACE_INSTALL_NODEJS=true
 WORKSPACE_NODEJS_VERSION=8
 WORKSPACE_NODEJS_VERSION_BACKUP=6.10.3
 WORKSPACE_INSTALL_YARN=true
-WORKSPACE_NODEJS_YARN_VERSION=1.5.1
+WORKSPACE_NODEJS_YARN_VERSION=latest
 WORKSPACE_NODEJS_NVM_VERSION=v0.33.8
 WORKSPACE_INSTALL_WORKSPACE_SSH=false
 
@@ -129,6 +129,7 @@ PHP_FPM_INSTALL_V8JS=true
 PHP_FPM_INSTALL_GHOSTSCRIPT=true
 PHP_FPM_INSTALL_LDAP=false
 PHP_FPM_INSTALL_SUHOSIN=true
+PHP_FPM_INSTALL_INOTIFY=true
 PHP_FPM_INSTALL_MSSQL=false
 PHP_FPM_INSTALL_IMAGE_OPTIMIZERS=true
 PHP_FPM_INSTALL_IMAGEMAGICK=true
@@ -212,7 +213,7 @@ PERCONA_ENTRYPOINT_INITDB=./percona/docker-entrypoint-initdb.d
 #####################################
 
 POSTGRES_VERSION=10
-# available version: 10, 9.6, 9.5, 9.4, 9.3 with alpine
+# available version: 10, 9.6, 9.5, 9.4, 9.3 and/or with alpine
 
 POSTGRES_DB=default
 POSTGRES_USER=default
@@ -224,7 +225,7 @@ POSTGRES_PORT=5432
 #####################################
 
 POSTGIS_VERSION=10
-# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2 with alpine
+# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2 and/or with alpine
 
 POSTGIS_PORT=5432
 
@@ -233,7 +234,7 @@ POSTGIS_PORT=5432
 #####################################
 
 POSTGIS_VERSION=10
-# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0 with alpine
+# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0 and/or with alpine
 
 #####################################
 # Elasticsearch
@@ -349,6 +350,21 @@ PMA_PASSWORD=root
 PMA_EXT_PORT=8080
 PMA_DB_ENGINE=mariadb
 
+
+#####################################
+# gitlab (CE)
+#####################################
+
+## check https://hub.docker.com/r/gitlab/gitlab-ce/tags/ for version list
+GITLAB_VERSION=latest
+GITLAB_CONF_DIR=config
+GITLAB_HOME_DIR=home
+GITLAB_LOG_DIR=
+GITLAB_HTTP_PORT=8098
+GITLAB_HTTPS_PORT=8099
+GITLAB_SSH_PORT=8097
+
+
 #####################################
 # NETWORK setting
 #####################################
@@ -362,7 +378,7 @@ HTTP_OTHER_PORT=2018
 #####################################
 
 # numbers of cpu (core)
-NPROC=2
+NPROC=4
 
 # timezone setting
 TIMEZONE=UTC

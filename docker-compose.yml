@@ -123,7 +123,7 @@ services:
     extra_hosts:
       - "dockerhost:${DOCKER_HOST_IP}"
     ports:
-      - "22:${WORKSPACE_SSH_PORT}"
+      - ${WORKSPACE_SSH_PORT}:22
     tty: true
     restart: always
     networks:
@@ -244,9 +244,9 @@ services:
       - ${LOG_DATA_SAVE_PATH}/caddy:/var/log
       - ${DATA_SAVE_PATH}/caddy:/root/.caddy
     ports:
-      - "80:${HTTP_PORT}"
-      - "443:${HTTPS_PORT}"
-      - "2018:${HTTP_OTHER_PORT}"
+      - ${HTTP_PORT}:80
+      - ${HTTPS_PORT}:443
+      - ${HTTP_OTHER_PORT}:2018
     depends_on:
       - php-fpm
     restart: always
@@ -270,9 +270,9 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ${NGINX_SITES_PATH}:/etc/nginx/sites-enabled:ro
     ports:
-      - "80:${HTTP_PORT}"
-      - "443:${HTTPS_PORT}"
-      - "2018:${HTTP_OTHER_PORT}"
+      - ${HTTP_PORT}:80
+      - ${HTTPS_PORT}:443
+      - ${HTTP_OTHER_PORT}:2018
     depends_on:
       - php-fpm
     restart: always
@@ -291,7 +291,7 @@ services:
       - ${DATA_SAVE_PATH}/mariadb:/var/lib/mysql
       - ${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
     ports:
-      - "3306:${MARIADB_PORT}"
+      - ${MARIADB_PORT}:3306
     environment:
       - MYSQL_DATABASE=${MARIADB_DATABASE}
       - MYSQL_USER=${MARIADB_USER}
@@ -313,7 +313,7 @@ services:
       - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
       - ${LOG_DATA_SAVE_PATH}/mysql:/var/log
     ports:
-      - "3306:${MYSQL_PORT}"
+      - ${MYSQL_PORT}:3306
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
@@ -339,6 +339,8 @@ services:
       - MYSQL_PASSWORD=${PERCONA_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${PERCONA_ROOT_PASSWORD}
       - TZ=${TIMEZONE}
+    ports:
+      - ${PERCONA_PORT}:3306
     restart: always
     networks:
       - backend
@@ -358,7 +360,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
-      - 5432:${POSTGRES_PORT}
+      - ${POSTGRES_PORT}:5432
     restart: always
     networks:
       - backend
@@ -378,7 +380,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
-      - 5432:${POSTGIS_PORT}
+      - ${POSTGIS_PORT}:5432
     restart: always
     networks:
       - backend
@@ -410,8 +412,8 @@ services:
       - ${LOG_DATA_SAVE_PATH}/elasticsearch:/var/log
       - ${DATA_SAVE_PATH}/elasticsearch:/usr/share/elasticsearch/data
     ports:
-      - 9200:${ELASTICSEARCH_HOST_HTTP_PORT}
-      - 9300:${ELASTICSEARCH_HOST_TRANSPORT_PORT}
+      - ${ELASTICSEARCH_HOST_HTTP_PORT}:9200
+      - ${ELASTICSEARCH_HOST_TRANSPORT_PORT}:9300
     restart: always
     networks:
       - backend
@@ -427,7 +429,7 @@ services:
       - ${DATA_SAVE_PATH}/mongo:/data/db
       - ${LOG_DATA_SAVE_PATH}/mongo:/var/log
     ports:
-      - 27017:${MONGO_PORT}
+      - ${MONGO_PORT}:27017
     restart: always
     networks:
       - backend
@@ -443,7 +445,7 @@ services:
       - ${DATA_SAVE_PATH}/redis:/data
       - ${LOG_DATA_SAVE_PATH}/redis:/var/log
     ports:
-      - 6379:${REDIS_PORT}
+      - ${REDIS_PORT}:6379
     restart: always
     networks:
       - backend
@@ -458,7 +460,7 @@ services:
     volumes:
       - ${LOG_DATA_SAVE_PATH}/memcached:/var/log
     ports:
-      - 11211:${MEMCACHED_PORT}
+      - ${MEMCACHED_PORT}:11211
     restart: always
     networks:
       - backend
@@ -481,7 +483,7 @@ services:
     links:
       - elasticsearch
     ports:
-      - 5601:${KIBANA_PORT}
+      - ${KIBANA_PORT}:5601
     depends_on:
       - elasticsearch
     restart: always
@@ -505,7 +507,7 @@ services:
     links:
       - elasticsearch
     ports:
-      - 5002:${LOGSTASH_PORT}
+      - ${LOGSTASH_PORT}:5002
     depends_on:
       - elasticsearch
     restart: always
@@ -523,7 +525,7 @@ services:
       - ${DATA_SAVE_PATH}/rethinkdb:/data/rethinkdb_data
       - ${LOG_DATA_SAVE_PATH}/rethinkdb:/var/log
     ports:
-      - 8080:${RETHINKDB_PORT}
+      - ${RETHINKDB_PORT}:8080
     restart: always
     networks:
       - backend
@@ -544,9 +546,9 @@ services:
       - ${LOG_DATA_SAVE_PATH}/rabbitmq:/var/log
       - ${DATA_SAVE_PATH}/rabbitmq:/var/lib/rabbitmq
     ports:
-      - 5672:${RABBITMQ_NODE_HOST_PORT}
-      - 15672:${RABBIT_MANAGEMENT_HTTP_HOST_PORT}
-      - 15671:${RABBIT_MANAGEMENT_HTTPS_HOST_PORT}
+      - ${RABBITMQ_NODE_HOST_PORT}:5672
+      - ${RABBIT_MANAGEMENT_HTTP_HOST_PORT}:15672
+      - ${RABBIT_MANAGEMENT_HTTPS_HOST_PORT}:15671
     restart: always
     networks:
       - backend
@@ -605,6 +607,22 @@ services:
     networks:
       - backend
       - frontend
+
+### gitlab-ce
+  gitlab:
+    image: gitlab/gitlab-ce:${GITLAB_VERSION}
+    volumes:
+      - ${DATA_SAVE_PATH}/gitlab/${GITLAB_CONF_DIR}:/etc/gitlab
+      - ${DATA_SAVE_PATH}/gitlab/${GITLAB_HOME_DIR}:/var/opt/gitlab
+      - ${LOG_DATA_SAVE_PATH}/gitlab/${GITLAB_LOG_DIR}:/var/log/gitlab
+    ports:
+      - ${GITLAB_HTTP_PORT}:80
+      - ${GITLAB_HTTPS_PORT}:443
+      - ${GITLAB_SSH_PORT}:22
+    restart: always
+    networks:
+      - frontend
+  
 
 ### Networks Setup
 
