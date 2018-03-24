@@ -210,7 +210,7 @@ services:
     volumes_from:
       - applications
     volumes:
-      - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini:ro
+      - ./php-fpm/laravel.ini:/usr/local/etc/php/php.ini:ro
       - ${LOG_DATA_SAVE_PATH}/php-fpm:/var/log
       - ./php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro
       - ./php-fpm/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
