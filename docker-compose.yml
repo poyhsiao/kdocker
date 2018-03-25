@@ -638,6 +638,11 @@ services:
     volumes:
       - ${NODEJS_WORKING_DIR}:/home/${NODEJS_USER}/app
       - ${LOG_DATA_SAVE_PATH}/nodejs:/var/log
+    ports:
+      - ${NODEJS_PORT_MAPPING_1}:80
+      - ${NODEJS_PORT_MAPPING_2}:443
+      - ${NODEJS_PORT_MAPPING_3}:3000
+      - ${NODEJS_PORT_MAPPING_4}:8080
     networks:
       - backend
       - frontend
