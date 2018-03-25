@@ -622,6 +622,25 @@ services:
     restart: always
     networks:
       - frontend
+
+### Node.js (utils)
+  nodejs:
+    build:
+      context: nodejs
+      args:
+        - NODEJS_VERSION=${NODEJS_VERSION}
+        - NODEJS_USER=${NODEJS_USER}
+        - NODEJS_YARN_VERSION=${NODEJS_YARN_VERSION}
+    environment:
+      - NODE_ENV=${NODEJS_ENV}
+      - mem_limit=${NODEJS_MEMORY_LIMIT}
+      - memswap_limit=${NODEJS_MEMORY_SWAP_LIMIT}
+    volumes:
+      - ${NODEJS_WORKING_DIR}:/home/${NODEJS_USER}/app
+      - ${LOG_DATA_SAVE_PATH}/nodejs:/var/log
+    networks:
+      - backend
+      - frontend
   
 
 ### Networks Setup

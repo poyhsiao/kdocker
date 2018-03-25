@@ -1,0 +1,6 @@
+nodemon
+pm2
+eslint
+gulp
+mocha
+node-gyp

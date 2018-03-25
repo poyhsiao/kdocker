@@ -364,6 +364,18 @@ GITLAB_HTTP_PORT=8098
 GITLAB_HTTPS_PORT=8099
 GITLAB_SSH_PORT=8097
 
+#####################################
+# Node.js
+#####################################
+
+NODEJS_VERSION=9
+NODEJS_USER=kimhsiao
+NODEJS_YARN_VERSION=latest
+NODEJS_ENV=develop
+NODEJS_MEMORY_LIMIT=512M
+NODEJS_MEMORY_SWAP_LIMIT=1G
+NODEJS_WORKING_DIR=../web/pt3
+
 
 #####################################
 # NETWORK setting
