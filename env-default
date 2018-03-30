@@ -380,6 +380,18 @@ NODEJS_PORT_MAPPING_3=10082
 NODEJS_PORT_MAPPING_4=10083
 NODEJS_WORKING_DIR=../web/pt3
 
+#####################################
+# CrateDB
+#####################################
+
+CRATEDB_VERSION=latest
+CRATEDB_CPU_LIMIT=1.5
+CRATEDB_MEMORY_LIMIT=2g
+CRATEDB_HEAP_SIZE=1g
+CRATEDB_HTTP_PORT=4200
+CRATEDB_TRANSPORT_PORT=4300
+CRATEDB_PGSQL_PROTOCOL_PORT=5433
+
 
 #####################################
 # NETWORK setting
