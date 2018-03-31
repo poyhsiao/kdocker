@@ -14,7 +14,7 @@ PHP_VERSION=7.2
 #####################################
 # Volumes
 #####################################
-LOCAL_PATH1=../../gitlab/bookmarker-laravel
+LOCAL_PATH1=../web/pt1
 LOCAL_PATH2=../web/pt2
 LOCAL_PATH3=../web/pt3
 
@@ -59,6 +59,13 @@ WORKSPACE_INSTALL_YARN=true
 WORKSPACE_NODEJS_YARN_VERSION=latest
 WORKSPACE_NODEJS_NVM_VERSION=v0.33.8
 WORKSPACE_INSTALL_WORKSPACE_SSH=false
+
+#--------------------
+# system setting
+#--------------------
+WORKSPACE_RESTART=always
+WORKSPACE_CPU_LIMIT=1
+WORKSPACE_MEMORY_LIMIT=1g
 
 #####################################
 # PHP-FPM:
@@ -134,6 +141,13 @@ PHP_FPM_INSTALL_MSSQL=false
 PHP_FPM_INSTALL_IMAGE_OPTIMIZERS=true
 PHP_FPM_INSTALL_IMAGEMAGICK=true
 
+#--------------------
+# system setting
+#--------------------
+PHP_FPM_RESTART=always
+PHP_FPM_CPU_LIMIT=1
+PHP_FPM_MEMORY_LIMIT=1g
+
 #####################################
 # Caddy
 #####################################
@@ -141,7 +155,13 @@ PHP_FPM_INSTALL_IMAGEMAGICK=true
 CADDY_PLUGINS=http.awslambda,http.cache,http.cors,http.expires,http.forwardproxy,http.ipfilter,http.locale,http.login,http.mailout,http.minify,http.nobots,http.proxyprotocol,http.ratelimit,http.realip,http.reauth,http.upload,net
 CADDY_LICENSE=personal
 CADDY_CUSTOM_CADDYFILE=./Caddyfile
-CADDY_HOST_LOG_PATH=../logs/caddy
+
+#--------------------
+# system setting
+#--------------------
+CADDY_RESTART=always
+CADDY_CPU_LIMIT=1
+CADDY_MEMORY_LIMIT=1g
 
 #####################################
 # Nginx
@@ -153,6 +173,13 @@ NGINX_VERSION=1.13
 NGINX_SITES_PATH=./nginx/sites-enabled
 NGINX_PHP_UPSTREAM_CONTAINER=php-fpm
 NGINX_PHP_UPSTREAM_PORT=9000
+
+#--------------------
+# system setting
+#--------------------
+NGINX_RESTART=always
+NGINX_CPU_LIMIT=1
+NGINX_MEMORY_LIMIT=1g
 
 #####################################
 #
@@ -172,6 +199,13 @@ MARIADB_PORT=3306
 MARIADB_ROOT_PASSWORD=root
 MARIADB_ENTRYPOINT_INITDB=./mariadb/docker-entrypoint-initdb.d
 
+#--------------------
+# system setting
+#--------------------
+MARIADB_RESTART=always
+MARIADB_CPU_LIMIT=1
+MARIADB_MEMORY_LIMIT=1g
+
 #####################################
 #
 # MySQL family:
@@ -189,6 +223,13 @@ MYSQL_PASSWORD=secret
 MYSQL_PORT=3306
 MYSQL_ROOT_PASSWORD=root
 MYSQL_ENTRYPOINT_INITDB=./mysql/docker-entrypoint-initdb.d
+
+#--------------------
+# system setting
+#--------------------
+MYSQL_RESTART=always
+MYSQL_CPU_LIMIT=1
+MYSQL_MEMORY_LIMIT=1g
 
 #####################################
 #
@@ -208,6 +249,13 @@ PERCONA_PORT=3306
 PERCONA_ROOT_PASSWORD=root
 PERCONA_ENTRYPOINT_INITDB=./percona/docker-entrypoint-initdb.d
 
+#--------------------
+# system setting
+#--------------------
+PERCONA_RESTART=always
+PERCONA_CPU_LIMIT=1
+PERCONA_MEMORY_LIMIT=1g
+
 #####################################
 # PostgreSQL
 #####################################
@@ -220,21 +268,29 @@ POSTGRES_USER=default
 POSTGRES_PASSWORD=secret
 POSTGRES_PORT=5432
 
-#####################################
-# PostgreSQL PostGis
-#####################################
+#--------------------
+# system setting
+#--------------------
+POSTGRES_RESTART=always
+POSTGRES_CPU_LIMIT=1
+POSTGRES_MEMORY_LIMIT=1g
 
-POSTGIS_VERSION=10
-# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2 and/or with alpine
-
-POSTGIS_PORT=5432
 
 #####################################
 # PostgreSQL with GIS
 #####################################
 
 POSTGIS_VERSION=10
-# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0 and/or with alpine
+# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0 with alpine
+
+POSTGIS_PORT=5432
+
+#--------------------
+# system setting
+#--------------------
+POSTGIS_RESTART=always
+POSTGIS_CPU_LIMIT=1
+POSTGIS_MEMORY_LIMIT=1g
 
 #####################################
 # Elasticsearch
@@ -257,6 +313,13 @@ ELASTICSEARCH_MIN_MEMORY=512m
 ELASTICSEARCH_MAX_MEMORY=512m
 ELASTICSEARCH_LIMIT_MEMORY=1g
 
+#--------------------
+# system setting
+#--------------------
+ELASTICSEARCH_RESTART=always
+ELASTICSEARCH_CPU_LIMIT=1.5
+ELASTICSEARCH_MEMORY_LIMIT=1g
+
 #####################################
 # mongodb
 #####################################
@@ -265,6 +328,13 @@ MONGO_VERSION=3.6
 # available versions: 3.7, 3.6, 3.4, 3.2, 3.0, plz check https://hub.docker.com/_/mongo/ for detail
 
 MONGO_PORT=27017
+
+#--------------------
+# system setting
+#--------------------
+MONGO_RESTART=always
+MONGO_CPU_LIMIT=1.5
+MONGO_MEMORY_LIMIT=1g
 
 #####################################
 # redis
@@ -275,6 +345,13 @@ REDIS_VERSION=4.0
 
 REDIS_PORT=6379
 
+#--------------------
+# system setting
+#--------------------
+REDIS_RESTART=always
+REDIS_CPU_LIMIT=1
+REDIS_MEMORY_LIMIT=1g
+
 #####################################
 # memcached
 #####################################
@@ -283,6 +360,13 @@ MEMCACHED_VERSION=1.5
 # available versions: 1.5(1.5.6) alpine. plz check https://hub.docker.com/_/memcached/ for detail information
 
 MEMCACHED_PORT=11211
+
+#--------------------
+# system setting
+#--------------------
+MEMCACHED_RESTART=always
+MEMCACHED_CPU_LIMIT=1
+MEMCACHED_MEMORY_LIMIT=1g
 
 #####################################
 # kibana
@@ -294,6 +378,13 @@ KIBANA_VERSION=6.2.2
 KIBANA_ENABLE_SECURITY=false
 KIBANA_PORT=5601
 
+#--------------------
+# system setting
+#--------------------
+KIBANA_RESTART=always
+KIBANA_CPU_LIMIT=1.5
+KIBANA_MEMORY_LIMIT=1g
+
 #####################################
 # logstash
 #####################################
@@ -302,7 +393,14 @@ LOGSTASH_VERSION=6.2.2
 # available versions: plz check official website: https://www.docker.elastic.co
 LOGSTASH_MIN_MEMORY=256m
 LOGSTASH_MAX_MEMORY=256m
-LOGSTASH_PORT=5001
+LOGSTASH_PORT=5002
+
+#--------------------
+# system setting
+#--------------------
+LOGSTASH_RESTART=always
+LOGSTASH_CPU_LIMIT=1.5
+LOGSTASH_MEMORY_LIMIT=1g
 
 #####################################
 # rethinkdb
@@ -312,6 +410,14 @@ RETHINKDB_VERSION=2.3
 # available versions: only 2.3 for now. plz check official website: https://hub.docker.com/_/rethinkdb/ for detail information
 
 RETHINKDB_PORT=8080
+
+#--------------------
+# system setting
+#--------------------
+RETHINKDB_RESTART=always
+RETHINKDB_CPU_LIMIT=1.5
+RETHINKDB_MEMORY_LIMIT=1g
+
 
 #####################################
 # rabbitmq
@@ -325,8 +431,16 @@ RABBITMQ_PASSWORD=test
 RABBITMQ_VHOST=/
 RABBITMQ_COOKIE=test
 RABBITMQ_NODE_HOST_PORT=5672
-RABBIT_MANAGEMENT_HTTP_HOST_PORT=15672
-RABBIT_MANAGEMENT_HTTPS_HOST_PORT=15671
+RABBITMQ_MANAGEMENT_HTTP_HOST_PORT=15672
+RABBITMQ_MANAGEMENT_HTTPS_HOST_PORT=15671
+
+#--------------------
+# system setting
+#--------------------
+RABBITMQ_RESTART=always
+RABBITMQ_CPU_LIMIT=1.5
+RABBITMQ_MEMORY_LIMIT=1g
+
 
 #####################################
 # php-worker
@@ -336,7 +450,16 @@ RABBIT_MANAGEMENT_HTTPS_HOST_PORT=15671
 # PHP_WORKER_INSTALL_PGSQL=true
 # PHP_WORKER_INSTALL_REDIS=true
 # PHP_WORKER_INSTALL_MEMCACHED=true
-## current not support
+## current not support (use global variable)
+
+#--------------------
+# system setting
+#--------------------
+PHP_WORKER_RESTART=always
+PHP_WORKER_CPU_LIMIT=1
+PHP_WORKER_MEMORY_LIMIT=1g
+
+
 
 #####################################
 # phpmyadmin
@@ -349,6 +472,12 @@ PMA_USER=root
 PMA_PASSWORD=root
 PMA_EXT_PORT=8080
 PMA_DB_ENGINE=mariadb
+#--------------------
+# system setting
+#--------------------
+PMA_RESTART=always
+PMA_CPU_LIMIT=1.5
+PMA_MEMORY_LIMIT=1g
 
 
 #####################################
@@ -359,10 +488,16 @@ PMA_DB_ENGINE=mariadb
 GITLAB_VERSION=latest
 GITLAB_CONF_DIR=config
 GITLAB_HOME_DIR=home
-GITLAB_LOG_DIR=
 GITLAB_HTTP_PORT=8098
 GITLAB_HTTPS_PORT=8099
 GITLAB_SSH_PORT=8097
+#--------------------
+# system setting
+#--------------------
+GITLAB_RESTART=always
+GITLAB_CPU_LIMIT=1.5
+GITLAB_MEMORY_LIMIT=1g
+
 
 #####################################
 # Node.js
@@ -377,20 +512,30 @@ NODEJS_MEMORY_SWAP_LIMIT=1G
 NODEJS_PORT_MAPPING_1=10080
 NODEJS_PORT_MAPPING_2=10081
 NODEJS_PORT_MAPPING_3=10082
-NODEJS_PORT_MAPPING_4=10083
+NODEJS_PORT_MAPPING_4=8080
 NODEJS_WORKING_DIR=../web/pt3
+#--------------------
+# system setting
+#--------------------
+NODEJS_RESTART=always
+NODEJS_CPU_LIMIT=1.5
+NODEJS_MEMORY_LIMIT=1g
 
 #####################################
 # CrateDB
 #####################################
 
 CRATEDB_VERSION=latest
-CRATEDB_CPU_LIMIT=1.5
-CRATEDB_MEMORY_LIMIT=2g
 CRATEDB_HEAP_SIZE=1g
 CRATEDB_HTTP_PORT=4200
 CRATEDB_TRANSPORT_PORT=4300
 CRATEDB_PGSQL_PROTOCOL_PORT=5433
+#--------------------
+# system setting
+#--------------------
+CRATEDB_RESTART=always
+CRATEDB_CPU_LIMIT=1.5
+CRATEDB_MEMORY_LIMIT=1g
 
 
 #####################################
@@ -406,7 +551,7 @@ HTTP_OTHER_PORT=2018
 #####################################
 
 # numbers of cpu (core)
-NPROC=4
+NPROC=1
 
 # timezone setting
 TIMEZONE=UTC
