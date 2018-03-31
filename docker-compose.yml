@@ -3,109 +3,109 @@ services:
   applications:
     image: tianon/true
     volumes:
-      - '${LOCAL_PATH1}:/var/www${POINTER1}'
-      - '${LOCAL_PATH2}:/var/www${POINTER2}'
-      - '${LOCAL_PATH3}:/var/www${POINTER3}'
+      - '${LOCAL_PATH1:-../web/pt1}:/var/www${POINTER1:-pt1}'
+      - '${LOCAL_PATH2:-../web/pt2}:/var/www${POINTER2:-pt2}'
+      - '${LOCAL_PATH3:-../web/pt3}:/var/www${POINTER3:-pt3}'
   workspace:
     build:
       context: ./workspace
       args:
-        - 'PHP_VERSION=${PHP_VERSION}'
-        - 'NPROC=${NPROC}'
-        - 'TZ=${TIMEZONE}'
-        - 'PUID=${PUID}'
-        - 'PGID=${PGID}'
-        - 'USER=${USER}'
-        - 'CANVAS_SUPPORT=${WORKSPACE_CANVAS_SUPPORT}'
-        - 'INSTALL_MCRYPT=${PHP_FPM_INSTALL_MCRYPT}'
-        - 'INSTALL_PDO_MYSQL=${PHP_FPM_INSTALL_PDO_MYSQL}'
-        - 'INSTALL_PDO_PGSQL=${PHP_FPM_INSTALL_PDO_PGSQL}'
-        - 'INSTALL_PDO_SQLITE=${PHP_FPM_INSTALL_PDO_SQLITE}'
-        - 'INSTALL_GD=${PHP_FPM_INSTALL_GD}'
-        - 'INSTALL_APC=${PHP_FPM_INSTALL_APC}'
-        - 'INSTALL_FTP=${PHP_FPM_INSTALL_FTP}'
-        - 'INSTALL_XSL=${PHP_FPM_INSTALL_XSL}'
-        - 'INSTALL_CALENDAR=${PHP_FPM_INSTALL_CALENDAR}'
-        - 'INSTALL_CTYPE=${PHP_FPM_INSTALL_CTYPE}'
-        - 'INSTALL_DBA=${PHP_FPM_INSTALL_DBA}'
-        - 'INSTALL_DOM=${PHP_FPM_INSTALL_DOM}'
-        - 'INSTALL_JSON=${PHP_FPM_INSTALL_JSON}'
-        - 'INSTALL_HASH=${PHP_FPM_INSTALL_HASH}'
-        - 'INSTALL_SOCKETS=${PHP_FPM_INSTALL_SOCKETS}'
-        - 'INSTALL_PDO=${PHP_FPM_INSTALL_PDO}'
-        - 'INSTALL_MBSTRING=${PHP_FPM_INSTALL_MBSTRING}'
-        - 'INSTALL_IMAP=${PHP_FPM_INSTALL_IMAP}'
-        - 'INSTALL_CURL=${PHP_FPM_INSTALL_CURL}'
-        - 'INSTALL_FILEINFO=${PHP_FPM_INSTALL_FILEINFO}'
-        - 'INSTALL_GETTEXT=${PHP_FPM_INSTALL_GETTEXT}'
-        - 'INSTALL_ICONV=${PHP_FPM_INSTALL_ICONV}'
-        - 'INSTALL_PHAR=${PHP_FPM_INSTALL_PHAR}'
-        - 'INSTALL_POSIX=${PHP_FPM_INSTALL_POSIX}'
-        - 'INSTALL_PSPELL=${PHP_FPM_INSTALL_PSPELL}'
-        - 'INSTALL_READLINE=${PHP_FPM_INSTALL_READLINE}'
-        - 'INSTALL_RECODE=${PHP_FPM_INSTALL_RECODE}'
-        - 'INSTALL_SHMOP=${PHP_FPM_INSTALL_SHMOP}'
-        - 'INSTALL_SIMPLEXML=${PHP_FPM_INSTALL_SIMPLEXML}'
-        - 'INSTALL_SNMP=${PHP_FPM_INSTALL_SNMP}'
-        - 'INSTALL_SYSVMSG=${PHP_FPM_INSTALL_SYSVMSG}'
-        - 'INSTALL_SYSVSEM=${PHP_FPM_INSTALL_SYSVSEM}'
-        - 'INSTALL_SYSVSHM=${PHP_FPM_INSTALL_SYSVSHM}'
-        - 'INSTALL_BZ2=${PHP_FPM_INSTALL_BZ2}'
-        - 'INSTALL_ENCHANT=${PHP_FPM_INSTALL_ENCHANT}'
-        - 'INSTALL_YAML=${PHP_FPM_INSTALL_YAML}'
-        - 'INSTALL_EVENT=${PHP_FPM_INSTALL_EVENT}'
-        - 'INSTALL_TIDY=${PHP_FPM_INSTALL_TIDY}'
-        - 'INSTALL_WDDX=${PHP_FPM_INSTALL_WDDX}'
-        - 'INSTALL_XML=${PHP_FPM_INSTALL_XML}'
-        - 'INSTALL_XMLRPC=${PHP_FPM_INSTALL_XMLRPC}'
-        - 'INSTALL_XMLWRITER=${PHP_FPM_INSTALL_XMLWRITER}'
-        - 'INSTALL_SOAP=${PHP_FPM_INSTALL_SOAP}'
-        - 'INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL}'
-        - 'INSTALL_PG_CLIENT=${WORKSPACE_INSTALL_PG_CLIENT}'
-        - 'INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG}'
-        - 'INSTALL_BLACKFIRE=${PHP_FPM_INSTALL_BLACKFIRE}'
-        - 'INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS}'
-        - 'INSTALL_SWOOLE=${PHP_FPM_INSTALL_SWOOLE}'
-        - 'INSTALL_MONGO=${PHP_FPM_INSTALL_MONGO}'
-        - 'INSTALL_AMQP=${PHP_FPM_INSTALL_AMQP}'
-        - 'INSTALL_ZIP_ARCHIVE=${PHP_FPM_INSTALL_ZIP_ARCHIVE}'
-        - 'INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH}'
-        - 'INSTALL_GMP=${PHP_FPM_INSTALL_GMP}'
-        - 'INSTALL_MEMCACHED=${PHP_FPM_INSTALL_MEMCACHED}'
-        - 'INSTALL_EXIF=${PHP_FPM_INSTALL_EXIF}'
-        - 'INSTALL_AEROSPIKE=${PHP_FPM_INSTALL_AEROSPIKE}'
-        - 'INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}'
-        - 'INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI}'
-        - 'INSTALL_TOKENIZER=${PHP_FPM_INSTALL_TOKENIZER}'
-        - 'INSTALL_INTL=${PHP_FPM_INSTALL_INTL}'
-        - 'INSTALL_PCNTL=${PHP_FPM_INSTALL_PCNTL}'
-        - 'INSTALL_GHOSTSCRIPT=${PHP_FPM_INSTALL_GHOSTSCRIPT}'
-        - 'INSTALL_LDAP=${PHP_FPM_INSTALL_LDAP}'
-        - 'INSTALL_MSSQL=${PHP_FPM_INSTALL_MSSQL}'
-        - 'INSTALL_V8JS=${PHP_FPM_INSTALL_V8JS}'
-        - 'INSTALL_SUHOSIN=${PHP_FPM_INSTALL_SUHOSIN}'
-        - 'INSTALL_INOTIFY=${PHP_FPM_INSTALL_INOTIFY}'
-        - 'INSTALL_IMAGE_OPTIMIZERS=${PHP_FPM_INSTALL_IMAGE_OPTIMIZERS}'
-        - 'INSTALL_IMAGEMAGICK=${PHP_FPM_INSTALL_IMAGEMAGICK}'
-        - 'INSTALL_DRUSH=${WORKSPACE_INSTALL_DRUSH}'
-        - 'INSTALL_DRUPAL_CONSOLE=${WORKSPACE_INSTALL_DRUPAL_CONSOLE}'
-        - 'INSTALL_LARAVEL_ENVOY=${WORKSPACE_INSTALL_LARAVEL_ENVOY}'
-        - 'INSTALL_LARAVEL_INSTALLER=${WORKSPACE_INSTALL_LARAVEL_INSTALLER}'
-        - 'INSTALL_DEPLOYER=${WORKSPACE_INSTALL_DEPLOYER}'
-        - 'INSTALL_LINUXBREW=${WORKSPACE_INSTALL_LINUXBREW}'
-        - 'INSTALL_MC=${WORKSPACE_INSTALL_MC}'
-        - 'INSTALL_SYMFONY=${WORKSPACE_INSTALL_SYMFONY}'
-        - 'INSTALL_PYTHON=${WORKSPACE_INSTALL_PYTHON}'
-        - 'INSTALL_PYTHON3=${WORKSPACE_INSTALL_PYTHON3}'
-        - 'CHROME_DRIVER_VERSION=${WORKSPACE_CHROME_DRIVER_VERSION}'
-        - 'INSTALL_DUSK_DEPS=${WORKSPACE_INSTALL_DUSK_DEPS}'
-        - 'INSTALL_NODEJS=${WORKSPACE_INSTALL_NODEJS}'
-        - 'NODEJS_VERSION=${WORKSPACE_NODEJS_VERSION}'
-        - 'NODEJS_VERSION_BACKUP=${WORKSPACE_NODEJS_VERSION_BACKUP}'
-        - 'INSTALL_YARN=${WORKSPACE_INSTALL_YARN}'
-        - 'NODEJS_YARN_VERSION=${WORKSPACE_NODEJS_YARN_VERSION}'
-        - 'NODEJS_NVM_VERSION=${WORKSPACE_NODEJS_NVM_VERSION}'
-        - 'INSTALL_WORKSPACE_SSH=${WORKSPACE_INSTALL_WORKSPACE_SSH}'
+        - 'PHP_VERSION=${PHP_VERSION:-7.2}'
+        - 'NPROC=${NPROC:-1}'
+        - 'TZ=${TIMEZONE:-UTC}'
+        - 'PUID=${PUID:-1000}'
+        - 'PGID=${PGID:-1000}'
+        - 'USER=${USER:-kimhsiao}'
+        - 'CANVAS_SUPPORT=${WORKSPACE_CANVAS_SUPPORT:-false}'
+        - 'INSTALL_MCRYPT=${PHP_FPM_INSTALL_MCRYPT:-false}'
+        - 'INSTALL_PDO_MYSQL=${PHP_FPM_INSTALL_PDO_MYSQL:-false}'
+        - 'INSTALL_PDO_PGSQL=${PHP_FPM_INSTALL_PDO_PGSQL:-false}'
+        - 'INSTALL_PDO_SQLITE=${PHP_FPM_INSTALL_PDO_SQLITE:-false}'
+        - 'INSTALL_GD=${PHP_FPM_INSTALL_GD:-false}'
+        - 'INSTALL_APC=${PHP_FPM_INSTALL_APC:-false}'
+        - 'INSTALL_FTP=${PHP_FPM_INSTALL_FTP:-false}'
+        - 'INSTALL_XSL=${PHP_FPM_INSTALL_XSL:-false}'
+        - 'INSTALL_CALENDAR=${PHP_FPM_INSTALL_CALENDAR:-false}'
+        - 'INSTALL_CTYPE=${PHP_FPM_INSTALL_CTYPE:-false}'
+        - 'INSTALL_DBA=${PHP_FPM_INSTALL_DBA:-false}'
+        - 'INSTALL_DOM=${PHP_FPM_INSTALL_DOM:-false}'
+        - 'INSTALL_JSON=${PHP_FPM_INSTALL_JSON:-false}'
+        - 'INSTALL_HASH=${PHP_FPM_INSTALL_HASH:-false}'
+        - 'INSTALL_SOCKETS=${PHP_FPM_INSTALL_SOCKETS:-false}'
+        - 'INSTALL_PDO=${PHP_FPM_INSTALL_PDO:-false}'
+        - 'INSTALL_MBSTRING=${PHP_FPM_INSTALL_MBSTRING:-false}'
+        - 'INSTALL_IMAP=${PHP_FPM_INSTALL_IMAP:-false}'
+        - 'INSTALL_CURL=${PHP_FPM_INSTALL_CURL:-false}'
+        - 'INSTALL_FILEINFO=${PHP_FPM_INSTALL_FILEINFO:-false}'
+        - 'INSTALL_GETTEXT=${PHP_FPM_INSTALL_GETTEXT:-false}'
+        - 'INSTALL_ICONV=${PHP_FPM_INSTALL_ICONV:-false}'
+        - 'INSTALL_PHAR=${PHP_FPM_INSTALL_PHAR:-false}'
+        - 'INSTALL_POSIX=${PHP_FPM_INSTALL_POSIX:-false}'
+        - 'INSTALL_PSPELL=${PHP_FPM_INSTALL_PSPELL:-false}'
+        - 'INSTALL_READLINE=${PHP_FPM_INSTALL_READLINE:-false}'
+        - 'INSTALL_RECODE=${PHP_FPM_INSTALL_RECODE:-false}'
+        - 'INSTALL_SHMOP=${PHP_FPM_INSTALL_SHMOP:-false}'
+        - 'INSTALL_SIMPLEXML=${PHP_FPM_INSTALL_SIMPLEXML:-false}'
+        - 'INSTALL_SNMP=${PHP_FPM_INSTALL_SNMP:-false}'
+        - 'INSTALL_SYSVMSG=${PHP_FPM_INSTALL_SYSVMSG:-false}'
+        - 'INSTALL_SYSVSEM=${PHP_FPM_INSTALL_SYSVSEM:-false}'
+        - 'INSTALL_SYSVSHM=${PHP_FPM_INSTALL_SYSVSHM:-false}'
+        - 'INSTALL_BZ2=${PHP_FPM_INSTALL_BZ2:-false}'
+        - 'INSTALL_ENCHANT=${PHP_FPM_INSTALL_ENCHANT:-false}'
+        - 'INSTALL_YAML=${PHP_FPM_INSTALL_YAML:-false}'
+        - 'INSTALL_EVENT=${PHP_FPM_INSTALL_EVENT:-false}'
+        - 'INSTALL_TIDY=${PHP_FPM_INSTALL_TIDY:-false}'
+        - 'INSTALL_WDDX=${PHP_FPM_INSTALL_WDDX:-false}'
+        - 'INSTALL_XML=${PHP_FPM_INSTALL_XML:-false}'
+        - 'INSTALL_XMLRPC=${PHP_FPM_INSTALL_XMLRPC:-false}'
+        - 'INSTALL_XMLWRITER=${PHP_FPM_INSTALL_XMLWRITER:-false}'
+        - 'INSTALL_SOAP=${PHP_FPM_INSTALL_SOAP:-false}'
+        - 'INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL:-false}'
+        - 'INSTALL_PG_CLIENT=${WORKSPACE_INSTALL_PG_CLIENT:-false}'
+        - 'INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG:-false}'
+        - 'INSTALL_BLACKFIRE=${PHP_FPM_INSTALL_BLACKFIRE:-false}'
+        - 'INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS:-false}'
+        - 'INSTALL_SWOOLE=${PHP_FPM_INSTALL_SWOOLE:-false}'
+        - 'INSTALL_MONGO=${PHP_FPM_INSTALL_MONGO:-false}'
+        - 'INSTALL_AMQP=${PHP_FPM_INSTALL_AMQP:-false}'
+        - 'INSTALL_ZIP_ARCHIVE=${PHP_FPM_INSTALL_ZIP_ARCHIVE:-false}'
+        - 'INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH:-false}'
+        - 'INSTALL_GMP=${PHP_FPM_INSTALL_GMP:-false}'
+        - 'INSTALL_MEMCACHED=${PHP_FPM_INSTALL_MEMCACHED:-false}'
+        - 'INSTALL_EXIF=${PHP_FPM_INSTALL_EXIF:-false}'
+        - 'INSTALL_AEROSPIKE=${PHP_FPM_INSTALL_AEROSPIKE:-false}'
+        - 'INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE:-false}'
+        - 'INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI:-false}'
+        - 'INSTALL_TOKENIZER=${PHP_FPM_INSTALL_TOKENIZER:-false}'
+        - 'INSTALL_INTL=${PHP_FPM_INSTALL_INTL:-false}'
+        - 'INSTALL_PCNTL=${PHP_FPM_INSTALL_PCNTL:-false}'
+        - 'INSTALL_GHOSTSCRIPT=${PHP_FPM_INSTALL_GHOSTSCRIPT:-false}'
+        - 'INSTALL_LDAP=${PHP_FPM_INSTALL_LDAP:-false}'
+        - 'INSTALL_MSSQL=${PHP_FPM_INSTALL_MSSQL:-false}'
+        - 'INSTALL_V8JS=${PHP_FPM_INSTALL_V8JS:-false}'
+        - 'INSTALL_SUHOSIN=${PHP_FPM_INSTALL_SUHOSIN:-false}'
+        - 'INSTALL_INOTIFY=${PHP_FPM_INSTALL_INOTIFY:-false}'
+        - 'INSTALL_IMAGE_OPTIMIZERS=${PHP_FPM_INSTALL_IMAGE_OPTIMIZERS:-false}'
+        - 'INSTALL_IMAGEMAGICK=${PHP_FPM_INSTALL_IMAGEMAGICK:-false}'
+        - 'INSTALL_DRUSH=${WORKSPACE_INSTALL_DRUSH:-false}'
+        - 'INSTALL_DRUPAL_CONSOLE=${WORKSPACE_INSTALL_DRUPAL_CONSOLE:-false}'
+        - 'INSTALL_LARAVEL_ENVOY=${WORKSPACE_INSTALL_LARAVEL_ENVOY:-false}'
+        - 'INSTALL_LARAVEL_INSTALLER=${WORKSPACE_INSTALL_LARAVEL_INSTALLER:-false}'
+        - 'INSTALL_DEPLOYER=${WORKSPACE_INSTALL_DEPLOYER:-false}'
+        - 'INSTALL_LINUXBREW=${WORKSPACE_INSTALL_LINUXBREW:-false}'
+        - 'INSTALL_MC=${WORKSPACE_INSTALL_MC:-false}'
+        - 'INSTALL_SYMFONY=${WORKSPACE_INSTALL_SYMFONY:-false}'
+        - 'INSTALL_PYTHON=${WORKSPACE_INSTALL_PYTHON:-false}'
+        - 'INSTALL_PYTHON3=${WORKSPACE_INSTALL_PYTHON3:-false}'
+        - 'CHROME_DRIVER_VERSION=${WORKSPACE_CHROME_DRIVER_VERSION:-false}'
+        - 'INSTALL_DUSK_DEPS=${WORKSPACE_INSTALL_DUSK_DEPS:-false}'
+        - 'INSTALL_NODEJS=${WORKSPACE_INSTALL_NODEJS:-false}'
+        - 'NODEJS_VERSION=${WORKSPACE_NODEJS_VERSION:-9}'
+        - 'NODEJS_VERSION_BACKUP=${WORKSPACE_NODEJS_VERSION_BACKUP:-false}'
+        - 'INSTALL_YARN=${WORKSPACE_INSTALL_YARN:-false}'
+        - 'NODEJS_YARN_VERSION=${WORKSPACE_NODEJS_YARN_VERSION:-latest}'
+        - 'NODEJS_NVM_VERSION=${WORKSPACE_NODEJS_NVM_VERSION:-v0.33.8}'
+        - 'INSTALL_WORKSPACE_SSH=${WORKSPACE_INSTALL_WORKSPACE_SSH:-false}'
     volumes:
       - '${LOG_DATA_SAVE_PATH}/workspace:/var/log'
       - './workspace/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro'
@@ -114,11 +114,13 @@ services:
     volumes_from:
       - applications
     extra_hosts:
-      - 'dockerhost:${DOCKER_HOST_IP}'
+      - 'dockerhost:${DOCKER_HOST_IP:-10.3.2.1}'
     ports:
-      - '${WORKSPACE_SSH_PORT}:22'
+      - '${WORKSPACE_SSH_PORT:-22}:22'
     tty: true
-    restart: always
+    restart: ${WORKSPACE_RESTART:-always}
+    cpus: ${WORKSPACE_CPU_LIMIT:-1}
+    mem_limit: ${WORKSPACE_MEMORY_LIMIT:1g}
     networks:
       - frontend
       - backend
@@ -126,78 +128,78 @@ services:
     build:
       context: ./php-fpm
       args:
-        - 'TZ=${TIMEZONE}'
-        - 'PHP_VERSION=${PHP_VERSION}'
-        - 'NPROC=${NPROC}'
-        - 'INSTALL_MCRYPT=${PHP_FPM_INSTALL_MCRYPT}'
-        - 'INSTALL_PDO_MYSQL=${PHP_FPM_INSTALL_PDO_MYSQL}'
-        - 'INSTALL_PDO_PGSQL=${PHP_FPM_INSTALL_PDO_PGSQL}'
-        - 'INSTALL_PDO_SQLITE=${PHP_FPM_INSTALL_PDO_SQLITE}'
-        - 'INSTALL_GD=${PHP_FPM_INSTALL_GD}'
-        - 'INSTALL_APC=${PHP_FPM_INSTALL_APC}'
-        - 'INSTALL_FTP=${PHP_FPM_INSTALL_FTP}'
-        - 'INSTALL_XSL=${PHP_FPM_INSTALL_XSL}'
-        - 'INSTALL_CALENDAR=${PHP_FPM_INSTALL_CALENDAR}'
-        - 'INSTALL_CTYPE=${PHP_FPM_INSTALL_CTYPE}'
-        - 'INSTALL_DBA=${PHP_FPM_INSTALL_DBA}'
-        - 'INSTALL_DOM=${PHP_FPM_INSTALL_DOM}'
-        - 'INSTALL_JSON=${PHP_FPM_INSTALL_JSON}'
-        - 'INSTALL_HASH=${PHP_FPM_INSTALL_HASH}'
-        - 'INSTALL_SOCKETS=${PHP_FPM_INSTALL_SOCKETS}'
-        - 'INSTALL_PDO=${PHP_FPM_INSTALL_PDO}'
-        - 'INSTALL_MBSTRING=${PHP_FPM_INSTALL_MBSTRING}'
-        - 'INSTALL_IMAP=${PHP_FPM_INSTALL_IMAP}'
-        - 'INSTALL_CURL=${PHP_FPM_INSTALL_CURL}'
-        - 'INSTALL_FILEINFO=${PHP_FPM_INSTALL_FILEINFO}'
-        - 'INSTALL_GETTEXT=${PHP_FPM_INSTALL_GETTEXT}'
-        - 'INSTALL_ICONV=${PHP_FPM_INSTALL_ICONV}'
-        - 'INSTALL_PHAR=${PHP_FPM_INSTALL_PHAR}'
-        - 'INSTALL_POSIX=${PHP_FPM_INSTALL_POSIX}'
-        - 'INSTALL_PSPELL=${PHP_FPM_INSTALL_PSPELL}'
-        - 'INSTALL_READLINE=${PHP_FPM_INSTALL_READLINE}'
-        - 'INSTALL_RECODE=${PHP_FPM_INSTALL_RECODE}'
-        - 'INSTALL_SHMOP=${PHP_FPM_INSTALL_SHMOP}'
-        - 'INSTALL_SIMPLEXML=${PHP_FPM_INSTALL_SIMPLEXML}'
-        - 'INSTALL_SNMP=${PHP_FPM_INSTALL_SNMP}'
-        - 'INSTALL_SYSVMSG=${PHP_FPM_INSTALL_SYSVMSG}'
-        - 'INSTALL_SYSVSEM=${PHP_FPM_INSTALL_SYSVSEM}'
-        - 'INSTALL_SYSVSHM=${PHP_FPM_INSTALL_SYSVSHM}'
-        - 'INSTALL_BZ2=${PHP_FPM_INSTALL_BZ2}'
-        - 'INSTALL_ENCHANT=${PHP_FPM_INSTALL_ENCHANT}'
-        - 'INSTALL_YAML=${PHP_FPM_INSTALL_YAML}'
-        - 'INSTALL_EVENT=${PHP_FPM_INSTALL_EVENT}'
-        - 'INSTALL_TIDY=${PHP_FPM_INSTALL_TIDY}'
-        - 'INSTALL_WDDX=${PHP_FPM_INSTALL_WDDX}'
-        - 'INSTALL_XML=${PHP_FPM_INSTALL_XML}'
-        - 'INSTALL_XMLRPC=${PHP_FPM_INSTALL_XMLRPC}'
-        - 'INSTALL_XMLWRITER=${PHP_FPM_INSTALL_XMLWRITER}'
-        - 'INSTALL_SOAP=${PHP_FPM_INSTALL_SOAP}'
-        - 'INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL}'
-        - 'INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG}'
-        - 'INSTALL_BLACKFIRE=${PHP_FPM_INSTALL_BLACKFIRE}'
-        - 'INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS}'
-        - 'INSTALL_SWOOLE=${PHP_FPM_INSTALL_SWOOLE}'
-        - 'INSTALL_MONGO=${PHP_FPM_INSTALL_MONGO}'
-        - 'INSTALL_AMQP=${PHP_FPM_INSTALL_AMQP}'
-        - 'INSTALL_ZIP_ARCHIVE=${PHP_FPM_INSTALL_ZIP_ARCHIVE}'
-        - 'INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH}'
-        - 'INSTALL_GMP=${PHP_FPM_INSTALL_GMP}'
-        - 'INSTALL_MEMCACHED=${PHP_FPM_INSTALL_MEMCACHED}'
-        - 'INSTALL_EXIF=${PHP_FPM_INSTALL_EXIF}'
-        - 'INSTALL_AEROSPIKE=${PHP_FPM_INSTALL_AEROSPIKE}'
-        - 'INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}'
-        - 'INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI}'
-        - 'INSTALL_TOKENIZER=${PHP_FPM_INSTALL_TOKENIZER}'
-        - 'INSTALL_INTL=${PHP_FPM_INSTALL_INTL}'
-        - 'INSTALL_PCNTL=${PHP_FPM_INSTALL_PCNTL}'
-        - 'INSTALL_V8JS=${PHP_FPM_INSTALL_V8JS}'
-        - 'INSTALL_SUHOSIN=${PHP_FPM_INSTALL_SUHOSIN}'
-        - 'INSTALL_INOTIFY=${PHP_FPM_INSTALL_INOTIFY}'
-        - 'INSTALL_GHOSTSCRIPT=${PHP_FPM_INSTALL_GHOSTSCRIPT}'
-        - 'INSTALL_LDAP=${PHP_FPM_INSTALL_LDAP}'
-        - 'INSTALL_MSSQL=${PHP_FPM_INSTALL_MSSQL}'
-        - 'INSTALL_IMAGE_OPTIMIZERS=${PHP_FPM_INSTALL_IMAGE_OPTIMIZERS}'
-        - 'INSTALL_IMAGEMAGICK=${PHP_FPM_INSTALL_IMAGEMAGICK}'
+        - 'TZ=${TIMEZONE:-UTC}'
+        - 'PHP_VERSION=${PHP_VERSION:-7.2}'
+        - 'NPROC=${NPROC:-1}'
+        - 'INSTALL_MCRYPT=${PHP_FPM_INSTALL_MCRYPT:-false}'
+        - 'INSTALL_PDO_MYSQL=${PHP_FPM_INSTALL_PDO_MYSQL:-false}'
+        - 'INSTALL_PDO_PGSQL=${PHP_FPM_INSTALL_PDO_PGSQL:-false}'
+        - 'INSTALL_PDO_SQLITE=${PHP_FPM_INSTALL_PDO_SQLITE:-false}'
+        - 'INSTALL_GD=${PHP_FPM_INSTALL_GD:-false}'
+        - 'INSTALL_APC=${PHP_FPM_INSTALL_APC:-false}'
+        - 'INSTALL_FTP=${PHP_FPM_INSTALL_FTP:-false}'
+        - 'INSTALL_XSL=${PHP_FPM_INSTALL_XSL:-false}'
+        - 'INSTALL_CALENDAR=${PHP_FPM_INSTALL_CALENDAR:-false}'
+        - 'INSTALL_CTYPE=${PHP_FPM_INSTALL_CTYPE:-false}'
+        - 'INSTALL_DBA=${PHP_FPM_INSTALL_DBA:-false}'
+        - 'INSTALL_DOM=${PHP_FPM_INSTALL_DOM:-false}'
+        - 'INSTALL_JSON=${PHP_FPM_INSTALL_JSON:-false}'
+        - 'INSTALL_HASH=${PHP_FPM_INSTALL_HASH:-false}'
+        - 'INSTALL_SOCKETS=${PHP_FPM_INSTALL_SOCKETS:-false}'
+        - 'INSTALL_PDO=${PHP_FPM_INSTALL_PDO:-false}'
+        - 'INSTALL_MBSTRING=${PHP_FPM_INSTALL_MBSTRING:-false}'
+        - 'INSTALL_IMAP=${PHP_FPM_INSTALL_IMAP:-false}'
+        - 'INSTALL_CURL=${PHP_FPM_INSTALL_CURL:-false}'
+        - 'INSTALL_FILEINFO=${PHP_FPM_INSTALL_FILEINFO:-false}'
+        - 'INSTALL_GETTEXT=${PHP_FPM_INSTALL_GETTEXT:-false}'
+        - 'INSTALL_ICONV=${PHP_FPM_INSTALL_ICONV:-false}'
+        - 'INSTALL_PHAR=${PHP_FPM_INSTALL_PHAR:-false}'
+        - 'INSTALL_POSIX=${PHP_FPM_INSTALL_POSIX:-false}'
+        - 'INSTALL_PSPELL=${PHP_FPM_INSTALL_PSPELL:-false}'
+        - 'INSTALL_READLINE=${PHP_FPM_INSTALL_READLINE:-false}'
+        - 'INSTALL_RECODE=${PHP_FPM_INSTALL_RECODE:-false}'
+        - 'INSTALL_SHMOP=${PHP_FPM_INSTALL_SHMOP:-false}'
+        - 'INSTALL_SIMPLEXML=${PHP_FPM_INSTALL_SIMPLEXML:-false}'
+        - 'INSTALL_SNMP=${PHP_FPM_INSTALL_SNMP:-false}'
+        - 'INSTALL_SYSVMSG=${PHP_FPM_INSTALL_SYSVMSG:-false}'
+        - 'INSTALL_SYSVSEM=${PHP_FPM_INSTALL_SYSVSEM:-false}'
+        - 'INSTALL_SYSVSHM=${PHP_FPM_INSTALL_SYSVSHM:-false}'
+        - 'INSTALL_BZ2=${PHP_FPM_INSTALL_BZ2:-false}'
+        - 'INSTALL_ENCHANT=${PHP_FPM_INSTALL_ENCHANT:-false}'
+        - 'INSTALL_YAML=${PHP_FPM_INSTALL_YAML:-false}'
+        - 'INSTALL_EVENT=${PHP_FPM_INSTALL_EVENT:-false}'
+        - 'INSTALL_TIDY=${PHP_FPM_INSTALL_TIDY:-false}'
+        - 'INSTALL_WDDX=${PHP_FPM_INSTALL_WDDX:-false}'
+        - 'INSTALL_XML=${PHP_FPM_INSTALL_XML:-false}'
+        - 'INSTALL_XMLRPC=${PHP_FPM_INSTALL_XMLRPC:-false}'
+        - 'INSTALL_XMLWRITER=${PHP_FPM_INSTALL_XMLWRITER:-false}'
+        - 'INSTALL_SOAP=${PHP_FPM_INSTALL_SOAP:-false}'
+        - 'INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL:-false}'
+        - 'INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG:-false}'
+        - 'INSTALL_BLACKFIRE=${PHP_FPM_INSTALL_BLACKFIRE:-false}'
+        - 'INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS:-false}'
+        - 'INSTALL_SWOOLE=${PHP_FPM_INSTALL_SWOOLE:-false}'
+        - 'INSTALL_MONGO=${PHP_FPM_INSTALL_MONGO:-false}'
+        - 'INSTALL_AMQP=${PHP_FPM_INSTALL_AMQP:-false}'
+        - 'INSTALL_ZIP_ARCHIVE=${PHP_FPM_INSTALL_ZIP_ARCHIVE:-false}'
+        - 'INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH:-false}'
+        - 'INSTALL_GMP=${PHP_FPM_INSTALL_GMP:-false}'
+        - 'INSTALL_MEMCACHED=${PHP_FPM_INSTALL_MEMCACHED:-false}'
+        - 'INSTALL_EXIF=${PHP_FPM_INSTALL_EXIF:-false}'
+        - 'INSTALL_AEROSPIKE=${PHP_FPM_INSTALL_AEROSPIKE:-false}'
+        - 'INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE:-false}'
+        - 'INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI:-false}'
+        - 'INSTALL_TOKENIZER=${PHP_FPM_INSTALL_TOKENIZER:-false}'
+        - 'INSTALL_INTL=${PHP_FPM_INSTALL_INTL:-false}'
+        - 'INSTALL_PCNTL=${PHP_FPM_INSTALL_PCNTL:-false}'
+        - 'INSTALL_V8JS=${PHP_FPM_INSTALL_V8JS:-false}'
+        - 'INSTALL_SUHOSIN=${PHP_FPM_INSTALL_SUHOSIN:-false}'
+        - 'INSTALL_INOTIFY=${PHP_FPM_INSTALL_INOTIFY:-false}'
+        - 'INSTALL_GHOSTSCRIPT=${PHP_FPM_INSTALL_GHOSTSCRIPT:-false}'
+        - 'INSTALL_LDAP=${PHP_FPM_INSTALL_LDAP:-false}'
+        - 'INSTALL_MSSQL=${PHP_FPM_INSTALL_MSSQL:-false}'
+        - 'INSTALL_IMAGE_OPTIMIZERS=${PHP_FPM_INSTALL_IMAGE_OPTIMIZERS:-false}'
+        - 'INSTALL_IMAGEMAGICK=${PHP_FPM_INSTALL_IMAGEMAGICK:-false}'
     volumes_from:
       - applications
     volumes:
@@ -210,35 +212,39 @@ services:
     depends_on:
       - workspace
     extra_hosts:
-      - 'dockerhost:${DOCKER_HOST_IP}'
+      - 'dockerhost:${DOCKER_HOST_IP:-10.3.2.1}'
     environment:
-      - 'PHP_IDE_CONFIG=${PHP_IDE_CONFIG}'
-    restart: always
+      - 'PHP_IDE_CONFIG=${PHP_IDE_CONFIG:-phpstorm}'
+    restart: ${PHP_FPM_RESTART:-always}
+    cpus: ${PHP_FPM_CPU_LIMIT:-1}
+    mem_limit: ${PHP_FPM_MEMORY_LIMIT:-1g}
     networks:
       - backend
   caddy:
     build:
       context: ./caddy
       args:
-        - 'TZ=${TIMEZONE}'
-        - 'CADDY_PLUGINS=${CADDY_PLUGINS}'
-        - 'CADDY_LICENSE=${CADDY_LICENSE}'
-        - 'HTTP_PORT=${HTTP_PORT}'
-        - 'HTTPS_PORT=${HTTPS_PORT}'
-        - 'HTTP_OTHER_PORT=${HTTP_OTHER_PORT}'
+        - 'TZ=${TIMEZONE:-UTC}'
+        - 'CADDY_PLUGINS=${CADDY_PLUGINS:-http}'
+        - 'CADDY_LICENSE=${CADDY_LICENSE:-personal}'
+        - 'HTTP_PORT=${HTTP_PORT:-80}'
+        - 'HTTPS_PORT=${HTTPS_PORT:-443}'
+        - 'HTTP_OTHER_PORT=${HTTP_OTHER_PORT:-2018}'
     volumes_from:
       - applications
     volumes:
-      - '${CADDY_CUSTOM_CADDYFILE}:/etc/CaddyFile'
+      - '${CADDY_CUSTOM_CADDYFILE:-./Caddyfile}:/etc/CaddyFile'
       - '${LOG_DATA_SAVE_PATH}/caddy:/var/log'
       - '${DATA_SAVE_PATH}/caddy:/root/.caddy'
     ports:
-      - '${HTTP_PORT}:80'
-      - '${HTTPS_PORT}:443'
-      - '${HTTP_OTHER_PORT}:2018'
+      - '${HTTP_PORT:-80}:80'
+      - '${HTTPS_PORT:-443}:443'
+      - '${HTTP_OTHER_PORT:-2018}:2018'
     depends_on:
       - php-fpm
-    restart: always
+    restart: ${CADDY_RESTART:-always}
+    cpus: ${CADDY_CPU_LIMIT:-1}
+    mem_limit: ${CADDY_MEMORY_LIMIT:1g}
     networks:
       - frontend
       - backend
@@ -246,10 +252,10 @@ services:
     build:
       context: ./nginx
       args:
-        - 'NGINX_VERSION=${NGINX_VERSION}'
-        - 'TZ=${TIMEZONE}'
-        - 'PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}'
-        - 'PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}'
+        - 'NGINX_VERSION=${NGINX_VERSION:-latest}'
+        - 'TZ=${TIMEZONE:-UTC}'
+        - 'PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER:-php-fpm}'
+        - 'PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT:-9000}'
     volumes_from:
       - applications
     volumes:
@@ -257,12 +263,14 @@ services:
       - './nginx/nginx.conf:/etc/nginx/nginx.conf:ro'
       - '${NGINX_SITES_PATH}:/etc/nginx/sites-enabled:ro'
     ports:
-      - '${HTTP_PORT}:80'
-      - '${HTTPS_PORT}:443'
-      - '${HTTP_OTHER_PORT}:2018'
+      - '${HTTP_PORT:-80}:80'
+      - '${HTTPS_PORT:-443}:443'
+      - '${HTTP_OTHER_PORT:-2018}:2018'
     depends_on:
       - php-fpm
-    restart: always
+    restart: ${NGINX_RESTART:-always}
+    cpus: ${NGINX_CPU_LIMIT:-1}
+    mem_limit: ${NGINX_MEMORY_LIMIT:-1g}
     networks:
       - frontend
       - backend
@@ -270,179 +278,199 @@ services:
     build:
       context: ./mariadb
       args:
-        - 'TZ=${TIMEZONE}'
-        - 'MARIADB_VERSION=${MARIADB_VERSION}'
+        - 'TZ=${TIMEZONE:-UTC}'
+        - 'MARIADB_VERSION=${MARIADB_VERSION:-latest}'
     volumes:
       - '${DATA_SAVE_PATH}/mariadb:/var/lib/mysql'
       - '${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d'
+      - '${LOG_DATA_SAVE_PATH}/mariadb:/var/log'
     ports:
-      - '${MARIADB_PORT}:3306'
+      - '${MARIADB_PORT:-3306}:3306'
     environment:
-      - 'MYSQL_DATABASE=${MARIADB_DATABASE}'
-      - 'MYSQL_USER=${MARIADB_USER}'
-      - 'MYSQL_PASSWORD=${MARIADB_PASSWORD}'
-      - 'MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}'
-    restart: always
+      - 'MYSQL_DATABASE=${MARIADB_DATABASE:-default}'
+      - 'MYSQL_USER=${MARIADB_USER:-default}'
+      - 'MYSQL_PASSWORD=${MARIADB_PASSWORD:-secret}'
+      - 'MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD:-root}'
+    restart: ${MARIADB_RESTART:-always}
+    cpus: ${MARIADB_CPU_LIMIT:-1}
+    mem_limit: ${MARIADB_MEMORY_LIMIT:-1g}
     networks:
       - backend
   mysql:
     build:
       context: ./mysql
       args:
-        - 'TZ=${TIMEZONE}'
-        - 'PERCONA_VERSION=${PERCONA_VERSION}'
+        - 'TZ=${TIMEZONE:-UTC}'
+        - 'PERCONA_VERSION=${MYSQL_VERSION:-latest}'
     volumes:
       - '${DATA_SAVE_PATH}/mysql:/var/lib/mysql'
       - '${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d'
       - '${LOG_DATA_SAVE_PATH}/mysql:/var/log'
     ports:
-      - '${MYSQL_PORT}:3306'
+      - '${MYSQL_PORT:-3306}:3306'
     environment:
-      - 'MYSQL_DATABASE=${MYSQL_DATABASE}'
-      - 'MYSQL_USER=${MYSQL_USER}'
-      - 'MYSQL_PASSWORD=${MYSQL_PASSWORD}'
-      - 'MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}'
-      - 'TZ=${TIMEZONE}'
-    restart: always
+      - 'MYSQL_DATABASE=${MYSQL_DATABASE:-default}'
+      - 'MYSQL_USER=${MYSQL_USER:-default}'
+      - 'MYSQL_PASSWORD=${MYSQL_PASSWORD:-secret}'
+      - 'MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}'
+      - 'TZ=${TIMEZONE:-UTC}'
+    restart: ${MYSQL_RESTART:-always}
+    cpus: ${MYSQL_CPU_LIMIT:-1}
+    mem_limit: ${MYSQL_MEMORY_LIMIT:1g}
     networks:
       - backend
   percona:
     build:
       context: ./percona
       args:
-        - 'TZ=${TIMEZONE}'
-        - 'PERCONA_VERSION=${PERCONA_VERSION}'
+        - 'TZ=${TIMEZONE:-UTC}'
+        - 'PERCONA_VERSION=${PERCONA_VERSION:-latest}'
     volumes:
+      - '${DATA_SAVE_PATH}/percona:/var/lib/mysql'
       - '${LOG_DATA_SAVE_PATH}/percona:/var/log'
     environment:
-      - 'MYSQL_DATABASE=${PERCONA_DATABASE}'
-      - 'MYSQL_USER=${PERCONA_USER}'
-      - 'MYSQL_PASSWORD=${PERCONA_PASSWORD}'
-      - 'MYSQL_ROOT_PASSWORD=${PERCONA_ROOT_PASSWORD}'
-      - 'TZ=${TIMEZONE}'
+      - 'MYSQL_DATABASE=${PERCONA_DATABASE:-default}'
+      - 'MYSQL_USER=${PERCONA_USER:-default}'
+      - 'MYSQL_PASSWORD=${PERCONA_PASSWORD:-secret}'
+      - 'MYSQL_ROOT_PASSWORD=${PERCONA_ROOT_PASSWORD:-root}'
+      - 'TZ=${TIMEZONE:-UTC}'
     ports:
-      - '${PERCONA_PORT}:3306'
-    restart: always
+      - '${PERCONA_PORT:-3306}:3306'
+    restart: ${PERCONA_RESTART:-always}
+    cpus: ${PERCONA_CPU_LIMIT:1}
+    mem_limit: ${PERCONA_MEMORY_LIMIT:1g}
     networks:
       - backend
   postgres:
     build:
       context: ./postgres
       args:
-        - 'POSTGRES_VERSION=${POSTGRES_VERSION}'
-        - 'TZ=${TIMEZONE}'
+        - 'POSTGRES_VERSION=${POSTGRES_VERSION:-latest}'
+        - 'TZ=${TIMEZONE:-UTC}'
     volumes:
       - '${DATA_SAVE_PATH}/postgres:/var/lib/postgresql'
       - '${LOG_DATA_SAVE_PATH}/postgres:/var/log'
     environment:
-      - 'POSTGRES_DB=${POSTGRES_DB}'
-      - 'POSTGRES_USER=${POSTGRES_USER}'
-      - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD}'
+      - 'POSTGRES_DB=${POSTGRES_DB:-default}'
+      - 'POSTGRES_USER=${POSTGRES_USER:-default}'
+      - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-secret}'
     ports:
-      - '${POSTGRES_PORT}:5432'
-    restart: always
+      - '${POSTGRES_PORT:-5432}:5432'
+    restart: ${POSTGRES_RESTART:-always}
+    cpus: ${POSTGRES_CPU_LIMIT:-1}
+    mem_limit: ${POSTGRES_MEMORY_LIMIT:-1g}
     networks:
       - backend
   postgres-postgis:
     build:
       context: ./postgres-postgis
       args:
-        - 'TZ=${TIMEZONE}'
-        - 'POSTGIS_VERSION=${POSTGIS_VERSION}'
+        - 'TZ=${TIMEZONE:-UTC}'
+        - 'POSTGIS_VERSION=${POSTGIS_VERSION:-latest}'
     volumes:
       - '${DATA_SAVE_PATH}/postgis:/var/lib/postgresql'
       - '${LOG_DATA_SAVE_PATH}/postgis:/var/log'
     environment:
-      - 'POSTGRES_DB=${POSTGRES_DB}'
-      - 'POSTGRES_USER=${POSTGRES_USER}'
-      - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD}'
+      - 'POSTGRES_DB=${POSTGRES_DB:-default}'
+      - 'POSTGRES_USER=${POSTGRES_USER:-default}'
+      - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-secret}'
     ports:
-      - '${POSTGIS_PORT}:5432'
-    restart: always
+      - '${POSTGIS_PORT:-5432}:5432'
+    restart: ${POSTGIS_RESTART:-always}
+    cpus: ${POSTGIS_CPU_LIMIT:-1}
+    mem_limit: ${POSTGIS_MEMORY_LIMIT:-1.5g}
     networks:
       - backend
   elasticsearch:
     build:
       context: ./elasticsearch
       args:
-        - 'ELASTICSEARCH_VERSION=${ELASTICSEARCH_VERSION}'
-        - 'ELASTICSEARCH_ENABLE_SECURITY=${ELASTICSEARCH_ENABLE_SECURITY}'
-        - 'ELASTICSEARCH_SMARTCN_ANALYZER=${ELASTICSEARCH_SMARTCN_ANALYZER}'
-        - 'ELASTICSEARCH_IK_ANALYZER=${ELASTICSEARCH_IK_ANALYZER}'
-        - 'ELASTICSEARCH_ANSJ_ANALYZER=${ELASTICSEARCH_ANSJ_ANALYZER}'
+        - 'ELASTICSEARCH_VERSION=${ELASTICSEARCH_VERSION:-6.2.2}'
+        - 'ELASTICSEARCH_ENABLE_SECURITY=${ELASTICSEARCH_ENABLE_SECURITY:-false}'
+        - 'ELASTICSEARCH_SMARTCN_ANALYZER=${ELASTICSEARCH_SMARTCN_ANALYZER:-false}'
+        - 'ELASTICSEARCH_IK_ANALYZER=${ELASTICSEARCH_IK_ANALYZER:-false}'
+        - 'ELASTICSEARCH_ANSJ_ANALYZER=${ELASTICSEARCH_ANSJ_ANALYZER:-false}'
     environment:
-      - 'http.host=${ELASTICSEARCH_HTTP_HOST}'
-      - 'transport.host=${ELASTICSEARCH_TRANSPORT_HOST}'
-      - 'xpack.security.enabled=${ELASTICSEARCH_ENABLE_SECURITY}'
-      - 'xpack.monitoring.enable=${ELASTICSEARCH_ENABLE_SECURITY}'
+      - 'http.host=${ELASTICSEARCH_HTTP_HOST:-9200}'
+      - 'transport.host=${ELASTICSEARCH_TRANSPORT_HOST:-9300}'
+      - 'xpack.security.enabled=${ELASTICSEARCH_ENABLE_SECURITY:-false}'
+      - 'xpack.monitoring.enable=${ELASTICSEARCH_ENABLE_SECURITY:-false}'
       - bootstrap.memory_lock=true
-      - 'ES_JAVA_OPTS=-Xms${ELASTICSEARCH_MIN_MEMORY} -Xmx${ELASTICSEARCH_MAX_MEMORY}'
+      - 'ES_JAVA_OPTS=-Xms${ELASTICSEARCH_MIN_MEMORY:-512m} -Xmx${ELASTICSEARCH_MAX_MEMORY}'
     ulimits:
       memlock:
         soft: -1
         hard: -1
-    mem_limit: '${ELASTICSEARCH_LIMIT_MEMORY}'
+    mem_limit: '${ELASTICSEARCH_LIMIT_MEMORY:-1g}'
     volumes:
       - './elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro'
       - '${LOG_DATA_SAVE_PATH}/elasticsearch:/var/log'
       - '${DATA_SAVE_PATH}/elasticsearch:/usr/share/elasticsearch/data'
     ports:
-      - '${ELASTICSEARCH_HOST_HTTP_PORT}:9200'
-      - '${ELASTICSEARCH_HOST_TRANSPORT_PORT}:9300'
-    restart: always
+      - '${ELASTICSEARCH_HOST_HTTP_PORT:-9200}:9200'
+      - '${ELASTICSEARCH_HOST_TRANSPORT_PORT:-9300}:9300'
+    restart: ${ELASTICSEARCH_RESTART:-always}
+    cpus: ${ELASTICSEARCH_CPU_LIMIT:-1}
+    mem_limit: ${ELASTICSEARCH_MEMORY_LIMIT:1.5g}
     networks:
       - backend
   mongo:
     build:
       context: ./mongo
       args:
-        - 'TZ=${TIMEZONE}'
-        - 'MONGO_VERSION=${MONGO_VERSION}'
+        - 'TZ=${TIMEZONE:-UTC}'
+        - 'MONGO_VERSION=${MONGO_VERSION:-latest}'
     volumes:
       - '${DATA_SAVE_PATH}/mongo:/data/db'
       - '${LOG_DATA_SAVE_PATH}/mongo:/var/log'
     ports:
-      - '${MONGO_PORT}:27017'
-    restart: always
+      - '${MONGO_PORT:-27017}:27017'
+    restart: ${MONGO_RESTART:-always}
+    cpus: ${MONGO_CPU_LIMIT:-1}
+    mem_limit: ${MONGO_MEMORY_LIMIT:1g}
     networks:
       - backend
   redis:
     build:
       context: ./redis
       args:
-        - 'TZ=${TIMEZONE}'
-        - 'REDIS_VERSION=${REDIS_VERSION}'
+        - 'TZ=${TIMEZONE:-UTC}'
+        - 'REDIS_VERSION=${REDIS_VERSION:-latest}'
     volumes:
       - '${DATA_SAVE_PATH}/redis:/data'
       - '${LOG_DATA_SAVE_PATH}/redis:/var/log'
     ports:
-      - '${REDIS_PORT}:6379'
-    restart: always
+      - '${REDIS_PORT:-6379}:6379'
+    restart: ${REDIS_RESTART:-always}
+    cpus: ${REDIS_CPU_LIMIT:-1}
+    mem_limit: ${REDIS_MEMORY_LIMIT:-1g}
     networks:
       - backend
   memcached:
     build:
       context: ./memcached
       args:
-        - 'TZ=${TIMEZONE}'
-        - 'MEMCACHED_VERSION=${MEMCACHED_VERSION}'
+        - 'TZ=${TIMEZONE:-UTC}'
+        - 'MEMCACHED_VERSION=${MEMCACHED_VERSION:-latest}'
     volumes:
       - '${LOG_DATA_SAVE_PATH}/memcached:/var/log'
     ports:
-      - '${MEMCACHED_PORT}:11211'
-    restart: always
+      - '${MEMCACHED_PORT:-11211}:11211'
+    restart: ${MEMCACHED_RESTART:-always}
+    cpus: ${MEMCACHED_CPU_LIMIT:-1}
+    MEMCACHED_MEMORY_LIMIT: ${MEMCACHED_MEMORY_LIMIT:-1g}
     networks:
       - backend
   kibana:
     build:
       context: ./kibana
       args:
-        - 'KIBANA_VERSION=${KIBANA_VERSION}'
-        - 'KIBANA_ENABLE_SECURITY=${KIBANA_ENABLE_SECURITY}'
+        - 'KIBANA_VERSION=${KIBANA_VERSION:-6.2.2}'
+        - 'KIBANA_ENABLE_SECURITY=${KIBANA_ENABLE_SECURITY:-false}'
     environment:
-      - 'ELASTICSEARCH_URL=http://elasticsearch:${ELASTICSEARCH_HOST_HTTP_PORT}'
-      - 'XPACK_MONITORING_ENABLED=${KIBANA_ENABLE_SECURITY}'
-      - 'XPACK_SECURITY_ENABLED=${KIBANA_ENABLE_SECURITY}'
+      - 'ELASTICSEARCH_URL=http://elasticsearch:${ELASTICSEARCH_HOST_HTTP_PORT:-9300}'
+      - 'XPACK_MONITORING_ENABLED=${KIBANA_ENABLE_SECURITY:-false}'
+      - 'XPACK_SECURITY_ENABLED=${KIBANA_ENABLE_SECURITY:-false}'
     volumes:
       - './kibana/config:/usr/share/kibana/config:ro'
       - '${LOG_DATA_SAVE_PATH}/kibana:/var/log'
@@ -450,10 +478,12 @@ services:
     links:
       - elasticsearch
     ports:
-      - '${KIBANA_PORT}:5601'
+      - '${KIBANA_PORT:-5601}:5601'
     depends_on:
       - elasticsearch
-    restart: always
+    restart: ${KIBANA_RESTART:-always}
+    cpus: ${KIBANA_CPU_LIMIT:-1}
+    mem_limit: ${KIBANA_MEMORY_LIMIT:1g}
     networks:
       - frontend
       - backend
@@ -461,9 +491,9 @@ services:
     build:
       context: ./logstash
       args:
-        - 'LOGSTASH_VERSION=${LOGSTASH_VERSION}'
+        - 'LOGSTASH_VERSION=${LOGSTASH_VERSION:-6.2.2}'
     environment:
-      - 'LS_JAVA_OPTS=-Xms${LOGSTASH_MIN_MEMORY} -Xmx${LOGSTASH_MAX_MEMORY}'
+      - 'LS_JAVA_OPTS=-Xms${LOGSTASH_MIN_MEMORY:-256m} -Xmx${LOGSTASH_MAX_MEMORY:-256m}'
     volumes:
       - './logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro'
       - './logstash/pipeline:/usr/share/logstash/pipeline:ro'
@@ -472,45 +502,51 @@ services:
     links:
       - elasticsearch
     ports:
-      - '${LOGSTASH_PORT}:5002'
+      - '${LOGSTASH_PORT:-5002}:5002'
     depends_on:
       - elasticsearch
-    restart: always
+    restart: ${LOGSTASH_RESTART:-always}
+    cpus: ${LOGSTASH_CPU_LIMIT:-1}
+    mem_limit: ${LOGSTASH_MEMORY_LIMIT:-1g}
     networks:
       - backend
   rethinkdb:
     build:
       context: ./rethinkdb
       args:
-        - 'RETHINKDB_VERSION=${RETHINKDB_VERSION}'
-        - 'TZ=${TIMEZONE}'
+        - 'RETHINKDB_VERSION=${RETHINKDB_VERSION:-latest}'
+        - 'TZ=${TIMEZONE:-UTC}'
     volumes:
       - '${DATA_SAVE_PATH}/rethinkdb:/data/rethinkdb_data'
       - '${LOG_DATA_SAVE_PATH}/rethinkdb:/var/log'
     ports:
       - '${RETHINKDB_PORT}:8080'
-    restart: always
+    restart: ${RETHINKDB_RESTART:-always}
+    cpus: ${RETHINKDB_CPU_LIMIT:-1}
+    mem_limit: ${RETHINKDB_MEMORY_LIMIT:1g}
     networks:
       - backend
   rabbitmq:
     build:
       context: ./rabbitmq
       args:
-        - 'RABBITMQ_VERSION=${RABBITMQ_VERSION}'
-        - 'TZ=${TIMEZONE}'
+        - 'RABBITMQ_VERSION=${RABBITMQ_VERSION:-latest}'
+        - 'TZ=${TIMEZONE:-UTC}'
     environment:
-      - 'RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}'
-      - 'RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}'
-      - 'RABBITMQ_DEFAULT_VHOST=${RABBITMQ_VHOST}'
-      - 'RABBITMQ_ERLANG_COOKIE=${RABBITMQ_COOKIE}'
+      - 'RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-test}'
+      - 'RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-test}'
+      - 'RABBITMQ_DEFAULT_VHOST=${RABBITMQ_VHOST:-/}'
+      - 'RABBITMQ_ERLANG_COOKIE=${RABBITMQ_COOKIE:-test}'
     volumes:
       - '${LOG_DATA_SAVE_PATH}/rabbitmq:/var/log'
       - '${DATA_SAVE_PATH}/rabbitmq:/var/lib/rabbitmq'
     ports:
-      - '${RABBITMQ_NODE_HOST_PORT}:5672'
-      - '${RABBIT_MANAGEMENT_HTTP_HOST_PORT}:15672'
-      - '${RABBIT_MANAGEMENT_HTTPS_HOST_PORT}:15671'
-    restart: always
+      - '${RABBITMQ_NODE_HOST_PORT:-5672}:5672'
+      - '${RABBITMQ_MANAGEMENT_HTTP_HOST_PORT:-15672}:15672'
+      - '${RABBITMQ_MANAGEMENT_HTTPS_HOST_PORT:15671}:15671'
+    restart: ${RABBITMQ_RESTART:-always}
+    cpus: ${RABBITMQ_CPU_LIMIT:-1}
+    mem_limit: ${RABBITMQ_MEMORY_LIMIT:-1g}
     networks:
       - backend
   php-worker:
@@ -518,21 +554,21 @@ services:
       context: ./php-worker
       args:
         - 'PHP_VERSION=${PHP_VERSION}'
-        - 'INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI}'
-        - 'INSTALL_MBSTRING=${PHP_FPM_INSTALL_MBSTRING}'
-        - 'INSTALL_JSON=${PHP_FPM_INSTALL_JSON}'
-        - 'INSTALL_CURL=${PHP_FPM_INSTALL_CURL}'
-        - 'INSTALL_ICONV=${PHP_FPM_INSTALL_ICONV}'
-        - 'INSTALL_TOKENIZER=${PHP_FPM_INSTALL_TOKENIZER}'
-        - 'INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH}'
-        - 'INSTALL_EXIF={PHP_FPM_INSTALL_EXIF}'
-        - 'INSTALL_XML=${PHP_FPM_INSTALL_XML}'
-        - 'INSTALL_INTL=${PHP_FPM_INSTALL_INTL}'
-        - 'INSTALL_GMP=${PHP_FPM_INSTALL_GMP}'
-        - 'INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL}'
-        - 'INSTALL_REDIS=${PHP_FPM_INSTALL_PHPREDIS}'
-        - 'INSTALL_MEMCACHED=${PHP_FPM_INSTALL_MEMCACHED}'
-        - 'TZ=${TIMEZONE}'
+        - 'INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI:-true}'
+        - 'INSTALL_MBSTRING=${PHP_FPM_INSTALL_MBSTRING:-true}'
+        - 'INSTALL_JSON=${PHP_FPM_INSTALL_JSON:-true}'
+        - 'INSTALL_CURL=${PHP_FPM_INSTALL_CURL:-true}'
+        - 'INSTALL_ICONV=${PHP_FPM_INSTALL_ICONV:-true}'
+        - 'INSTALL_TOKENIZER=${PHP_FPM_INSTALL_TOKENIZER:-true}'
+        - 'INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH:-true}'
+        - 'INSTALL_EXIF={PHP_FPM_INSTALL_EXIF:-true}'
+        - 'INSTALL_XML=${PHP_FPM_INSTALL_XML:-true}'
+        - 'INSTALL_INTL=${PHP_FPM_INSTALL_INTL:-true}'
+        - 'INSTALL_GMP=${PHP_FPM_INSTALL_GMP:-true}'
+        - 'INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL:-true}'
+        - 'INSTALL_REDIS=${PHP_FPM_INSTALL_PHPREDIS:-true}'
+        - 'INSTALL_MEMCACHED=${PHP_FPM_INSTALL_MEMCACHED:-true}'
+        - 'TZ=${TIMEZONE:-UTC}'
     volumes:
       - '${LOG_DATA_SAVE_PATH}/php-worker:/var/log'
       - './php-worker/supervisord.conf:/etc/supervisord.conf:ro'
@@ -542,79 +578,86 @@ services:
       - workspace
     extra_hosts:
       - 'dockerhost:${DOCKER_HOST_IP}'
-    restart: always
+    restart: ${PHP_WORKER_RESTART:-always}
+    cpus: ${PHP_WORKER_CPU_LIMIT:-1}
+    mem_limit: ${PHP_WORKER_MEMORY_LIMIT:-1g}
     networks:
       - backend
   phpmyadmin:
     build:
       context: ./phpmyadmin
       args:
-        - 'PMA_VERSION=${PMA_VERSION}'
+        - 'PMA_VERSION=${PMA_VERSION:-latest}'
     environment:
       - PMA_ARBITRARY=1
-      - 'PMA_HOST=${PMA_HOST}'
-      - 'PMA_PORT=${PMA_PORT}'
-      - 'PMA_USER=${PMA_USER}'
-      - 'PMA_PASSWORD=${PMA_PASSWORD}'
+      - 'PMA_HOST=${PMA_HOST:-mariadb}'
+      - 'PMA_PORT=${PMA_PORT:-3306}'
+      - 'PMA_USER=${PMA_USER:-root}'
+      - 'PMA_PASSWORD=${PMA_PASSWORD:-root}'
     ports:
-      - '${PMA_EXT_PORT}:80'
+      - '${PMA_EXT_PORT:-80}:80'
     depends_on:
-      - '${PMA_DB_ENGINE}'
-    restart: always
+      - '${PMA_DB_ENGINE:-mariadb}'
+    restart: ${PMA_RESTART:-always}
+    cpus: ${PMA_CPU_LIMIT:-1}
+    mem_limit: ${PMA_MEMORY_LIMIT:1g}
     networks:
       - backend
       - frontend
   gitlab:
-    image: 'gitlab/gitlab-ce:${GITLAB_VERSION}'
+    image: 'gitlab/gitlab-ce:${GITLAB_VERSION:-latest}'
     volumes:
-      - '${DATA_SAVE_PATH}/gitlab/${GITLAB_CONF_DIR}:/etc/gitlab'
-      - '${DATA_SAVE_PATH}/gitlab/${GITLAB_HOME_DIR}:/var/opt/gitlab'
-      - '${LOG_DATA_SAVE_PATH}/gitlab/${GITLAB_LOG_DIR}:/var/log/gitlab'
+      - '${DATA_SAVE_PATH}/gitlab/${GITLAB_CONF_DIR:-config}:/etc/gitlab'
+      - '${DATA_SAVE_PATH}/gitlab/${GITLAB_HOME_DIR:-home}:/var/opt/gitlab'
+      - '${LOG_DATA_SAVE_PATH}/gitlab:/var/log/gitlab'
     ports:
-      - '${GITLAB_HTTP_PORT}:80'
-      - '${GITLAB_HTTPS_PORT}:443'
-      - '${GITLAB_SSH_PORT}:22'
-    restart: always
+      - '${GITLAB_HTTP_PORT:-80}:80'
+      - '${GITLAB_HTTPS_PORT:-443}:443'
+      - '${GITLAB_SSH_PORT:-22}:22'
+    restart: ${GITLAB_RESTART:-always}
+    cpus: ${GITLAB_CPU_LIMIT:-1}
+    mem_limit: ${GITLAB_MEMORY_LIMIT:-2g}
     networks:
       - frontend
   nodejs:
     build:
       context: nodejs
       args:
-        - 'NODEJS_VERSION=${NODEJS_VERSION}'
-        - 'NODEJS_USER=${NODEJS_USER}'
-        - 'NODEJS_YARN_VERSION=${NODEJS_YARN_VERSION}'
+        - 'NODEJS_VERSION=${NODEJS_VERSION:-latest}'
+        - 'NODEJS_USER=${NODEJS_USER:-kimhsiao}'
+        - 'NODEJS_YARN_VERSION=${NODEJS_YARN_VERSION:-latest}'
     environment:
-      - 'NODE_ENV=${NODEJS_ENV}'
-      - 'mem_limit=${NODEJS_MEMORY_LIMIT}'
-      - 'memswap_limit=${NODEJS_MEMORY_SWAP_LIMIT}'
+      - 'NODE_ENV=${NODEJS_ENV:-develop}'
+      - 'mem_limit=${NODEJS_MEMORY_LIMIT:-512M}'
+      - 'memswap_limit=${NODEJS_MEMORY_SWAP_LIMIT:-1G}'
     volumes:
       - '${NODEJS_WORKING_DIR}:/home/${NODEJS_USER}/app'
       - '${LOG_DATA_SAVE_PATH}/nodejs:/var/log'
     ports:
-      - '${NODEJS_PORT_MAPPING_1}:80'
-      - '${NODEJS_PORT_MAPPING_2}:443'
-      - '${NODEJS_PORT_MAPPING_3}:3000'
-      - '${NODEJS_PORT_MAPPING_4}:8080'
-    restart: always
+      - '${NODEJS_PORT_MAPPING_1:-80}:80'
+      - '${NODEJS_PORT_MAPPING_2:-443}:443'
+      - '${NODEJS_PORT_MAPPING_3:-3000}:3000'
+      - '${NODEJS_PORT_MAPPING_4:-8080}:8080'
+    restart: ${NODEJS_RESTART:-always}
+    cpus: ${NODEJS_CPU_LIMIT:-1}
+    mem_limit: ${NODEJS_MEMORY_LIMIT:-2g}
     networks:
       - backend
       - frontend
   cratedb:
-    image: 'library/crate:${CRATEDB_VERSION}'
+    image: 'library/crate:${CRATEDB_VERSION:-latest}'
     environment:
-      - 'CRATE_HEAP_SIZE=${CRATEDB_HEAP_SIZE}'
-
-    cpus: ${CRATEDB_CPU_LIMIT}
-    mem_limit: ${CRATEDB_MEMORY_LIMIT}
+      - 'CRATE_HEAP_SIZE=${CRATEDB_HEAP_SIZE:-1g}'
     volumes:
       - '${DATA_SAVE_PATH}/cratedb:/data'
       - '${LOG_DATA_SAVE_PATH}/cratedb:/var/log'
     ports:
-      - '${CRATEDB_HTTP_PORT}:4200'
-      - '${CRATEDB_TRANSPORT_PORT}:4300'
-      - '${CRATEDB_PGSQL_PROTOCOL_PORT}:5432'
-    restart: always
+      - '${CRATEDB_HTTP_PORT:-4200}:4200'
+      - '${CRATEDB_TRANSPORT_PORT:-4300}:4300'
+      - '${CRATEDB_PGSQL_PROTOCOL_PORT:-5432}:5432'
+    restart: ${CRATEDB_RESTART:-always}
+    cpus: ${CRATEDB_CPU_LIMIT:-1}
+    mem_limit: ${CRATEDB_MEMORY_LIMIT:-2g}
     networks:
       - backend
       - frontend
