@@ -537,6 +537,21 @@ CRATEDB_RESTART=always
 CRATEDB_CPU_LIMIT=1.5
 CRATEDB_MEMORY_LIMIT=1g
 
+#####################################
+# Python
+#####################################
+
+PYTHON_VERSION=3
+PYTHON_HTTP_PORT=20080
+PYTHON_HTTPS_PORT=20443
+PYTHON_OTHER_PORT=28000
+#--------------------
+# system setting
+#--------------------
+PYTHON_RESTART=always
+PYTHON_CPU_LIMIT=1
+PYTHON_MEMORY_LIMIT=1g
+
 
 #####################################
 # NETWORK setting

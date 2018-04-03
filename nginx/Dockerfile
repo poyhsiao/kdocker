@@ -36,6 +36,9 @@ ARG PHP_UPSTREAM_PORT=9000
 RUN echo "upstream php-upstream { server ${PHP_UPSTREAM_CONTAINER}:${PHP_UPSTREAM_PORT}; }" > /etc/nginx/conf.d/upstream.conf \
     && rm /etc/nginx/conf.d/default.conf
 
+RUN rm /var/cache/apk/* && \
+    rm -rf /tmp/*
+    
 EXPOSE 80 443 2018
 
 CMD ["nginx"]

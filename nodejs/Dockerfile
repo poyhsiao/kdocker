@@ -85,8 +85,9 @@ RUN cd \tmp && \
 
 USER root
 
-RUN rm -rf /tmp && \
-    apk del .build
+RUN apk del .build && \
+    rm /var/cache/apk/* && \
+    rm -rf /tmp/*
 
 USER ${NODEJS_USER}
 

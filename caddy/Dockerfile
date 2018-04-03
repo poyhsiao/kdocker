@@ -38,6 +38,7 @@ RUN cd /tmp && \
 # remove devs
 
 RUN apk del .devs && \
+    rm /var/cache/apk/* && \
     rm -rf /tmp/*
 
 # copy setting file to target

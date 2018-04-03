@@ -20,6 +20,9 @@ RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
 RUN apk update && \
     apk upgrade
 
+RUN rm /var/cache/apk/* && \
+    rm -rf /tmp/*
+
 EXPOSE 11211
 
 USER memcache
