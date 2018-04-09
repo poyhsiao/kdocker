@@ -348,7 +348,7 @@ services:
         - 'POSTGRES_VERSION=${POSTGRES_VERSION:-latest}'
         - 'TZ=${TIMEZONE:-UTC}'
     volumes:
-      - '${DATA_SAVE_PATH}/postgres:/var/lib/postgresql'
+      - '${DATA_SAVE_PATH}/postgres:/var/lib/postgresql/data'
       - '${LOG_DATA_SAVE_PATH}/postgres:/var/log'
     environment:
       - 'POSTGRES_DB=${POSTGRES_DB:-default}'
@@ -368,7 +368,7 @@ services:
         - 'TZ=${TIMEZONE:-UTC}'
         - 'POSTGIS_VERSION=${POSTGIS_VERSION:-latest}'
     volumes:
-      - '${DATA_SAVE_PATH}/postgis:/var/lib/postgresql'
+      - '${DATA_SAVE_PATH}/postgis:/var/lib/postgresql/data'
       - '${LOG_DATA_SAVE_PATH}/postgis:/var/log'
     environment:
       - 'POSTGRES_DB=${POSTGRES_DB:-default}'
@@ -668,7 +668,7 @@ services:
         - 'PYTHON_VERSION=${PYTHON_VERSION:-3}'
         - 'TZ=${TIMEZONE:-UTC}'
     volumes:
-      - "${LOG_DATA_SAVE_PATH}/python:/var/log"
+      - '${LOG_DATA_SAVE_PATH}/python:/var/log'
     volumes_from:
       - applications
     ports:
