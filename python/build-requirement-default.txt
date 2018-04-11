@@ -1,3 +1,2 @@
-mariadb-dev
-postgresql-dev
-sqlite-dev
+default-libmysqlclient-dev
+libmemcached-dev
