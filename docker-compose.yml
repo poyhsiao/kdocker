@@ -266,8 +266,6 @@ services:
       - '${HTTP_PORT:-80}:80'
       - '${HTTPS_PORT:-443}:443'
       - '${HTTP_OTHER_PORT:-2018}:2018'
-    depends_on:
-      - php-fpm
     restart: ${NGINX_RESTART:-always}
     cpus: ${NGINX_CPU_LIMIT:-1}
     mem_limit: ${NGINX_MEMORY_LIMIT:-1g}
