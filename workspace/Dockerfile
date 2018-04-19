@@ -64,14 +64,14 @@ ENV TERM xterm
 # Add a non-root user to prevent files being created with root permissions on host machine.
 ARG PUID=1000
 ARG PGID=1000
-ARG USER
+ARG DOCKER_USER=kim
 
 ENV PUID ${PUID}
 ENV PGID ${PGID}
-ENV USER ${USER}
+ENV DOCKER_USER ${DOCKER_USER}
 
-RUN groupadd -g ${PGID} ${USER} && \
-    useradd -u ${PUID} -g ${USER} -m ${USER}
+RUN groupadd -g ${PGID} ${DOCKER_USER} && \
+    useradd -u ${PUID} -g ${DOCKER_USER} -m ${DOCKER_USER}
 
 ##############################
 # Set Timezone
@@ -1104,11 +1104,11 @@ RUN . ~/.bashrc
 
 # install prestissimo to speed up composer packages installation
 
-COPY ./composer.json /home/${USER}/.composer/composer.json
+COPY ./composer.json /home/${DOCKER_USER}/.composer/composer.json
 
-RUN chown -R ${USER}:${USER} /home/${USER}/.composer
+RUN chown -R ${DOCKER_USER}:${DOCKER_USER} /home/${DOCKER_USER}/.composer
 
-USER ${USER}
+USER ${DOCKER_USER}
 
 RUN echo "export PATH=${PATH}:/usr/local/bin:~/.composer/vendor/bin" >> ~/.bashrc && \
     . ~/.bashrc
@@ -1152,7 +1152,7 @@ RUN if [ ${INSTALL_DRUPAL_CONSOLE} = true ]; then \
 #####################################
 
 # add ./vendor/bin to non-root user's bashrc (needed for phpunit)
-USER ${USER}
+USER ${DOCKER_USER}
 
 RUN echo "" >> ~/.bashrc && \
     echo 'export PATH="/var/www/vendor/bin:$PATH"' >> ~/.bashrc
@@ -1160,7 +1160,7 @@ RUN echo "" >> ~/.bashrc && \
 #####################################
 # Laravel Envoy:
 #####################################
-USER ${USER}
+USER ${DOCKER_USER}
 
 ARG INSTALL_LARAVEL_ENVOY=false
 
@@ -1172,7 +1172,7 @@ RUN if [ ${INSTALL_LARAVEL_ENVOY} = true ]; then \
 #####################################
 # Laravel Installer:
 #####################################
-USER ${USER}
+USER ${DOCKER_USER}
 
 ARG INSTALL_LARAVEL_INSTALLER=false
 
@@ -1186,7 +1186,7 @@ RUN if [ ${INSTALL_LARAVEL_INSTALLER} = true ]; then \
 #####################################
 # Deployer:
 #####################################
-USER ${USER}
+USER ${DOCKER_USER}
 
 ARG INSTALL_DEPLOYER=false
 
@@ -1359,13 +1359,13 @@ ENV NODEJS_VERSION ${NODEJS_VERSION}
 ARG NODEJS_VERSION_BACKUP=false
 ENV NODEJS_VERSION_BACKUP ${NODEJS_VERSION_BACKUP}
 
-ENV NVM_DIR /home/${USER}/.nvm
+ENV NVM_DIR /home/${DOCKER_USER}/.nvm
 
 ARG NODEJS_NVM_VERSION=v0.33.5
 ENV NODEJS_NVM_VERSION ${NODEJS_NVM_VERSION}
 
 # Install nvm
-USER ${USER}
+USER ${DOCKER_USER}
 
 RUN if [ ${INSTALL_NODEJS} = true ]; then \
         #
@@ -1410,7 +1410,7 @@ RUN if [ ${INSTALL_NODEJS} = true ]; then \
 # YARN:
 #########################
 
-USER ${USER}
+USER ${DOCKER_USER}
 
 ARG INSTALL_YARN=false
 
@@ -1434,8 +1434,8 @@ RUN if [ ${INSTALL_NODEJS} = true ] && [ ${INSTALL_YARN} = true ]; then \
 # ADD YARN binaries to root's .bashrc
 USER root
 
-ENV YARB_PATH /home/${USER}/.yarn
-ENV ROOT_YARN_COMMAND "export YARN_DIR=\"/home/${USER}/.yarn\""
+ENV YARB_PATH /home/${DOCKER_USER}/.yarn
+ENV ROOT_YARN_COMMAND "export YARN_DIR=\"/home/${DOCKER_USER}/.yarn\""
 
 RUN if [ ${INSTALL_NODEJS} = true ] && [ ${INSTALL_YARN} = true ]; then \
         echo "" >> ~/.bashrc && \
@@ -1475,7 +1475,7 @@ RUN if [ ${INSTALL_WORKSPACE_SSH} = true ]; then \
 USER root
 
 # change user shell as bash by default
-RUN chsh -s /bin/bash ${USER}
+RUN chsh -s /bin/bash ${DOCKER_USER}
 
 # Clean up
 USER root

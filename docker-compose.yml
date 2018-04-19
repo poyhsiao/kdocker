@@ -15,7 +15,7 @@ services:
         - 'TZ=${TIMEZONE:-UTC}'
         - 'PUID=${PUID:-1000}'
         - 'PGID=${PGID:-1000}'
-        - 'USER=${USER:-kimhsiao}'
+        - 'DOCKER_USER=${DOCKER_USER:-kimhsiao}'
         - 'CANVAS_SUPPORT=${WORKSPACE_CANVAS_SUPPORT:-false}'
         - 'INSTALL_MCRYPT=${PHP_FPM_INSTALL_MCRYPT:-false}'
         - 'INSTALL_PDO_MYSQL=${PHP_FPM_INSTALL_PDO_MYSQL:-false}'

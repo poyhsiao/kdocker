@@ -7,3 +7,4 @@ laravel-start.sh
 nodejs/global-packages
 python/requirements.txt
 python/build-requirement.txt
+.DS_Store
