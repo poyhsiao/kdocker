@@ -1275,7 +1275,6 @@ ARG INSTALL_PYTHON3=false
 RUN if [ ${INSTALL_PYTHON} = true ]; then \
   apt-get update && \
   apt-get install -y --no-install-recommends python python-pip python-dev && \
-  pip install --upgrade pip && \
   pip install --upgrade virtualenv \
 ;fi
 
@@ -1291,7 +1290,6 @@ RUN if [ ${INSTALL_PYTHON3} = true ]; then \
     python$PYTHON3_VERSION \
     python3-pip \
     python$PYTHON3_VERSION-dev && \
-    pip3 install --upgrade pip && \
     pip3 install --upgrade virtualenv \
 ;fi
 
