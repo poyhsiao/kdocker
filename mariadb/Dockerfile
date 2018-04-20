@@ -26,6 +26,9 @@ RUN apt-get update && \
 
 ADD ./my.cnf /etc/mysql/conf.d/my.cnf
 
+# Add mysql log directory
+RUN mkdir -p /var/log/mysql
+
 EXPOSE 3306
 
 CMD [ "mysqld" ]
