@@ -600,6 +600,11 @@ LOG_DATA_SAVE_PATH=./logs
 # global data saving path
 DATA_SAVE_PATH=./storage
 
+# ulimit settings
+ULIMITS_NPROC=2048
+ULIMITS_NOFILE_SOFT=20480
+ULIMITS_NOFILE_HARD=40960
+
 # If the location is China
 CHANGE_SOURCE=false
 

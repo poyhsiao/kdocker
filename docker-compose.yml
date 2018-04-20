@@ -118,6 +118,11 @@ services:
     ports:
       - '${WORKSPACE_SSH_PORT:-22}:22'
     tty: true
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${WORKSPACE_RESTART:-always}
     cpus: ${WORKSPACE_CPU_LIMIT:-1}
     mem_limit: ${WORKSPACE_MEMORY_LIMIT:-1g}
@@ -215,6 +220,11 @@ services:
       - 'dockerhost:${DOCKER_HOST_IP:-10.3.2.1}'
     environment:
       - 'PHP_IDE_CONFIG=${PHP_IDE_CONFIG:-phpstorm}'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${PHP_FPM_RESTART:-always}
     cpus: ${PHP_FPM_CPU_LIMIT:-1}
     mem_limit: ${PHP_FPM_MEMORY_LIMIT:-1g}
@@ -242,6 +252,11 @@ services:
       - '${HTTP_OTHER_PORT:-2018}:2018'
     depends_on:
       - php-fpm
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${CADDY_RESTART:-always}
     cpus: ${CADDY_CPU_LIMIT:-1}
     mem_limit: ${CADDY_MEMORY_LIMIT:-1g}
@@ -266,6 +281,11 @@ services:
       - '${HTTP_PORT:-80}:80'
       - '${HTTPS_PORT:-443}:443'
       - '${HTTP_OTHER_PORT:-2018}:2018'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${NGINX_RESTART:-always}
     cpus: ${NGINX_CPU_LIMIT:-1}
     mem_limit: ${NGINX_MEMORY_LIMIT:-1g}
@@ -289,6 +309,11 @@ services:
       - 'MYSQL_USER=${MARIADB_USER:-default}'
       - 'MYSQL_PASSWORD=${MARIADB_PASSWORD:-secret}'
       - 'MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD:-root}'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${MARIADB_RESTART:-always}
     cpus: ${MARIADB_CPU_LIMIT:-1}
     mem_limit: ${MARIADB_MEMORY_LIMIT:-1g}
@@ -312,6 +337,11 @@ services:
       - 'MYSQL_PASSWORD=${MYSQL_PASSWORD:-secret}'
       - 'MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}'
       - 'TZ=${TIMEZONE:-UTC}'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${MYSQL_RESTART:-always}
     cpus: ${MYSQL_CPU_LIMIT:-1}
     mem_limit: ${MYSQL_MEMORY_LIMIT:-1g}
@@ -334,6 +364,11 @@ services:
       - 'TZ=${TIMEZONE:-UTC}'
     ports:
       - '${PERCONA_PORT:-3306}:3306'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${PERCONA_RESTART:-always}
     cpus: ${PERCONA_CPU_LIMIT:-1}
     mem_limit: ${PERCONA_MEMORY_LIMIT:-1g}
@@ -374,6 +409,11 @@ services:
       - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-secret}'
     ports:
       - '${POSTGIS_PORT:-5432}:5432'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${POSTGIS_RESTART:-always}
     cpus: ${POSTGIS_CPU_LIMIT:-1}
     mem_limit: ${POSTGIS_MEMORY_LIMIT:-1.5g}
@@ -399,6 +439,10 @@ services:
       memlock:
         soft: -1
         hard: -1
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     mem_limit: '${ELASTICSEARCH_LIMIT_MEMORY:-1g}'
     volumes:
       - './elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro'
@@ -423,6 +467,11 @@ services:
       - '${LOG_DATA_SAVE_PATH}/mongo:/var/log'
     ports:
       - '${MONGO_PORT:-27017}:27017'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${MONGO_RESTART:-always}
     cpus: ${MONGO_CPU_LIMIT:-1}
     mem_limit: ${MONGO_MEMORY_LIMIT:-1g}
@@ -439,6 +488,11 @@ services:
       - '${LOG_DATA_SAVE_PATH}/redis:/var/log'
     ports:
       - '${REDIS_PORT:-6379}:6379'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${REDIS_RESTART:-always}
     cpus: ${REDIS_CPU_LIMIT:-1}
     mem_limit: ${REDIS_MEMORY_LIMIT:-1g}
@@ -454,6 +508,11 @@ services:
       - '${LOG_DATA_SAVE_PATH}/memcached:/var/log'
     ports:
       - '${MEMCACHED_PORT:-11211}:11211'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${MEMCACHED_RESTART:-always}
     cpus: ${MEMCACHED_CPU_LIMIT:-1}
     mem_limit: ${MEMCACHED_MEMORY_LIMIT:-1g}
@@ -479,6 +538,11 @@ services:
       - '${KIBANA_PORT:-5601}:5601'
     depends_on:
       - elasticsearch
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${KIBANA_RESTART:-always}
     cpus: ${KIBANA_CPU_LIMIT:-1}
     mem_limit: ${KIBANA_MEMORY_LIMIT:-1g}
@@ -503,6 +567,11 @@ services:
       - '${LOGSTASH_PORT:-5002}:5002'
     depends_on:
       - elasticsearch
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${LOGSTASH_RESTART:-always}
     cpus: ${LOGSTASH_CPU_LIMIT:-1}
     mem_limit: ${LOGSTASH_MEMORY_LIMIT:-1g}
@@ -519,6 +588,11 @@ services:
       - '${LOG_DATA_SAVE_PATH}/rethinkdb:/var/log'
     ports:
       - '${RETHINKDB_PORT}:8080'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${RETHINKDB_RESTART:-always}
     cpus: ${RETHINKDB_CPU_LIMIT:-1}
     mem_limit: ${RETHINKDB_MEMORY_LIMIT:-1g}
@@ -561,6 +635,11 @@ services:
       - '${RABBITMQ_STOMP_TLS_PORT:-61614}:61614'
       - '${RABBITMQ_CLUSTER_PORT:-4369}:4369'
       - '${RABBITMQ_NODE_COMM_PORT:-25672}:25672'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${RABBITMQ_RESTART:-always}
     cpus: ${RABBITMQ_CPU_LIMIT:-1}
     mem_limit: ${RABBITMQ_MEMORY_LIMIT:-1g}
@@ -595,6 +674,11 @@ services:
       - workspace
     extra_hosts:
       - 'dockerhost:${DOCKER_HOST_IP}'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${PHP_WORKER_RESTART:-always}
     cpus: ${PHP_WORKER_CPU_LIMIT:-1}
     mem_limit: ${PHP_WORKER_MEMORY_LIMIT:-1g}
@@ -615,6 +699,11 @@ services:
       - '${PMA_EXT_PORT:-80}:80'
     depends_on:
       - '${PMA_DB_ENGINE:-mariadb}'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${PMA_RESTART:-always}
     cpus: ${PMA_CPU_LIMIT:-1}
     mem_limit: ${PMA_MEMORY_LIMIT:-1g}
@@ -631,6 +720,11 @@ services:
       - '${GITLAB_HTTP_PORT:-80}:80'
       - '${GITLAB_HTTPS_PORT:-443}:443'
       - '${GITLAB_SSH_PORT:-22}:22'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${GITLAB_RESTART:-always}
     cpus: ${GITLAB_CPU_LIMIT:-1}
     mem_limit: ${GITLAB_MEMORY_LIMIT:-2g}
@@ -655,6 +749,11 @@ services:
       - '${NODEJS_PORT_MAPPING_2:-443}:443'
       - '${NODEJS_PORT_MAPPING_3:-3000}:3000'
       - '${NODEJS_PORT_MAPPING_4:-8080}:8080'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${NODEJS_RESTART:-always}
     cpus: ${NODEJS_CPU_LIMIT:-1}
     mem_limit: ${NODEJS_MEMORY_LIMIT:-2g}
@@ -672,6 +771,11 @@ services:
       - '${CRATEDB_HTTP_PORT:-4200}:4200'
       - '${CRATEDB_TRANSPORT_PORT:-4300}:4300'
       - '${CRATEDB_PGSQL_PROTOCOL_PORT:-5432}:5432'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${CRATEDB_RESTART:-always}
     cpus: ${CRATEDB_CPU_LIMIT:-1}
     mem_limit: ${CRATEDB_MEMORY_LIMIT:-2g}
@@ -692,6 +796,11 @@ services:
       - '${PYTHON_HTTP_PORT:-80}:80'
       - '${PYTHON_HTTPS_PORT:-443}:443'
       - '${PYTHON_OTHER_PORT:-8000}:8000'
+    ulimits:
+      nproc: ${ULIMITS_NPROC:-1024}
+      nofile:
+        soft: ${ULIMITS_NOFILE_SOFT:-20480}
+        hard: ${ULIMITS_NOFILE_HARD:-40960}
     restart: ${PYTHON_RESTART:-always}
     cpus: ${PYTHON_CPU_LIMIT:-1}
     mem_limit: ${PYTHON_MEMORY_LIMIT:-1.5g}

@@ -27,7 +27,12 @@ RUN apt-get update && \
 ADD my.cnf /etc/mysql/conf.d/my.cnf
 
 # Add mysql log directory
-RUN mkdir -p /var/log/mysql
+RUN mkdir -p /var/log/mysql && \
+    touch /var/log/mysql/mysql.log && \
+    touch /var/log/mysql/mysql-bin.log && \
+    touch /var/log/mysql/error.log && \
+    touch /var/log/mysql/slow.log && \
+    chown -R mysql:mysql /var/log/mysql
 
 EXPOSE 3306
 
