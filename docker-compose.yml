@@ -299,7 +299,7 @@ services:
       context: ./mysql
       args:
         - 'TZ=${TIMEZONE:-UTC}'
-        - 'PERCONA_VERSION=${MYSQL_VERSION:-latest}'
+        - 'MYSQL_VERSION=${MYSQL_VERSION:-latest}'
     volumes:
       - '${DATA_SAVE_PATH}/mysql:/var/lib/mysql'
       - '${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d'
