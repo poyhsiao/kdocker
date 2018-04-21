@@ -583,6 +583,7 @@ PYTHON_MEMORY_LIMIT=1g
 HTTP_PORT=80
 HTTPS_PORT=443
 HTTP_OTHER_PORT=2018
+HTTP_PORT_RANGE=18001-19000
 
 #####################################
 # Misc setting

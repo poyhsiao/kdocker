@@ -44,7 +44,7 @@ RUN apk del .devs && \
 # copy setting file to target
 COPY ./Caddyfile /etc/Caddyfile
 
-EXPOSE 80 443 2018
+EXPOSE 80 443 2018 18001-19000
 
 WORKDIR /var/www
 

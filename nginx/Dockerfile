@@ -39,6 +39,6 @@ RUN echo "upstream php-upstream { server ${PHP_UPSTREAM_CONTAINER}:${PHP_UPSTREA
 RUN rm /var/cache/apk/* && \
     rm -rf /tmp/*
     
-EXPOSE 80 443 2018
+EXPOSE 80 443 2018 18001-19000
 
 CMD ["nginx"]
