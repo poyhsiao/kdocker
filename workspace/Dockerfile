@@ -1275,7 +1275,6 @@ ARG INSTALL_PYTHON3=false
 RUN if [ ${INSTALL_PYTHON} = true ]; then \
   apt-get update && \
   apt-get install -y --no-install-recommends python python-pip python-dev && \
-  pip install --upgrade pip && \
   pip install --upgrade virtualenv \
 ;fi
 
@@ -1291,7 +1290,6 @@ RUN if [ ${INSTALL_PYTHON3} = true ]; then \
     python$PYTHON3_VERSION \
     python3-pip \
     python$PYTHON3_VERSION-dev && \
-    pip3 install --upgrade pip && \
     pip3 install --upgrade virtualenv \
 ;fi
 
@@ -1333,6 +1331,7 @@ RUN if [ ${INSTALL_DUSK_DEPS} = true ]; then \
     xfonts-75dpi \
     xfonts-base \
     xfonts-scalable \
+    unzip \
     x11-apps && \
     curl -O https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
     dpkg -i --force-depends google-chrome-stable_current_amd64.deb && \
@@ -1371,6 +1370,7 @@ RUN if [ ${INSTALL_NODEJS} = true ]; then \
         #
         # set nvm default environment
         #
+        mkdir -p ${NVM_DIR} && \
         curl -o- https://raw.githubusercontent.com/creationix/nvm/${NODEJS_NVM_VERSION}/install.sh | bash && \
         . $NVM_DIR/nvm.sh && \
         nvm install ${NODEJS_VERSION} && \
