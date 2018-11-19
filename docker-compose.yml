@@ -301,7 +301,7 @@ services:
       context: ./mysql
       args:
         - 'TZ=${TIMEZONE:-UTC}'
-        - 'PERCONA_VERSION=${MYSQL_VERSION:-latest}'
+        - 'MYSQL_VERSION=${MYSQL_VERSION:-latest}'
     volumes:
       - '${DATA_SAVE_PATH}/mysql:/var/lib/mysql'
       - '${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d'
@@ -589,13 +589,12 @@ services:
       args:
         - 'PMA_VERSION=${PMA_VERSION:-latest}'
     environment:
-      - PMA_ARBITRARY=1
-      - 'PMA_HOST=${PMA_HOST:-mariadb}'
+      - 'PMA_ARBITRARY=1'
+      - 'PMA_HOST=${PMAex_HOST:-mariadb}'
       - 'PMA_PORT=${PMA_PORT:-3306}'
-      - 'PMA_USER=${PMA_USER:-root}'
-      - 'PMA_PASSWORD=${PMA_PASSWORD:-root}'
+      - 'PMA_VERBOSE=${PMA_HOST:-mairadb}'
     ports:
-      - '${PMA_EXT_PORT:-80}:80'
+      - '${PMA_EXT_PORT:-8080}:80'
     depends_on:
       - '${PMA_DB_ENGINE:-mariadb}'
     restart: ${PMA_RESTART:-always}
