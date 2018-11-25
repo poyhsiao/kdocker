@@ -1,0 +1,5 @@
+mysqlclient
+psycopg2-binary
+django
+git+https://github.com/celery/librabbitmq
+celery[redis,auth,msgpack,django,elasticsearch,memcache,pymemcache]
