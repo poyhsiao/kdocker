@@ -15,7 +15,7 @@ services:
         - 'TZ=${TIMEZONE:-UTC}'
         - 'PUID=${PUID:-1000}'
         - 'PGID=${PGID:-1000}'
-        - 'USER=${USER:-kimhsiao}'
+        - 'LINUX_USER=${LINUX_USER:-kimhsiao}'
         - 'CANVAS_SUPPORT=${WORKSPACE_CANVAS_SUPPORT:-false}'
         - 'INSTALL_MCRYPT=${PHP_FPM_INSTALL_MCRYPT:-false}'
         - 'INSTALL_PDO_MYSQL=${PHP_FPM_INSTALL_PDO_MYSQL:-false}'
@@ -120,7 +120,7 @@ services:
     tty: true
     restart: ${WORKSPACE_RESTART:-always}
     cpus: ${WORKSPACE_CPU_LIMIT:-1}
-    mem_limit: ${WORKSPACE_MEMORY_LIMIT:1g}
+    mem_limit: ${WORKSPACE_MEMORY_LIMIT:-1g}
     networks:
       - frontend
       - backend
@@ -244,7 +244,7 @@ services:
       - php-fpm
     restart: ${CADDY_RESTART:-always}
     cpus: ${CADDY_CPU_LIMIT:-1}
-    mem_limit: ${CADDY_MEMORY_LIMIT:1g}
+    mem_limit: ${CADDY_MEMORY_LIMIT:-1g}
     networks:
       - frontend
       - backend
@@ -316,7 +316,7 @@ services:
       - 'TZ=${TIMEZONE:-UTC}'
     restart: ${MYSQL_RESTART:-always}
     cpus: ${MYSQL_CPU_LIMIT:-1}
-    mem_limit: ${MYSQL_MEMORY_LIMIT:1g}
+    mem_limit: ${MYSQL_MEMORY_LIMIT:-1g}
     networks:
       - backend
   percona:
@@ -337,8 +337,8 @@ services:
     ports:
       - '${PERCONA_PORT:-3306}:3306'
     restart: ${PERCONA_RESTART:-always}
-    cpus: ${PERCONA_CPU_LIMIT:1}
-    mem_limit: ${PERCONA_MEMORY_LIMIT:1g}
+    cpus: ${PERCONA_CPU_LIMIT:-1}
+    mem_limit: ${PERCONA_MEMORY_LIMIT:-1g}
     networks:
       - backend
   postgres:
@@ -411,7 +411,7 @@ services:
       - '${ELASTICSEARCH_HOST_TRANSPORT_PORT:-9300}:9300'
     restart: ${ELASTICSEARCH_RESTART:-always}
     cpus: ${ELASTICSEARCH_CPU_LIMIT:-1}
-    mem_limit: ${ELASTICSEARCH_MEMORY_LIMIT:1.5g}
+    mem_limit: ${ELASTICSEARCH_MEMORY_LIMIT:-1.5g}
     networks:
       - backend
   mongo:
@@ -427,7 +427,7 @@ services:
       - '${MONGO_PORT:-27017}:27017'
     restart: ${MONGO_RESTART:-always}
     cpus: ${MONGO_CPU_LIMIT:-1}
-    mem_limit: ${MONGO_MEMORY_LIMIT:1g}
+    mem_limit: ${MONGO_MEMORY_LIMIT:-1g}
     networks:
       - backend
   redis:
@@ -458,7 +458,7 @@ services:
       - '${MEMCACHED_PORT:-11211}:11211'
     restart: ${MEMCACHED_RESTART:-always}
     cpus: ${MEMCACHED_CPU_LIMIT:-1}
-    MEMCACHED_MEMORY_LIMIT: ${MEMCACHED_MEMORY_LIMIT:-1g}
+    mem_limit: ${MEMCACHED_MEMORY_LIMIT:-1g}
     networks:
       - backend
   kibana:
@@ -483,7 +483,7 @@ services:
       - elasticsearch
     restart: ${KIBANA_RESTART:-always}
     cpus: ${KIBANA_CPU_LIMIT:-1}
-    mem_limit: ${KIBANA_MEMORY_LIMIT:1g}
+    mem_limit: ${KIBANA_MEMORY_LIMIT:-1g}
     networks:
       - frontend
       - backend
@@ -523,7 +523,7 @@ services:
       - '${RETHINKDB_PORT}:8080'
     restart: ${RETHINKDB_RESTART:-always}
     cpus: ${RETHINKDB_CPU_LIMIT:-1}
-    mem_limit: ${RETHINKDB_MEMORY_LIMIT:1g}
+    mem_limit: ${RETHINKDB_MEMORY_LIMIT:-1g}
     networks:
       - backend
   rabbitmq:
@@ -543,7 +543,7 @@ services:
     ports:
       - '${RABBITMQ_NODE_HOST_PORT:-5672}:5672'
       - '${RABBITMQ_MANAGEMENT_HTTP_HOST_PORT:-15672}:15672'
-      - '${RABBITMQ_MANAGEMENT_HTTPS_HOST_PORT:15671}:15671'
+      - '${RABBITMQ_MANAGEMENT_HTTPS_HOST_PORT:-15671}:15671'
     restart: ${RABBITMQ_RESTART:-always}
     cpus: ${RABBITMQ_CPU_LIMIT:-1}
     mem_limit: ${RABBITMQ_MEMORY_LIMIT:-1g}
@@ -600,7 +600,7 @@ services:
       - '${PMA_DB_ENGINE:-mariadb}'
     restart: ${PMA_RESTART:-always}
     cpus: ${PMA_CPU_LIMIT:-1}
-    mem_limit: ${PMA_MEMORY_LIMIT:1g}
+    mem_limit: ${PMA_MEMORY_LIMIT:-1g}
     networks:
       - backend
       - frontend
