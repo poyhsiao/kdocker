@@ -9,7 +9,7 @@
 #
 #####################################
 
-PHP_VERSION=7.2
+PHP_VERSION=7.3
 
 #####################################
 # Volumes
@@ -27,7 +27,7 @@ POINTER3=/pt3
 #####################################
 PUID=1000
 PGID=1000
-USER=kim
+LINUX_USER=kim
 
 
 #####################################
@@ -50,7 +50,8 @@ WORKSPACE_INSTALL_IMAGEMAGICK=true
 WORKSPACE_INSTALL_PG_CLIENT=false
 WORKSPACE_INSTALL_DRUSH=false
 WORKSPACE_INSTALL_DRUPAL_CONSOLE=false
-WORKSPACE_CHROME_DRIVER_VERSION=2.32
+# check http://chromedriver.chromium.org/ to get the latest version
+WORKSPACE_CHROME_DRIVER_VERSION=76.0.3809.25
 WORKSPACE_INSTALL_DUSK_DEPS=false
 WORKSPACE_INSTALL_NODEJS=true
 WORKSPACE_NODEJS_VERSION=8
@@ -132,7 +133,7 @@ PHP_FPM_INSTALL_MYSQLI=true
 PHP_FPM_INSTALL_TOKENIZER=true
 PHP_FPM_INSTALL_INTL=true
 PHP_FPM_INSTALL_PCNTL=true
-PHP_FPM_INSTALL_V8JS=true
+PHP_FPM_INSTALL_V8JS=false
 PHP_FPM_INSTALL_GHOSTSCRIPT=true
 PHP_FPM_INSTALL_LDAP=false
 PHP_FPM_INSTALL_SUHOSIN=true
