@@ -1,8 +1,7 @@
-
+*.sh
 .env
 logs
 storage
 .vscode
-laravel-start.sh
 nodejs/global-packages
 .idea
