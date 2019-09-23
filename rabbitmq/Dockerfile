@@ -20,6 +20,8 @@ RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
 RUN apk update && \
     apk upgrade
 
+USER rabbitmq
+
 RUN rabbitmq-plugins enable --offline rabbitmq_management
 
-EXPOSE 5672 15671 15672
+EXPOSE 4369 5671 5672 15671 15672 25672

@@ -543,9 +543,12 @@ services:
       - '${LOG_DATA_SAVE_PATH}/rabbitmq:/var/log'
       - '${DATA_SAVE_PATH}/rabbitmq:/var/lib/rabbitmq'
     ports:
+      - '${RABBITMQ_EPMD_PORT:-4369}:4369'
+      - '${RABBITMQ_NODE_HOST_PORT_SSL:-5671}:5671'
       - '${RABBITMQ_NODE_HOST_PORT:-5672}:5672'
       - '${RABBITMQ_MANAGEMENT_HTTP_HOST_PORT:-15672}:15672'
       - '${RABBITMQ_MANAGEMENT_HTTPS_HOST_PORT:-15671}:15671'
+      - '${RABBITMQ_CLUSTER_PORT:-25672}:25672'
     restart: ${RABBITMQ_RESTART:-always}
     cpus: ${RABBITMQ_CPU_LIMIT:-1}
     mem_limit: ${RABBITMQ_MEMORY_LIMIT:-1g}
