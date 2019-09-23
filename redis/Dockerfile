@@ -20,6 +20,8 @@ RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
 RUN apk update && \
     apk upgrade
 
+USER redis
+
 EXPOSE 6379
 
 CMD [ "redis-server" ]

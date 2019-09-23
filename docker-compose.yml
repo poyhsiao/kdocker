@@ -87,6 +87,7 @@ services:
         - 'INSTALL_INOTIFY=${PHP_FPM_INSTALL_INOTIFY:-false}'
         - 'INSTALL_IMAGE_OPTIMIZERS=${PHP_FPM_INSTALL_IMAGE_OPTIMIZERS:-false}'
         - 'INSTALL_IMAGEMAGICK=${PHP_FPM_INSTALL_IMAGEMAGICK:-false}'
+        - 'INSTALL_PHP_CODE_QUALITY_TOOLS=${WORKSPACE_INSTALL_PHP_CODE_QUALITY:-false}'
         - 'INSTALL_DRUSH=${WORKSPACE_INSTALL_DRUSH:-false}'
         - 'INSTALL_DRUPAL_CONSOLE=${WORKSPACE_INSTALL_DRUPAL_CONSOLE:-false}'
         - 'INSTALL_LARAVEL_ENVOY=${WORKSPACE_INSTALL_LARAVEL_ENVOY:-false}'
@@ -301,11 +302,12 @@ services:
       context: ./mysql
       args:
         - 'TZ=${TIMEZONE:-UTC}'
-        - 'PERCONA_VERSION=${MYSQL_VERSION:-latest}'
+        - 'MYSQL_VERSION=${MYSQL_VERSION:-latest}'
     volumes:
       - '${DATA_SAVE_PATH}/mysql:/var/lib/mysql'
       - '${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d'
       - '${LOG_DATA_SAVE_PATH}/mysql:/var/log'
+      - './mysql/my.cnf:/etc/conf.d/my.cnf:ro'
     ports:
       - '${MYSQL_PORT:-3306}:3306'
     environment:

@@ -29,7 +29,9 @@ RUN apk update \
     && apk add --no-cache bash
 
 RUN if [ ${NGINX_VERSION} = "1.13" ]; then \
-    adduser -D -H -u 1000 -s /bin/bash www-data \
+    adduser -D -H -u 82 -s /bin/bash www-data \
+    ;else \
+    adduser -u 82 -D -S -G www-data www-data \
     ;fi
 
 ARG PHP_UPSTREAM_CONTAINER=php-fpm

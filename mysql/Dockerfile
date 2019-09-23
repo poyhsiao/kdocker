@@ -24,7 +24,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ADD my.cnf /etc/mysql/conf.d/my.cnf
+USER mysql
 
 EXPOSE 3306
 

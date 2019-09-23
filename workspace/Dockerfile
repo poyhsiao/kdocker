@@ -1097,29 +1097,24 @@ RUN if [ ${INSTALL_INOTIFY} = true ]; then \
 #####################################
 
 USER root
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Install composer and add its bin to PATH
-RUN cd /tmp && \
-    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
-    php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
-    php -r "unlink('composer-setup.php');"
+ENV PATH="$PATH:/usr/local/bin"
 
-# source the bash
-RUN . ~/.bashrc
-
-# install prestissimo to speed up composer packages installation
-
-COPY ./composer.json /home/${LINUX_USER}/.composer/composer.json
-
-RUN chown -R ${LINUX_USER}:${LINUX_USER} /home/${LINUX_USER}/.composer
-
-USER ${LINUX_USER}
-
-RUN echo "export PATH=${PATH}:/usr/local/bin:~/.composer/vendor/bin" >> ~/.bashrc && \
-    . ~/.bashrc
+ADD ./composer.json /root/.composer/composer.json
 
 RUN composer global install && \
-    composer global --verbose require "hirak/prestissimo"
+    composer global --verbose require "hirak/prestissimo" && \
+    rm /root/.composer/composer.json
+
+ARG INSTALL_PHP_CODE_QUALITY_TOOLS=false
+
+RUN if [ ${INSTALL_PHP_CODE_QUALITY_TOOLS} = true ]; then \
+    composer global --verbose require "squizlabs/php_codesniffer=*" && \
+    composer global --verbose require "friendsofphp/php-cs-fixer" && \
+    composer global --verbose require "phpmd/phpmd" \
+    ;fi
+
 
 #####################################
 # Drush:
@@ -1171,7 +1166,7 @@ ARG INSTALL_LARAVEL_ENVOY=false
 
 RUN if [ ${INSTALL_LARAVEL_ENVOY} = true ]; then \
     # Install the Laravel Envoy
-    composer global require "laravel/envoy=~1.0" \
+    composer global --verbose require "laravel/envoy=~1.0" \
     ;fi
 
 #####################################
@@ -1183,8 +1178,6 @@ ARG INSTALL_LARAVEL_INSTALLER=false
 
 RUN if [ ${INSTALL_LARAVEL_INSTALLER} = true ]; then \
     # Install the Laravel Installer
-    echo "" >> ~/.bashrc && \
-    echo 'export PATH="~/.composer/vendor/bin:$PATH"' >> ~/.bashrc && \
     composer global require "laravel/installer" \
     ;fi
 
