@@ -16,8 +16,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     locales \
     libz-dev \
-    libssl-dev \
-    checkinstall && \
+    libssl-dev && \
     pecl channel-update pecl.php.net
 
 ### Install tools
@@ -710,6 +709,7 @@ RUN if [ ${INSTALL_AMQP} = true ]; then \
 ARG INSTALL_ZIP_ARCHIVE=false
 
 RUN if [ ${INSTALL_ZIP_ARCHIVE} = true ]; then \
+    apt-get install -y --no-install-recommends libzip-dev && \
     # Install the zip extension
     docker-php-ext-install -j${NPROC} zip \
     ;fi
@@ -746,7 +746,7 @@ ARG INSTALL_MEMCACHED=false
 RUN if [ ${INSTALL_MEMCACHED} = true ]; then \
     apt-get install -y --no-install-recommends libmemcached-dev && \
     # Install the php memcached extension
-    curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-dev/php-memcached/archive/php7.tar.gz" && \
+    curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-dev/php-memcached/archive/master.tar.gz" && \
     mkdir -p memcached && \
     tar -C memcached -zxvf /tmp/memcached.tar.gz --strip 1 && \
     ( \
@@ -1013,6 +1013,11 @@ RUN if [ ${INSTALL_V8JS} = true ]; then \
 # Compile php-v8js itself
 #
 RUN if [ ${INSTALL_V8JS} = true ]; then \
+    # cp /opt/v8/natives_blob /usr/bin && \
+    # cp /opt/v8/bin,snapshot_blob.bin /usr/bin && \
+    ls -alh /opt/v8 && \
+    cd /opt/v8/obj && \
+    ar rcsDT libv8_libplatform.a v8_libplatform/*.o && \
     cd /tmp && \
     git clone https://github.com/phpv8/v8js.git && \
     cd v8js && \
@@ -1065,7 +1070,7 @@ RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
 
 ARG INSTALL_SUHOSIN=false
 
-RUN if [ `echo ${PHP_VERSION} | cut -c1-3` != 7.2 ] && [ ${INSTALL_SUHOSIN} = true ]; then \
+RUN if [ `echo ${PHP_VERSION} | cut -c1-3` != 7.2 ] && [ `echo ${PHP_VERSION} | cut -c1-3` != 7.3 ] && [ ${INSTALL_SUHOSIN} = true ]; then \
     cd /tmp && \
     git clone https://github.com/sektioneins/suhosin7.git suhosin && \
     cd suhosin && \
@@ -1279,7 +1284,9 @@ RUN if [ ${INSTALL_PYTHON} = true ]; then \
     ;fi
 
 RUN if [ ${INSTALL_PYTHON3} = true ]; then \
-    if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.2 ]; then \
+    if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.3 ]; then \
+    export PYTHON3_VERSION=3.7 \
+    ;elif [ `echo ${PHP_VERSION} | cut -c1-3` = 7.2 ]; then \
     export PYTHON3_VERSION=3.5 \
     ;else \
     export PYTHON3_VERSION=3.4 \
