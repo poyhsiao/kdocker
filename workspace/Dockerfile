@@ -1483,7 +1483,7 @@ RUN apt-get autoremove && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-EXPOSE 22
+EXPOSE 22 9001
 
 # Set default work directory
 WORKDIR /var/www

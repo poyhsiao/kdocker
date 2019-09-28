@@ -114,10 +114,13 @@ services:
       - './workspace/crontab:/etc/cron.d'
     volumes_from:
       - applications
+    environment:
+      - 'PHP_IDE_CONFIG=${PHP_IDE_CONFIG:-dev.com}'
     extra_hosts:
       - 'dockerhost:${DOCKER_HOST_IP:-10.3.2.1}'
     ports:
       - '${WORKSPACE_SSH_PORT:-22}:22'
+      - '${WORKSPACE_PHP_XDEBUG_PORT}:9001'
     tty: true
     restart: ${WORKSPACE_RESTART:-always}
     cpus: ${WORKSPACE_CPU_LIMIT:-1}
@@ -210,12 +213,14 @@ services:
       - './php-fpm/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro'
     expose:
       - '9000'
+    ports:
+      - '${PHP_FPM_PHP_XDEBUG_PORT}:9001'
     depends_on:
       - workspace
     extra_hosts:
       - 'dockerhost:${DOCKER_HOST_IP:-10.3.2.1}'
     environment:
-      - 'PHP_IDE_CONFIG=${PHP_IDE_CONFIG:-phpstorm}'
+      - 'PHP_IDE_CONFIG=${PHP_IDE_CONFIG:-dev.com}'
     restart: ${PHP_FPM_RESTART:-always}
     cpus: ${PHP_FPM_CPU_LIMIT:-1}
     mem_limit: ${PHP_FPM_MEMORY_LIMIT:-1g}

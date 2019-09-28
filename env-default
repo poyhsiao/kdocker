@@ -61,6 +61,7 @@ WORKSPACE_INSTALL_YARN=true
 WORKSPACE_NODEJS_YARN_VERSION=latest
 WORKSPACE_NODEJS_NVM_VERSION=v0.34.0
 WORKSPACE_INSTALL_WORKSPACE_SSH=false
+WORKSPACE_PHP_XDEBUG_PORT=9002
 
 #--------------------
 # system setting
@@ -142,6 +143,7 @@ PHP_FPM_INSTALL_INOTIFY=true
 PHP_FPM_INSTALL_MSSQL=false
 PHP_FPM_INSTALL_IMAGE_OPTIMIZERS=true
 PHP_FPM_INSTALL_IMAGEMAGICK=true
+PHP_FPM_PHP_XDEBUG_PORT=9001
 
 #--------------------
 # system setting
@@ -574,7 +576,7 @@ CHANGE_SOURCE=false
 DOCKER_HOST_IP=10.0.75.3
 
 # The remote interpreter entry machine name `kimer`
-PHP_IDE_CONFIG=serviceName=kimer
+PHP_IDE_CONFIG=serverName=kimer
 
 # Fix for windows user to make sure the application path works
 COMPOSE_CONVERT_WINDOWS_PATHS=1
