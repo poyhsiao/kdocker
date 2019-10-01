@@ -1093,6 +1093,25 @@ RUN if [ ${INSTALL_INOTIFY} = true ]; then \
     ;fi
 
 #####################################
+# OpenCC:
+#####################################
+
+ARG INSTALL_OPENCC=false
+
+RUN if [ ${INSTALL_OPENCC} = true ]; then \
+    apt-get install -y --no-install-recommends libopencc-dev git && \
+    cd /tmp && \
+    git clone https://github.com/nauxliu/opencc4php.git --depth 1 && \
+    cd opencc4php && \
+    phpize && \
+    ./configure && \
+    make && \
+    make install && \
+    echo "extension=opencc.so" >> /usr/local/etc/php/conf.d/opencc.ini && \
+    apt-get remove -y git \
+    ;fi
+
+#####################################
 # PHP Composer:
 #####################################
 
@@ -1479,7 +1498,7 @@ RUN chsh -s /bin/bash ${USER}
 # Clean up
 USER root
 
-RUN apt-get autoremove && \
+RUN apt-get -y autoremove && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

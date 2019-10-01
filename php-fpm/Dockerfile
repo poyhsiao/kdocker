@@ -892,6 +892,25 @@ RUN if [ ${INSTALL_INOTIFY} = true ]; then \
     ;fi
 
 #####################################
+# OpenCC:
+#####################################
+
+ARG INSTALL_OPENCC=false
+
+RUN if [ ${INSTALL_OPENCC} = true ]; then \
+    apt-get install -y --no-install-recommends libopencc-dev git && \
+    cd /tmp && \
+    git clone https://github.com/nauxliu/opencc4php.git --depth 1 && \
+    cd opencc4php && \
+    phpize && \
+    ./configure && \
+    make && \
+    make install && \
+    echo "extension=opencc.so" >> /usr/local/etc/php/conf.d/opencc.ini && \
+    apt-get remove -y git \
+    ;fi
+
+#####################################
 # GHOSTSCRIPT:
 #####################################
 
@@ -973,11 +992,9 @@ RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
 ADD ./laravel.ini /usr/local/etc/php/conf.d
 ADD ./laravel.pool.conf /usr/local/etc/php-fpm.d/
 
-RUN apt-get autoremove && \
+RUN apt-get -y autoremove && \
     apt-get clean && \
-    rm -rf /tmp/* && \
-    rm -rf /var/lib/apt/lists/*
-#RUN rm -r /var/lib/apt/lists/*
+    rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
 
 RUN usermod -u 1000 www-data
 
