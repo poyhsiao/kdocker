@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
 
-sudo $(which docker-compose) up -d nginx php-fpm
+sudo $(which docker-compose) up -d nginx workspace

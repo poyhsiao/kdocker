@@ -34,7 +34,7 @@ RUN if [ ${NGINX_VERSION} = "1.13" ]; then \
     adduser -u 82 -D -S -G www-data www-data \
     ;fi
 
-ARG PHP_UPSTREAM_CONTAINER=php-fpm
+ARG PHP_UPSTREAM_CONTAINER=workspace
 ARG PHP_UPSTREAM_PORT=9000
 
 # Set upstream conf and remove the default conf

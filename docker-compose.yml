@@ -6,6 +6,7 @@ services:
       - '${LOCAL_PATH1:-../web/pt1}:/var/www${POINTER1:-pt1}'
       - '${LOCAL_PATH2:-../web/pt2}:/var/www${POINTER2:-pt2}'
       - '${LOCAL_PATH3:-../web/pt3}:/var/www${POINTER3:-pt3}'
+
   workspace:
     build:
       context: ./workspace
@@ -119,6 +120,8 @@ services:
       - 'PHP_IDE_CONFIG=${PHP_IDE_CONFIG:-dev.com}'
     extra_hosts:
       - 'dockerhost:${DOCKER_HOST_IP:-10.3.2.1}'
+    expose:
+      - '9000'
     ports:
       - '${WORKSPACE_SSH_PORT:-22}:22'
       - '${WORKSPACE_PHP_XDEBUG_PORT}:9001'
@@ -129,6 +132,7 @@ services:
     networks:
       - frontend
       - backend
+
   php-fpm:
     build:
       context: ./php-fpm
@@ -228,6 +232,7 @@ services:
     mem_limit: ${PHP_FPM_MEMORY_LIMIT:-1g}
     networks:
       - backend
+
   caddy:
     build:
       context: ./caddy
@@ -249,7 +254,7 @@ services:
       - '${HTTPS_PORT:-443}:443'
       - '${HTTP_OTHER_PORT:-2018}:2018'
     depends_on:
-      - php-fpm
+      - workspace
     restart: ${CADDY_RESTART:-always}
     cpus: ${CADDY_CPU_LIMIT:-1}
     mem_limit: ${CADDY_MEMORY_LIMIT:-1g}
@@ -262,7 +267,7 @@ services:
       args:
         - 'NGINX_VERSION=${NGINX_VERSION:-latest}'
         - 'TZ=${TIMEZONE:-UTC}'
-        - 'PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER:-php-fpm}'
+        - 'PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER:-workspace}'
         - 'PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT:-9000}'
     volumes_from:
       - applications
@@ -275,13 +280,14 @@ services:
       - '${HTTPS_PORT:-443}:443'
       - '${HTTP_OTHER_PORT:-2018}:2018'
     depends_on:
-      - php-fpm
+      - workspace
     restart: ${NGINX_RESTART:-always}
     cpus: ${NGINX_CPU_LIMIT:-1}
     mem_limit: ${NGINX_MEMORY_LIMIT:-1g}
     networks:
       - frontend
       - backend
+
   mariadb:
     build:
       context: ./mariadb
@@ -304,6 +310,7 @@ services:
     mem_limit: ${MARIADB_MEMORY_LIMIT:-1g}
     networks:
       - backend
+
   mysql:
     build:
       context: ./mysql
@@ -328,6 +335,7 @@ services:
     mem_limit: ${MYSQL_MEMORY_LIMIT:-1g}
     networks:
       - backend
+
   percona:
     build:
       context: ./percona
@@ -350,6 +358,7 @@ services:
     mem_limit: ${PERCONA_MEMORY_LIMIT:-1g}
     networks:
       - backend
+
   postgres:
     build:
       context: ./postgres
@@ -370,6 +379,7 @@ services:
     mem_limit: ${POSTGRES_MEMORY_LIMIT:-1g}
     networks:
       - backend
+
   postgres-postgis:
     build:
       context: ./postgres-postgis
@@ -390,6 +400,7 @@ services:
     mem_limit: ${POSTGIS_MEMORY_LIMIT:-1.5g}
     networks:
       - backend
+
   elasticsearch:
     build:
       context: ./elasticsearch
@@ -423,6 +434,7 @@ services:
     mem_limit: ${ELASTICSEARCH_MEMORY_LIMIT:-1.5g}
     networks:
       - backend
+
   mongo:
     build:
       context: ./mongo
@@ -439,6 +451,7 @@ services:
     mem_limit: ${MONGO_MEMORY_LIMIT:-1g}
     networks:
       - backend
+
   redis:
     build:
       context: ./redis
@@ -455,6 +468,7 @@ services:
     mem_limit: ${REDIS_MEMORY_LIMIT:-1g}
     networks:
       - backend
+
   memcached:
     build:
       context: ./memcached
@@ -470,6 +484,7 @@ services:
     mem_limit: ${MEMCACHED_MEMORY_LIMIT:-1g}
     networks:
       - backend
+
   kibana:
     build:
       context: ./kibana
@@ -496,6 +511,7 @@ services:
     networks:
       - frontend
       - backend
+
   logstash:
     build:
       context: ./logstash
@@ -519,6 +535,7 @@ services:
     mem_limit: ${LOGSTASH_MEMORY_LIMIT:-1g}
     networks:
       - backend
+
   rethinkdb:
     build:
       context: ./rethinkdb
@@ -535,6 +552,7 @@ services:
     mem_limit: ${RETHINKDB_MEMORY_LIMIT:-1g}
     networks:
       - backend
+
   rabbitmq:
     build:
       context: ./rabbitmq
@@ -561,6 +579,7 @@ services:
     mem_limit: ${RABBITMQ_MEMORY_LIMIT:-1g}
     networks:
       - backend
+
   php-worker:
     build:
       context: ./php-worker
@@ -595,6 +614,7 @@ services:
     mem_limit: ${PHP_WORKER_MEMORY_LIMIT:-1g}
     networks:
       - backend
+
   phpmyadmin:
     build:
       context: ./phpmyadmin
@@ -616,6 +636,7 @@ services:
     networks:
       - backend
       - frontend
+
   gitlab:
     image: 'gitlab/gitlab-ce:${GITLAB_VERSION:-latest}'
     volumes:
@@ -631,6 +652,7 @@ services:
     mem_limit: ${GITLAB_MEMORY_LIMIT:-2g}
     networks:
       - frontend
+
   nodejs:
     build:
       context: nodejs
@@ -656,6 +678,7 @@ services:
     networks:
       - backend
       - frontend
+
   cratedb:
     image: 'library/crate:${CRATEDB_VERSION:-latest}'
     environment:
@@ -673,6 +696,7 @@ services:
     networks:
       - backend
       - frontend
+
 networks:
   frontend:
     driver: bridge
