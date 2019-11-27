@@ -67,8 +67,6 @@ WORKSPACE_PHP_XDEBUG_PORT=9002
 # system setting
 #--------------------
 WORKSPACE_RESTART=always
-WORKSPACE_CPU_LIMIT=1
-WORKSPACE_MEMORY_LIMIT=1g
 
 #####################################
 # PHP-FPM:
@@ -150,8 +148,6 @@ PHP_FPM_PHP_XDEBUG_PORT=9001
 # system setting
 #--------------------
 PHP_FPM_RESTART=always
-PHP_FPM_CPU_LIMIT=1
-PHP_FPM_MEMORY_LIMIT=1g
 
 #####################################
 # Caddy
@@ -165,8 +161,6 @@ CADDY_CUSTOM_CADDYFILE=./Caddyfile
 # system setting
 #--------------------
 CADDY_RESTART=always
-CADDY_CPU_LIMIT=1
-CADDY_MEMORY_LIMIT=1g
 
 #####################################
 # Nginx
@@ -183,8 +177,6 @@ NGINX_PHP_UPSTREAM_PORT=9000
 # system setting
 #--------------------
 NGINX_RESTART=always
-NGINX_CPU_LIMIT=1
-NGINX_MEMORY_LIMIT=1g
 
 #####################################
 #
@@ -194,8 +186,8 @@ NGINX_MEMORY_LIMIT=1g
 #
 #####################################
 
-MARIADB_VERSION=10.3 
-# available: 10.3, 10.2(latest), 10.1, 10.0, 5.5. may reference mariadb docker hub versions 
+MARIADB_VERSION=10.3
+# available: 10.3, 10.2(latest), 10.1, 10.0, 5.5. may reference mariadb docker hub versions
 
 MARIADB_DATABASE=default
 MARIADB_USER=default
@@ -208,8 +200,6 @@ MARIADB_ENTRYPOINT_INITDB=./mariadb/docker-entrypoint-initdb.d
 # system setting
 #--------------------
 MARIADB_RESTART=always
-MARIADB_CPU_LIMIT=1
-MARIADB_MEMORY_LIMIT=1g
 
 #####################################
 #
@@ -233,8 +223,6 @@ MYSQL_ENTRYPOINT_INITDB=./mysql/docker-entrypoint-initdb.d
 # system setting
 #--------------------
 MYSQL_RESTART=always
-MYSQL_CPU_LIMIT=1
-MYSQL_MEMORY_LIMIT=1g
 
 #####################################
 #
@@ -258,8 +246,6 @@ PERCONA_ENTRYPOINT_INITDB=./percona/docker-entrypoint-initdb.d
 # system setting
 #--------------------
 PERCONA_RESTART=always
-PERCONA_CPU_LIMIT=1
-PERCONA_MEMORY_LIMIT=1g
 
 #####################################
 # PostgreSQL
@@ -277,8 +263,6 @@ POSTGRES_PORT=5432
 # system setting
 #--------------------
 POSTGRES_RESTART=always
-POSTGRES_CPU_LIMIT=1
-POSTGRES_MEMORY_LIMIT=1g
 
 
 #####################################
@@ -294,8 +278,6 @@ POSTGIS_PORT=5432
 # system setting
 #--------------------
 POSTGIS_RESTART=always
-POSTGIS_CPU_LIMIT=1
-POSTGIS_MEMORY_LIMIT=1g
 
 #####################################
 # Elasticsearch
@@ -322,8 +304,6 @@ ELASTICSEARCH_LIMIT_MEMORY=1g
 # system setting
 #--------------------
 ELASTICSEARCH_RESTART=always
-ELASTICSEARCH_CPU_LIMIT=1.5
-ELASTICSEARCH_MEMORY_LIMIT=1g
 
 #####################################
 # mongodb
@@ -338,8 +318,6 @@ MONGO_PORT=27017
 # system setting
 #--------------------
 MONGO_RESTART=always
-MONGO_CPU_LIMIT=1.5
-MONGO_MEMORY_LIMIT=1g
 
 #####################################
 # redis
@@ -354,8 +332,6 @@ REDIS_PORT=6379
 # system setting
 #--------------------
 REDIS_RESTART=always
-REDIS_CPU_LIMIT=1
-REDIS_MEMORY_LIMIT=1g
 
 #####################################
 # memcached
@@ -370,8 +346,6 @@ MEMCACHED_PORT=11211
 # system setting
 #--------------------
 MEMCACHED_RESTART=always
-MEMCACHED_CPU_LIMIT=1
-MEMCACHED_MEMORY_LIMIT=1g
 
 #####################################
 # kibana
@@ -387,8 +361,6 @@ KIBANA_PORT=5601
 # system setting
 #--------------------
 KIBANA_RESTART=always
-KIBANA_CPU_LIMIT=1.5
-KIBANA_MEMORY_LIMIT=1g
 
 #####################################
 # logstash
@@ -404,8 +376,6 @@ LOGSTASH_PORT=5002
 # system setting
 #--------------------
 LOGSTASH_RESTART=always
-LOGSTASH_CPU_LIMIT=1.5
-LOGSTASH_MEMORY_LIMIT=1g
 
 #####################################
 # rethinkdb
@@ -420,8 +390,6 @@ RETHINKDB_PORT=8080
 # system setting
 #--------------------
 RETHINKDB_RESTART=always
-RETHINKDB_CPU_LIMIT=1.5
-RETHINKDB_MEMORY_LIMIT=1g
 
 
 #####################################
@@ -446,8 +414,6 @@ RABBITMQ_CLUSTER_PORT=25672
 # system setting
 #--------------------
 RABBITMQ_RESTART=always
-RABBITMQ_CPU_LIMIT=1.5
-RABBITMQ_MEMORY_LIMIT=1g
 
 
 #####################################
@@ -464,8 +430,6 @@ RABBITMQ_MEMORY_LIMIT=1g
 # system setting
 #--------------------
 PHP_WORKER_RESTART=always
-PHP_WORKER_CPU_LIMIT=1
-PHP_WORKER_MEMORY_LIMIT=1g
 
 
 
@@ -484,8 +448,6 @@ PMA_DB_ENGINE=mariadb
 # system setting
 #--------------------
 PMA_RESTART=always
-PMA_CPU_LIMIT=1.5
-PMA_MEMORY_LIMIT=1g
 
 
 #####################################
@@ -503,8 +465,6 @@ GITLAB_SSH_PORT=8097
 # system setting
 #--------------------
 GITLAB_RESTART=always
-GITLAB_CPU_LIMIT=1.5
-GITLAB_MEMORY_LIMIT=1g
 
 
 #####################################
@@ -526,8 +486,6 @@ NODEJS_WORKING_DIR=../web/pt3
 # system setting
 #--------------------
 NODEJS_RESTART=always
-NODEJS_CPU_LIMIT=1.5
-NODEJS_MEMORY_LIMIT=1g
 
 #####################################
 # CrateDB
@@ -542,8 +500,6 @@ CRATEDB_PGSQL_PROTOCOL_PORT=5433
 # system setting
 #--------------------
 CRATEDB_RESTART=always
-CRATEDB_CPU_LIMIT=1.5
-CRATEDB_MEMORY_LIMIT=1g
 
 
 #####################################
