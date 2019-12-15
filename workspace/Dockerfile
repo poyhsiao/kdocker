@@ -22,6 +22,8 @@ RUN apt-get update && \
 ### Install tools
 
 RUN apt-get install -y --no-install-recommends \
+  zip \
+  unzip \
   wget \
   curl \
   git \
@@ -149,7 +151,7 @@ RUN if [ ${INSTALL_GD} = true ]; then \
   --with-jpeg-dir=/usr/lib \
   --with-freetype-dir=/usr/include/freetype2 && \
   docker-php-ext-install -j${NPROC} gd \
-  ;fi 
+  ;fi
 
 #####################################
 # APC:
@@ -729,7 +731,7 @@ ARG INSTALL_GMP=false
 
 RUN if [ ${INSTALL_GMP} = true ]; then \
   # Install the GMP extension
-  apt-get install -y --no-install-recommends libgmp-dev && \ 
+  apt-get install -y --no-install-recommends libgmp-dev && \
   docker-php-ext-install -j${NPROC} gmp \
   ;fi
 
@@ -1055,7 +1057,7 @@ RUN if [ ${INSTALL_IMAGE_OPTIMIZERS} = true ]; then \
 ARG INSTALL_IMAGEMAGICK=false
 
 RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
-  apt-get install -y --no-install-recommends libmagickwand-dev imagemagick && \ 
+  apt-get install -y --no-install-recommends libmagickwand-dev imagemagick && \
   pecl install imagick && \
   docker-php-ext-enable imagick \
   ;fi
@@ -1106,6 +1108,21 @@ RUN if [ ${INSTALL_OPENCC} = true ]; then \
   echo "extension=opencc.so" >> /usr/local/etc/php/conf.d/opencc.ini && \
   apt-get remove -y git \
   ;fi
+
+#####################################
+# Protobuf:
+#
+# pecl: https://pecl.php.net/package/protobuf
+# github: https://github.com/protocolbuffers/protobuf/tree/master/php
+#####################################
+
+ARG INSTALL_PROTOBUF=false
+
+RUN if [ ${INSTALL_PROTOBUF} = true ]; then \
+  pecl install protobuf && \
+  echo "extension=protobuf.so" >> /usr/local/etc/php/conf.d/protobuf.ini \
+  ;fi
+
 
 #####################################
 # PHP Composer:

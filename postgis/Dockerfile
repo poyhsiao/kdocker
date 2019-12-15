@@ -1,14 +1,12 @@
-ARG RABBITMQ_VERSION=3.7
-FROM rabbitmq:${RABBITMQ_VERSION}-alpine
+ARG POSTGIS_VERSION=10
+FROM mdillon/postgis:${POSTGIS_VERSION}-alpine
 
 LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
-LABEL RABBITMQ_VERSION=${RABBITMQ_VERSION}
+LABEL POSTGIS_VERSION=${POSTGIS_VERSION}
 
 ##############################
 # Set Timezone
 ##############################
-USER root
-
 ARG TZ=UTC
 ENV TZ ${TZ}
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
@@ -20,8 +18,6 @@ RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
 RUN apk update && \
   apk upgrade
 
-USER rabbitmq
+EXPOSE 5432
 
-RUN rabbitmq-plugins enable --offline rabbitmq_management
-
-EXPOSE 4369 5671 5672 15671 15672 25672
+CMD [ "postgres" ]
