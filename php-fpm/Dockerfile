@@ -99,7 +99,6 @@ RUN if [ ${INSTALL_GD} = true ]; then \
   # gd extension
   #
   docker-php-ext-configure gd \
-  --enable-gd-native-ttf \
   --with-jpeg-dir=/usr/lib \
   --with-freetype-dir=/usr/include/freetype2 && \
   docker-php-ext-install -j${NPROC} gd \

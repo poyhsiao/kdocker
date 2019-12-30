@@ -147,7 +147,6 @@ RUN if [ ${INSTALL_GD} = true ]; then \
   libfreetype6-dev && \
   # gd extension
   docker-php-ext-configure gd \
-  --enable-gd-native-ttf \
   --with-jpeg-dir=/usr/lib \
   --with-freetype-dir=/usr/include/freetype2 && \
   docker-php-ext-install -j${NPROC} gd \
@@ -160,8 +159,12 @@ RUN if [ ${INSTALL_GD} = true ]; then \
 ARG INSTALL_APC=false
 
 RUN if [ ${INSTALL_APC} = true ]; then \
+  if [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
   # Install apcu
-  pecl install apcu && \
+  pecl install apcu \
+  ;else \
+  pecl install apcu-4.0.10 \
+  ;fi && \
   echo "extension=apcu.so" >> /usr/local/etc/php/conf.d/apcu.ini \
   ;fi
 
@@ -358,8 +361,8 @@ RUN if [ ${INSTALL_ICONV} = true ]; then \
 
 ARG INSTALL_PHAR=false
 
-RUN if [ ${INSTALL_PHAR} = true ]; then \
-  # Install phar
+# Install phar
+RUN if [ `echo ${PHP_VERSION} | cut -c1` = 7 ] && [ ${INSTALL_PHAR} = true ]; then \
   docker-php-ext-install -j${NPROC} phar \
   ;fi
 
@@ -369,9 +372,9 @@ RUN if [ ${INSTALL_PHAR} = true ]; then \
 
 ARG INSTALL_POSIX=false
 
+# Install posix
 RUN if [ ${INSTALL_POSIX} = true ]; then \
-  # Install posix
-  docker-php-ext-install -j${NPROC} posix \
+docker-php-ext-install -j${NPROC} posix \
   ;fi
 
 #####################################
@@ -380,8 +383,8 @@ RUN if [ ${INSTALL_POSIX} = true ]; then \
 
 ARG INSTALL_PSPELL=false
 
+# Install pspell
 RUN if [ ${INSTALL_PSPELL} = true ]; then \
-  # Install pspell
   apt-get install -y --no-install-recommends \
   libpspell-dev \
   aspell-en \
@@ -393,60 +396,58 @@ RUN if [ ${INSTALL_PSPELL} = true ]; then \
 #####################################
 # readline:
 #####################################
-
 ARG INSTALL_READLINE=false
 
+# Install readline
 RUN if [ ${INSTALL_READLINE} = true ]; then \
-  # Install readline
   apt-get install -y --no-install-recommends \
   libedit-dev \
   libreadline-dev && \
   docker-php-ext-install -j${NPROC} readline \
   ;fi
 
-#####################################
+####################################
 # recode:
-#####################################
+####################################
 
 ARG INSTALL_RECODE=false
 
+#install recode
 RUN if [ ${INSTALL_RECODE} = true ]; then \
-  # Install recode
   apt-get install -y --no-install-recommends librecode-dev && \
   docker-php-ext-install -j${NPROC} recode \
   ;fi
 
 #####################################
-# shmop:
+# SHMOP:
 #####################################
 
 ARG INSTALL_SHMOP=false
-
+# Install shmop
 RUN if [ ${INSTALL_SHMOP} = true ]; then \
-  # Install shmop
   docker-php-ext-install -j${NPROC} shmop \
   ;fi
 
-#####################################
+###################################
 # simplexml:
-#####################################
+###################################
 
 ARG INSTALL_SIMPLEXML=false
 
+# Install simplexml
 RUN if [ ${INSTALL_SIMPLEXML} = true ]; then \
-  # Install simplexml
   apt-get install -y --no-install-recommends libxml2-dev && \
   docker-php-ext-install -j${NPROC} simplexml \
   ;fi
 
-#####################################
-# snmp:
-#####################################
+####################################
+# SNMP:
+####################################
 
 ARG INSTALL_SNMP=false
 
+# Install snmp
 RUN if [ ${INSTALL_SNMP} = true ]; then \
-  # Install snmp
   docker-php-ext-install -j${NPROC} snmp \
   ;fi
 
@@ -456,30 +457,30 @@ RUN if [ ${INSTALL_SNMP} = true ]; then \
 
 ARG INSTALL_SYSVMSG=false
 
+# Install sysvmsg
 RUN if [ ${INSTALL_SYSVMSG} = true ]; then \
-  # Install sysvmsg
   docker-php-ext-install -j${NPROC} sysvmsg \
   ;fi
 
-#####################################
+####################################
 # sysvsem:
-#####################################
+####################################
 
 ARG INSTALL_SYSVSEM=false
 
+# Install sysvsem
 RUN if [ ${INSTALL_SYSVSEM} = true ]; then \
-  # Install sysvsem
   docker-php-ext-install -j${NPROC} sysvsem \
   ;fi
 
-#####################################
-# sysvshm:
-#####################################
+######################################
+# svshm:
+######################################
 
 ARG INSTALL_SYSVSHM=false
 
+# Install sysvshm
 RUN if [ ${INSTALL_SYSVSHM} = true ]; then \
-  # Install sysvshm
   docker-php-ext-install -j${NPROC} sysvshm \
   ;fi
 
@@ -494,9 +495,10 @@ RUN if [ ${INSTALL_BZ2} = true ]; then \
   docker-php-ext-install -j${NPROC} bz2 \
   ;fi
 
-#####################################
+
+###################################
 # enchant:
-#####################################
+###################################
 
 ARG INSTALL_ENCHANT=false
 
@@ -505,38 +507,42 @@ RUN if [ ${INSTALL_ENCHANT} = true ]; then \
   docker-php-ext-install -j${NPROC} enchant \
   ;fi
 
-#####################################
+###################################
 # yaml:
-#####################################
+###################################
 
-ARG INSTALL_YAML=false
+RUN INSTALL_YAML=false
 
 RUN if [ ${INSTALL_YAML} = true ]; then \
   apt-get install -y --no-install-recommends libyaml-dev && \
-  pecl install yaml && \
+  if [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
+    pecl install yaml \
+  ;else \
+    pecl install yaml-1.3.0 \
+  ;fi && \
   docker-php-ext-enable yaml \
   ;fi
 
-#####################################
+###################################
 # tidy:
-#####################################
+###################################
 
 ARG INSTALL_TIDY=false
 
+# Install tidy
 RUN if [ ${INSTALL_TIDY} = true ]; then \
-  # Install tidy
   apt-get install -y --no-install-recommends libtidy-dev && \
   docker-php-ext-install -j${NPROC} tidy \
   ;fi
 
-#####################################
+###################################
 # wddx:
-#####################################
+###################################
 
 ARG INSTALL_WDDX=false
 
+# Install wddx
 RUN if [ ${INSTALL_WDDX} = true ]; then \
-  # Install wddx
   docker-php-ext-install -j${NPROC} wddx \
   ;fi
 
@@ -546,8 +552,8 @@ RUN if [ ${INSTALL_WDDX} = true ]; then \
 
 ARG INSTALL_XML=false
 
+# Install xml
 RUN if [ ${INSTALL_XML} = true ]; then \
-  # Install xml
   apt-get install -y --no-install-recommends libxml2-dev && \
   docker-php-ext-install -j${NPROC} xml \
   ;fi
@@ -558,8 +564,8 @@ RUN if [ ${INSTALL_XML} = true ]; then \
 
 ARG INSTALL_XMLREADER=false
 
+# Install xmlreader
 RUN if [ ${INSTALL_XMLREADER} = true ]; then \
-  # Install xmlreader
   apt-get install -y libxml2-dev && \
   docker-php-ext-install -j${NPROC} xmlreader \
   ;fi
@@ -570,8 +576,8 @@ RUN if [ ${INSTALL_XMLREADER} = true ]; then \
 
 ARG INSTALL_XMLRPC=false
 
+# Install xmlrpc
 RUN if [ ${INSTALL_XMLRPC} = true ]; then \
-  # Install xmlrpc
   apt-get install -y --no-install-recommends libxml2-dev && \
   docker-php-ext-install -j${NPROC} xmlrpc \
   ;fi
@@ -582,21 +588,20 @@ RUN if [ ${INSTALL_XMLRPC} = true ]; then \
 
 ARG INSTALL_XMLWRITER=false
 
-RUN if [ ${INSTALL_XMLWRITER} = true ]; then \
-  # Install xmlwriter
+# Install xmlwriter
+RUN ${INSTALL_XMLWRITER} = true ]; then \
   apt-get install -y --no-install-recommends libxml2-dev && \
   docker-php-ext-install -j${NPROC} xmlwriter \
   ;fi
 
-
-#####################################
+###################################
 # SOAP:
-#####################################
+###################################
 
 ARG INSTALL_SOAP=false
 
+# Install the soap extension
 RUN if [ ${INSTALL_SOAP} = true ]; then \
-  # Install the soap extension
   docker-php-ext-install -j${NPROC} soap \
   ;fi
 
@@ -606,21 +611,20 @@ RUN if [ ${INSTALL_SOAP} = true ]; then \
 
 ARG INSTALL_PGSQL=false
 
+# Install the pgsql extension
 RUN if [ ${INSTALL_PGSQL} = true ]; then \
   apt-get install -y --no-install-recommends libpq-dev && \
-  # Install the pgsql extension
   docker-php-ext-install -j${NPROC} pgsql \
   ;fi
 
-#####################################
+###################################
 # pgsql client
-#####################################
+###################################
 
 ARG INSTALL_PG_CLIENT=false
-ENV INSTALL_PG_CLIENT ${INSTALL_PG_CLIENT}
 
+# Install the pgsql client
 RUN if [ ${INSTALL_PG_CLIENT} = true ]; then \
-  # Install the pgsql client
   apt-get install -yf postgresql-client \
   ;fi
 
@@ -630,11 +634,16 @@ RUN if [ ${INSTALL_PG_CLIENT} = true ]; then \
 
 ARG INSTALL_XDEBUG=false
 
+# Install the xdebug extension
 RUN if [ ${INSTALL_XDEBUG} = true ]; then \
-  # Install the xdebug extension
-  pecl install xdebug && \
+  if [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
+    pecl install xdebug \
+  ;else \
+    pecl install xdebug-2.5.5 \
+  ;fi && \
   docker-php-ext-enable xdebug \
   ;fi
+
 
 #####################################
 # Blackfire:
@@ -650,18 +659,21 @@ RUN if [ ${INSTALL_XDEBUG} = false -a ${INSTALL_BLACKFIRE} = true ]; then \
   printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8707\n" > $PHP_INI_DIR/conf.d/blackfire.ini \
   ;fi
 
-#####################################
+###################################
 # PHP REDIS EXTENSION
 #####################################
 
 ARG INSTALL_PHPREDIS=false
 
 RUN if [ ${INSTALL_PHPREDIS} = true ]; then \
-  # Install Php Redis Extension
-  printf "\n" | pecl install -o -f redis && \
-  rm -rf /tmp/pear && \
+  if [ `echo ${PHP_VERSION} | cut -c1` != 7 ]; then \
+    pecl install redis-4.3.0 \
+  ;else \
+    pecl install redis \
+  ;fi && \
   docker-php-ext-enable redis \
   ;fi
+
 
 #####################################
 # Swoole EXTENSION FOR PHP 7
@@ -669,20 +681,20 @@ RUN if [ ${INSTALL_PHPREDIS} = true ]; then \
 
 ARG INSTALL_SWOOLE=false
 
-RUN if [ ${INSTALL_SWOOLE} = true ]; then \
-  # Install Php Swoole Extension
-  pecl install swoole \
-  &&  docker-php-ext-enable swoole \
+# install Php Swoole Extension
+RUN if [ ${INSTALL_SWOOLE} = true ] && [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
+  pecl install swoole && \
+  docker-php-ext-enable swoole \
   ;fi
 
 #####################################
-# MongoDB:
+# mongoDB:
 #####################################
 
 ARG INSTALL_MONGO=false
 
+# install mongodb extension
 RUN if [ ${INSTALL_MONGO} = true ]; then \
-  # Install the mongodb extension
   pecl install mongodb && \
   docker-php-ext-enable mongodb \
   ;fi
@@ -693,45 +705,48 @@ RUN if [ ${INSTALL_MONGO} = true ]; then \
 
 ARG INSTALL_AMQP=false
 
+# install the amqp extension
 RUN if [ ${INSTALL_AMQP} = true ]; then \
   apt-get install -y --no-install-recommends librabbitmq-dev && \
-  # Install the amqp extension
   pecl install amqp && \
   docker-php-ext-enable amqp \
   ;fi
 
-#####################################
+#################################
 # ZipArchive:
-#####################################
+#################################
 
 ARG INSTALL_ZIP_ARCHIVE=false
 
+# Install the zip extension
 RUN if [ ${INSTALL_ZIP_ARCHIVE} = true ]; then \
   apt-get install -y --no-install-recommends libzip-dev && \
-  # Install the zip extension
   docker-php-ext-install -j${NPROC} zip \
   ;fi
 
-#####################################
+######################################
 # bcmath:
-#####################################
+######################################
 
 ARG INSTALL_BCMATH=false
 
+# install the bcmath extension
 RUN if [ ${INSTALL_BCMATH} = true ]; then \
-  # Install the bcmath extension
   docker-php-ext-install -j${NPROC} bcmath \
   ;fi
 
-#####################################
+######################################
 # GMP (GNU Multiple Precision):
-#####################################
+######################################
 
 ARG INSTALL_GMP=false
 
+# Install the GMP extension
 RUN if [ ${INSTALL_GMP} = true ]; then \
-  # Install the GMP extension
   apt-get install -y --no-install-recommends libgmp-dev && \
+  if [ `echo ${PHP_VERSION} | cut -c1` != 7 ]; then \
+    ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
+  ;fi && \
   docker-php-ext-install -j${NPROC} gmp \
   ;fi
 
@@ -741,21 +756,14 @@ RUN if [ ${INSTALL_GMP} = true ]; then \
 
 ARG INSTALL_MEMCACHED=false
 
-RUN if [ ${INSTALL_MEMCACHED} = true ]; then \
+# Install the php memcached extension
+RUN [ ${INSTALL_MEMCACHED} = true ]; then \
   apt-get install -y --no-install-recommends libmemcached-dev && \
-  # Install the php memcached extension
-  curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-dev/php-memcached/archive/master.tar.gz" && \
-  mkdir -p memcached && \
-  tar -C memcached -zxvf /tmp/memcached.tar.gz --strip 1 && \
-  ( \
-  cd memcached \
-  && phpize \
-  && ./configure \
-  && make -j${NPROC} \
-  && make install \
-  ) && \
-  rm -r memcached && \
-  rm /tmp/memcached.tar.gz && \
+  if [ `echo ${PHP_VERSION} | cut -c1` != 7 ]; then \
+    pecl install memcached-2.2.0 \
+  ;else \
+    pecl install memcached \
+  ;fi && \
   docker-php-ext-enable memcached \
   ;fi
 
@@ -766,7 +774,6 @@ RUN if [ ${INSTALL_MEMCACHED} = true ]; then \
 ARG INSTALL_EXIF=false
 
 RUN if [ ${INSTALL_EXIF} = true ]; then \
-  # Enable Exif PHP extentions requirements
   docker-php-ext-install -j${NPROC} exif \
   ;fi
 
@@ -805,9 +812,10 @@ RUN if [ ${INSTALL_OPCACHE} = true ]; then \
   docker-php-ext-install -j${NPROC} opcache \
   ;fi
 
-#####################################
+
+####################################
 # Mysqli Modifications:
-#####################################
+####################################
 
 ARG INSTALL_MYSQLI=false
 
@@ -831,28 +839,28 @@ RUN if [ ${INSTALL_TOKENIZER} = true ]; then \
 
 ARG INSTALL_INTL=false
 
+# Install intl and requirements
 RUN if [ ${INSTALL_INTL} = true ]; then \
-  # Install intl and requirements
   apt-get install -y zlib1g-dev libicu-dev g++ && \
   docker-php-ext-configure intl && \
   docker-php-ext-install -j${NPROC} intl \
   ;fi
 
 #####################################
-# GHOSTSCRIPT:
+# GHOSTCRIPT:
 #####################################
 
 ARG INSTALL_GHOSTSCRIPT=false
 
+# install the ghostscript extension
 RUN if [ ${INSTALL_GHOSTSCRIPT} = true ]; then \
-  # Install the ghostscript extension
   # for PDF editing
   apt-get install -y --no-install-recommends poppler-utils ghostscript \
   ;fi
 
-#####################################
+####################################
 # LDAP:
-#####################################
+###################################
 
 ARG INSTALL_LDAP=false
 
@@ -862,9 +870,9 @@ RUN if [ ${INSTALL_LDAP} = true ]; then \
   docker-php-ext-install -j${NPROC} ldap \
   ;fi
 
-#####################################
+###################################
 # pcntl:
-#####################################
+###################################
 
 ARG INSTALL_PCNTL=false
 
@@ -873,9 +881,9 @@ RUN if [ ${INSTALL_PCNTL} = true ]; then \
   docker-php-ext-enable pcntl \
   ;fi
 
-#####################################
+######################################
 # SQL SERVER:
-#####################################
+######################################
 USER root
 
 ARG INSTALL_MSSQL=false
@@ -1062,21 +1070,23 @@ RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
   docker-php-ext-enable imagick \
   ;fi
 
+
 #####################################
 # Suhosin:
 #####################################
 
 ARG INSTALL_SUHOSIN=false
 
-RUN if [ `echo ${PHP_VERSION} | cut -c1-3` != 7.2 ] && [ `echo ${PHP_VERSION} | cut -c1-3` != 7.3 ] && [ ${INSTALL_SUHOSIN} = true ]; then \
-  cd /tmp && \
-  git clone https://github.com/sektioneins/suhosin7.git suhosin && \
-  cd suhosin && \
-  phpize && \
-  ./configure && \
-  make -j${NPROC} && \
-  make install && \
-  echo "suhosin.so" >> /usr/local/etc/php/conf.d/suhosin.ini \
+RUN [ ${INSTALL_SUHOSIN} = true ]; then \
+  if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ] || [ `echo ${PHP_VERSION} | cut -c1-3` = 7.1 ]; then \
+    cd /tmp && \
+    git clone https://github.com/sektioneins/suhosin7.git suhosin && \
+    cd suhosin && \
+    phpize && \
+    ./configure && \
+    make -j${NPROC} && \
+    make install && \
+    echo "extension=suhosin.so" >> /usr/local/etc/php/conf.d/suhosin.ini \
   ;fi
 
 #####################################
@@ -1086,7 +1096,11 @@ RUN if [ `echo ${PHP_VERSION} | cut -c1-3` != 7.2 ] && [ `echo ${PHP_VERSION} | 
 ARG INSTALL_INOTIFY=false
 
 RUN if [ ${INSTALL_INOTIFY} = true ]; then \
-  pecl install inotify && \
+  if [ `echo ${PHP_VERSION} | cut -c1` != 7 ]; then \
+    pecl install inotify-0.1.6 \
+  ;else \
+    pecl install inotify \
+  ;fi && \
   echo "extension=inotify.so" >> /usr/local/etc/php/conf.d/inotify.ini \
   ;fi
 
@@ -1096,7 +1110,7 @@ RUN if [ ${INSTALL_INOTIFY} = true ]; then \
 
 ARG INSTALL_OPENCC=false
 
-RUN if [ ${INSTALL_OPENCC} = true ]; then \
+RUN if [ ${INSTALL_OPENCC} = true ] && [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
   apt-get install -y --no-install-recommends libopencc-dev git && \
   cd /tmp && \
   git clone https://github.com/nauxliu/opencc4php.git --depth 1 && \
@@ -1122,7 +1136,6 @@ RUN if [ ${INSTALL_PROTOBUF} = true ]; then \
   pecl install protobuf && \
   echo "extension=protobuf.so" >> /usr/local/etc/php/conf.d/protobuf.ini \
   ;fi
-
 
 #####################################
 # PHP Composer:
@@ -1308,13 +1321,13 @@ RUN if [ ${INSTALL_PYTHON} = true ]; then \
   pip install --upgrade virtualenv \
   ;fi
 
-RUN if [ ${INSTALL_PYTHON3} = true ]; then \
+RUN if [ ${INSTALL_PYTHON3} = true ] && [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
   if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.3 ]; then \
-  export PYTHON3_VERSION=3.7 \
+    export PYTHON3_VERSION=3.7 \
   ;elif [ `echo ${PHP_VERSION} | cut -c1-3` = 7.2 ]; then \
-  export PYTHON3_VERSION=3.5 \
+    export PYTHON3_VERSION=3.5 \
   ;else \
-  export PYTHON3_VERSION=3.4 \
+    export PYTHON3_VERSION=3.4 \
   ;fi && \
   apt-get install -y --no-install-recommends \
   libpython$PYTHON3_VERSION \
