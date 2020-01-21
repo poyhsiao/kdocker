@@ -1,0 +1,11 @@
+#allow cross domain request
+# no limit (allow wildcard)
+#add_header 'Access-Control-Allow-Origin' '*';
+
+# domain restricted
+add_header 'Access-Control-Allow-Origin' 'http://locahost.dev';
+add_header 'Access-Control-Allow-Credentials' 'true';
+
+# allow request methods
+add_header 'Access-Control-Allow-Methods' 'OPTION, POST, GET';
+add_header 'Access-Control-Allow-Headers' 'X-Requested-With, Content-Type';
