@@ -12,35 +12,41 @@ USER root
 ARG TZ=UTC
 ENV TZ ${TZ}
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
-    echo ${TZ} > /etc/timezone
+  echo ${TZ} > /etc/timezone
 
 ##############################
 # Install require libs and tools
 ##############################
 
 RUN apk update && \
-    apk upgrade && \
-    apk add --update --virtual .buildenv \
-    build-base \
-    autoconf \
-    libmemcached-dev \
-    libmcrypt-dev \
-    libxml2-dev \
-    zlib-dev \
-    cyrus-sasl-dev \
-    libgsasl-dev \
-    sqlite-dev \
-    curl-dev
+  apk upgrade && \
+  apk add --update --virtual .buildenv \
+  build-base \
+  autoconf \
+  libmemcached-dev \
+  libmcrypt-dev \
+  libxml2-dev \
+  zlib-dev \
+  cyrus-sasl-dev \
+  libgsasl-dev \
+  sqlite-dev \
+  curl-dev
+
+RUN if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.4 ]; then \
+  apk add --update --virtual .php74 \
+  oniguruma-dev \
+  ;fi
 
 ##############################
 # Required packages
 ##############################
 
-RUN apk --update add netcat-openbsd \
-    wget \
-    curl \
-    git \
-    supervisor
+RUN apk --update add \
+  netcat-openbsd \
+  wget \
+  curl \
+  git \
+  supervisor
 
 ##############################
 # Basic php ext
@@ -53,9 +59,9 @@ ENV PHP_VERSION ${PHP_VERSION}
 RUN pecl channel-update pecl.php.net
 
 RUN docker-php-ext-install \
-    pdo \
-    pdo_mysql \
-    pdo_sqlite
+  pdo \
+  pdo_mysql \
+  pdo_sqlite
 
 #####################################
 #
@@ -65,8 +71,8 @@ RUN docker-php-ext-install \
 #####################################
 
 RUN if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ]; then \
-    docker-php-ext-install mcrypt \
-    ;fi
+  docker-php-ext-install mcrypt \
+  ;fi
 
 #####################################
 # Mysqli Modifications:
@@ -75,8 +81,8 @@ RUN if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ]; then \
 ARG INSTALL_MYSQLI=false
 
 RUN if [ ${INSTALL_MYSQLI} = true ]; then \
-    docker-php-ext-install mysqli \
-    ;fi
+  docker-php-ext-install mysqli \
+  ;fi
 
 #####################################
 # mbstring:
@@ -85,9 +91,9 @@ RUN if [ ${INSTALL_MYSQLI} = true ]; then \
 ARG INSTALL_MBSTRING=false
 
 RUN if [ ${INSTALL_MBSTRING} = true ]; then \
-    # Install mbstring
-    docker-php-ext-install mbstring \
-    ;fi
+  # Install mbstring
+  docker-php-ext-install mbstring \
+  ;fi
 
 #####################################
 # pcntl:
@@ -96,9 +102,9 @@ RUN if [ ${INSTALL_MBSTRING} = true ]; then \
 ARG INSTALL_PCNTL=false
 
 RUN if [ ${INSTALL_PCNTL} = true ]; then \
-    docker-php-ext-install pcntl && \
-    docker-php-ext-enable pcntl \
-    ;fi
+  docker-php-ext-install pcntl && \
+  docker-php-ext-enable pcntl \
+  ;fi
 
 #####################################
 # json:
@@ -107,9 +113,9 @@ RUN if [ ${INSTALL_PCNTL} = true ]; then \
 ARG INSTALL_JSON=false
 
 RUN if [ ${INSTALL_JSON} = true ]; then \
-    # Install json
-    docker-php-ext-install json \
-    ;fi
+  # Install json
+  docker-php-ext-install json \
+  ;fi
 
 ##############################
 # PHP gmp ext
@@ -118,9 +124,9 @@ RUN if [ ${INSTALL_JSON} = true ]; then \
 ARG INSTALL_INTL=false
 
 RUN if [ ${INSTALL_INTL} = true ]; then \
-    apk --update add icu-dev && \
-    docker-php-ext-install intl \
-    ;fi
+  apk --update add icu-dev && \
+  docker-php-ext-install intl \
+  ;fi
 
 #####################################
 # curl:
@@ -129,9 +135,9 @@ RUN if [ ${INSTALL_INTL} = true ]; then \
 ARG INSTALL_CURL=false
 
 RUN if [ ${INSTALL_CURL} = true ]; then \
-    # Install curl
-    docker-php-ext-install curl \
-    ;fi
+  # Install curl
+  docker-php-ext-install curl \
+  ;fi
 
 #####################################
 # iconv:
@@ -140,9 +146,9 @@ RUN if [ ${INSTALL_CURL} = true ]; then \
 ARG INSTALL_ICONV=false
 
 RUN if [ ${INSTALL_ICONV} = true ]; then \
-    # Install iconv
-    docker-php-ext-install iconv \
-    ;fi
+  # Install iconv
+  docker-php-ext-install iconv \
+  ;fi
 
 #####################################
 # Tokenizer Modifications:
@@ -151,8 +157,8 @@ RUN if [ ${INSTALL_ICONV} = true ]; then \
 ARG INSTALL_TOKENIZER=false
 
 RUN if [ ${INSTALL_TOKENIZER} = true ]; then \
-    docker-php-ext-install tokenizer \
-    ;fi
+  docker-php-ext-install tokenizer \
+  ;fi
 
 #####################################
 # bcmath:
@@ -161,9 +167,9 @@ RUN if [ ${INSTALL_TOKENIZER} = true ]; then \
 ARG INSTALL_BCMATH=false
 
 RUN if [ ${INSTALL_BCMATH} = true ]; then \
-    # Install the bcmath extension
-    docker-php-ext-install bcmath \
-    ;fi
+  # Install the bcmath extension
+  docker-php-ext-install bcmath \
+  ;fi
 
 #####################################
 # Exif:
@@ -172,9 +178,9 @@ RUN if [ ${INSTALL_BCMATH} = true ]; then \
 ARG INSTALL_EXIF=false
 
 RUN if [ ${INSTALL_EXIF} = true ]; then \
-    # Enable Exif PHP extentions requirements
-    docker-php-ext-install exif \
-    ;fi
+  # Enable Exif PHP extentions requirements
+  docker-php-ext-install exif \
+  ;fi
 
 #####################################
 # xml:
@@ -183,9 +189,9 @@ RUN if [ ${INSTALL_EXIF} = true ]; then \
 ARG INSTALL_XML=false
 
 RUN if [ ${INSTALL_XML} = true ]; then \
-    # Install xml
-    docker-php-ext-install xml \
-    ;fi
+  # Install xml
+  docker-php-ext-install xml \
+  ;fi
 
 ##############################
 # PHP gmp ext
@@ -194,9 +200,9 @@ RUN if [ ${INSTALL_XML} = true ]; then \
 ARG INSTALL_GMP=false
 
 RUN if [ ${INSTALL_GMP} = true ]; then \
-    apk --update add gmp-dev && \
-    docker-php-ext-install gmp \
-    ;fi
+  apk --update add gmp-dev && \
+  docker-php-ext-install gmp \
+  ;fi
 
 ##############################
 # PHP pdo_pgsql ext
@@ -205,9 +211,9 @@ RUN if [ ${INSTALL_GMP} = true ]; then \
 ARG INSTALL_PGSQL=false
 
 RUN if [ ${INSTALL_PGSQL} = true ]; then \
-    apk --update add postgresql-dev && \
-    docker-php-ext-install pdo_pgsql \
-    ;fi
+  apk --update add postgresql-dev && \
+  docker-php-ext-install pdo_pgsql \
+  ;fi
 
 ##############################
 # PHP Redis ext
@@ -216,10 +222,10 @@ RUN if [ ${INSTALL_PGSQL} = true ]; then \
 ARG INSTALL_PHPREDIS=false
 
 RUN if [ ${INSTALL_PHPREDIS} = true ]; then \
-    printf "\n" | pecl install -o -f redis && \
-    rm -rf /tmp/pear && \
-    docker-php-ext-enable redis \
-    ;fi
+  printf "\n" | pecl install -o -f redis && \
+  rm -rf /tmp/pear && \
+  docker-php-ext-enable redis \
+  ;fi
 
 ##############################
 # Memcached ext
@@ -228,31 +234,35 @@ RUN if [ ${INSTALL_PHPREDIS} = true ]; then \
 ARG INSTALL_MEMCACHED=false
 
 RUN if [ ${INSTALL_MEMCACHED} = true ]; then \
-    apk --update add libmemcached-libs && \
-    # Install the php memcached extension
-    curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-dev/php-memcached/archive/master.tar.gz" && \
-    mkdir -p memcached && \
-    tar -C memcached -zxvf /tmp/memcached.tar.gz --strip 1 && \
-    ( \
-    cd memcached \
-    && phpize \
-    && ./configure \
-    && make -j${NPROC} \
-    && make install \
-    ) && \
-    rm -r memcached && \
-    rm /tmp/memcached.tar.gz && \
-    docker-php-ext-enable memcached \
-    ;fi
+  apk --update add libmemcached-libs && \
+  # Install the php memcached extension
+  curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-dev/php-memcached/archive/master.tar.gz" && \
+  mkdir -p memcached && \
+  tar -C memcached -zxvf /tmp/memcached.tar.gz --strip 1 && \
+  ( \
+  cd memcached \
+  && phpize \
+  && ./configure \
+  && make -j${NPROC} \
+  && make install \
+  ) && \
+  rm -r memcached && \
+  rm /tmp/memcached.tar.gz && \
+  docker-php-ext-enable memcached \
+  ;fi
 
 ##############################
 # Clear apk packages cache
 ##############################
 
+RUN if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.4 ]; then \
+  apk del .php74 \
+  ;fi
+
 RUN apk del .buildenv && \
-    rm /var/cache/apk/* && \
-    rm -rf /tmp/* && \
-    mkdir -p /var/www
+  rm /var/cache/apk/* && \
+  rm -rf /tmp/* && \
+  mkdir -p /var/www
 
 #
 #--------------------------------------------------------------------------

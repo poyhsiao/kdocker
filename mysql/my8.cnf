@@ -16,17 +16,8 @@ character-set-client-handshake = FALSE
 character-set-server = utf8mb4
 slow_query_log = 1
 long_query_time = 2
+default_authentication_plugin=mysql_native_password
+collation-server = utf8mb4_zh_0900_as_cs
+ngram_token_size = 2
 
 sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
-
-[mysqld-5.6]
-collation-server = utf8mb4_unicode_ci
-
-[mysqld-5.7]
-collation-server = utf8mb4_unicode_520_ci
-ngram_token_size = 2
-
-[mysqld-8.0]
-default_authentication_plugin=mysql_native_password
-collation-server = utf8mb4_unicode_520_ci
-ngram_token_size = 2

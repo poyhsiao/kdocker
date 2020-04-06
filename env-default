@@ -4,12 +4,13 @@
 #
 # PHP version
 #
-# available options can be 7.0, 7.1, 7.2
+# available options can be
+# 7.0, 7.1, 7.2, 7.3, 7.4
 # NOT support PHP version under 7.0
 #
 #####################################
 
-PHP_VERSION=7.3
+PHP_VERSION=7.4
 
 #####################################
 # Volumes
@@ -17,10 +18,12 @@ PHP_VERSION=7.3
 LOCAL_PATH1=../web/pt1
 LOCAL_PATH2=../web/pt2
 LOCAL_PATH3=../web/pt3
+APP_PATH=../web/app
 
 POINTER1=/pt1
 POINTER2=/pt2
 POINTER3=/pt3
+APP_POINTER=/usr/src/app
 
 #####################################
 # USERINFO
@@ -55,11 +58,11 @@ WORKSPACE_CHROME_DRIVER_VERSION=77.0.3865.40
 WORKSPACE_INSTALL_DUSK_DEPS=false
 WORKSPACE_INSTALL_LARAVEL_ENVOY=false
 WORKSPACE_INSTALL_NODEJS=true
-WORKSPACE_NODEJS_VERSION=10
-WORKSPACE_NODEJS_VERSION_BACKUP=8
-WORKSPACE_INSTALL_YARN=true
+WORKSPACE_NODEJS_VERSION=12
+WORKSPACE_NODEJS_VERSION_BACKUP=10
+WORKSPACE_INSTALL_YARN=false
 WORKSPACE_NODEJS_YARN_VERSION=latest
-WORKSPACE_NODEJS_NVM_VERSION=v0.34.0
+WORKSPACE_NODEJS_NVM_VERSION=v0.35.3
 WORKSPACE_INSTALL_WORKSPACE_SSH=false
 WORKSPACE_PHP_XDEBUG_PORT=9002
 
@@ -67,6 +70,8 @@ WORKSPACE_PHP_XDEBUG_PORT=9002
 # system setting
 #--------------------
 WORKSPACE_RESTART=always
+WORKSPACE_CPU_LIMIT=1
+WORKSPACE_MEMORY_LIMIT=1g
 
 #####################################
 # PHP-FPM:
@@ -140,7 +145,6 @@ PHP_FPM_INSTALL_SUHOSIN=true
 PHP_FPM_INSTALL_INOTIFY=true
 PHP_FPM_INSTALL_OEPNCC=true
 PHP_FPM_INSTALL_MSSQL=false
-PHP_FPM_INSTALL_PROTOBUF=true
 PHP_FPM_INSTALL_IMAGE_OPTIMIZERS=true
 PHP_FPM_INSTALL_IMAGEMAGICK=true
 PHP_FPM_PHP_XDEBUG_PORT=9001
@@ -149,6 +153,20 @@ PHP_FPM_PHP_XDEBUG_PORT=9001
 # system setting
 #--------------------
 PHP_FPM_RESTART=always
+
+#####################################
+# PYTHON3:
+#####################################
+PYTHON3_VERSION=3.8
+PYTHON3_LOG_DIR=/var/log/python3
+PYTHON3_EXPOSE=8003
+PYTHON3_PORT=8000
+
+#--------------------
+# system setting
+#--------------------
+PYTHON3_RESTART=on-failure
+
 
 #####################################
 # Caddy
@@ -171,7 +189,7 @@ NGINX_VERSION=1.17
 # available: 1.13(latest), 1.12, plz check https://hub.docker.com/_/nginx/ for detail information
 
 NGINX_SITES_PATH=./nginx/sites-enabled
-NGINX_PHP_UPSTREAM_CONTAINER=php-fpm
+NGINX_PHP_UPSTREAM_CONTAINER=workspace
 NGINX_PHP_UPSTREAM_PORT=9000
 
 #--------------------
@@ -218,6 +236,9 @@ MYSQL_USER=default
 MYSQL_PASSWORD=secret
 MYSQL_PORT=3306
 MYSQL_ROOT_PASSWORD=root
+# if version is 8.0 and above, use my8.cnf
+# else use my.cnf
+MYSQL_CONFIG_FILE=my8.cnf
 MYSQL_ENTRYPOINT_INITDB=./mysql/docker-entrypoint-initdb.d
 
 #--------------------
@@ -252,8 +273,8 @@ PERCONA_RESTART=always
 # PostgreSQL
 #####################################
 
-POSTGRES_VERSION=10
-# available version: 10, 9.6, 9.5, 9.4, 9.3 and/or with alpine
+POSTGRES_VERSION=12
+# available version: 12, 11, 10, 9.6, 9.5, 9.4, 9.3 and/or with alpine
 
 POSTGRES_DB=default
 POSTGRES_USER=default
@@ -270,8 +291,8 @@ POSTGRES_RESTART=always
 # PostgreSQL with GIS
 #####################################
 
-POSTGIS_VERSION=10
-# available version: 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0 with alpine
+POSTGIS_VERSION=11
+# available version: 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0 with alpine
 
 POSTGIS_PORT=5432
 
@@ -284,7 +305,7 @@ POSTGIS_RESTART=always
 # Elasticsearch
 #####################################
 
-ELASTICSEARCH_VERSION=6.2.2
+ELASTICSEARCH_VERSION=7.4.2
 # available version: plz check official website: https://www.docker.elastic.co
 
 ELASTICSEARCH_SMARTCN_ANALYZER=true
@@ -349,6 +370,24 @@ MEMCACHED_PORT=11211
 MEMCACHED_RESTART=always
 
 #####################################
+# minio
+#####################################
+
+MINIO_VERSION=latest
+# available settings: latest / edge
+
+MINIO_PORT=9900
+MINIO_ACCESS_KEY=access
+MINIO_SECRET_KEY=secretkey
+
+#--------------------
+# system setting
+#--------------------
+MINIO_RESTART=always
+MINIO_CPU_LIMIT=1
+MINIO_MEMORY_LIMIT=1g
+
+#####################################
 # kibana
 #####################################
 
@@ -397,7 +436,7 @@ RETHINKDB_RESTART=always
 # rabbitmq
 #####################################
 
-RABBITMQ_VERSION=3.7
+RABBITMQ_VERSION=3.8
 # available versions: 3.6, 3.7, plz check official website: https://hub.docker.com/_/rabbitmq/ for detail information
 
 RABBITMQ_USER=test
@@ -472,7 +511,7 @@ GITLAB_RESTART=always
 # Node.js
 #####################################
 
-NODEJS_VERSION=10
+NODEJS_VERSION=12
 NODEJS_USER=kimhsiao
 NODEJS_YARN_VERSION=latest
 NODEJS_ENV=develop
@@ -516,7 +555,7 @@ HTTP_OTHER_PORT=2018
 #####################################
 
 # numbers of cpu (core)
-NPROC=1
+NPROC=2
 
 # timezone setting
 TIMEZONE=UTC

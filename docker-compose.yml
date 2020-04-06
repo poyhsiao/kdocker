@@ -1,4 +1,4 @@
-version: "2.2"
+version: "2.4"
 services:
   applications:
     image: tianon/true
@@ -6,6 +6,7 @@ services:
       - "${LOCAL_PATH1:-../web/pt1}:/var/www${POINTER1:-pt1}"
       - "${LOCAL_PATH2:-../web/pt2}:/var/www${POINTER2:-pt2}"
       - "${LOCAL_PATH3:-../web/pt3}:/var/www${POINTER3:-pt3}"
+      - "${APP_PATH:-../web/app}:${APP_POINTER:-/usr/src/app}"
 
   workspace:
     build:
@@ -115,7 +116,6 @@ services:
       - "./workspace/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro"
       - "./workspace/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro"
       - "./workspace/php.ini:/usr/local/etc/php/php.ini:ro"
-      - "./workspace/crontab:/etc/cron.d"
     volumes_from:
       - applications
     environment:
@@ -284,6 +284,28 @@ services:
       - frontend
       - backend
 
+  python3:
+    build:
+      context: ./python3
+      args:
+        - "PYTHON3_VERSION=${PYTHON3_VERSION:-3.8}"
+        - "APP_POINTER=${APP_POINTER:-/usr/src/app}"
+        - "TZ=${TIMEZONE:-UTC}"
+    volumes_from:
+      - applications
+    volumes:
+      - "${LOG_DATA_SAVE_PATH}/python3:${PYTHON3_LOG_DIR:-/var/log/python3}"
+      - "./python3/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh:ro"
+    expose:
+      - "${PYTHON3_EXPOSE:-8003}"
+    ports:
+      - "${PYTHON3_PORT}:8000"
+    entrypoint: "/usr/local/bin/docker-entrypoint.sh"
+    restart: ${PYTHON3_RESTART:-always}
+    networks:
+      - frontend
+      - backend
+
   mariadb:
     build:
       context: ./mariadb
@@ -315,7 +337,7 @@ services:
       - "${DATA_SAVE_PATH}/mysql:/var/lib/mysql"
       - "${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d"
       - "${LOG_DATA_SAVE_PATH}/mysql:/var/log"
-      - "./mysql/my.cnf:/etc/conf.d/my.cnf:ro"
+      - "./mysql/${MYSQL_CONFIG_FILE:-my.cnf}:/etc/conf.d/my.cnf:ro"
     ports:
       - "${MYSQL_PORT:-3306}:3306"
     environment:
@@ -356,7 +378,7 @@ services:
         - "POSTGRES_VERSION=${POSTGRES_VERSION:-latest}"
         - "TZ=${TIMEZONE:-UTC}"
     volumes:
-      - "${DATA_SAVE_PATH}/postgres:/var/lib/postgresql/data"
+      - "postgres_data:/var/lib/postgresql/data"
       - "${LOG_DATA_SAVE_PATH}/postgres:/var/log"
     environment:
       - "POSTGRES_DB=${POSTGRES_DB:-default}"
@@ -375,7 +397,7 @@ services:
         - "TZ=${TIMEZONE:-UTC}"
         - "POSTGIS_VERSION=${POSTGIS_VERSION:-latest}"
     volumes:
-      - "${DATA_SAVE_PATH}/postgis:/var/lib/postgresql/data"
+      - postgis_data:/var/lib/postgresql/data
       - "${LOG_DATA_SAVE_PATH}/postgis:/var/log"
     environment:
       - "POSTGRES_DB=${POSTGRES_DB:-default}"
@@ -462,6 +484,24 @@ services:
     restart: ${MEMCACHED_RESTART:-always}
     networks:
       - backend
+
+  minio:
+    build:
+      context: ./minio
+      args:
+        - "TZ=${TIMEZONE:-UTC}"
+        - "MINIO_VERSION=${MINIO_VERSION:-latest}"
+    volumes:
+      - "${DATA_SAVE_PATH}/minio/data:/export"
+      - "${DATA_SAVE_PATH}/minio/config:/root/.minio"
+    ports:
+      - "${MINIO_PORT}:9000"
+    environment:
+      - "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-access}"
+      - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-secretkey}"
+    networks:
+      - backend
+      - frontend
 
   kibana:
     build:
@@ -569,7 +609,7 @@ services:
         - "INSTALL_INTL=${PHP_FPM_INSTALL_INTL:-true}"
         - "INSTALL_GMP=${PHP_FPM_INSTALL_GMP:-true}"
         - "INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL:-true}"
-        - "INSTALL_REDIS=${PHP_FPM_INSTALL_PHPREDIS:-true}"
+        - "INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS:-true}"
         - "INSTALL_MEMCACHED=${PHP_FPM_INSTALL_MEMCACHED:-true}"
         - "TZ=${TIMEZONE:-UTC}"
     volumes:
@@ -658,6 +698,12 @@ services:
     networks:
       - backend
       - frontend
+
+volumes:
+  postgres_data:
+    driver: local
+  postgis_data:
+    driver: local
 
 networks:
   frontend:

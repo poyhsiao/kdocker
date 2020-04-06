@@ -29,9 +29,9 @@ ENV ELASTICSEARCH_ENABLE_SECURITY ${ELASTICSEARCH_ENABLE_SECURITY}
 USER elasticsearch
 
 RUN if [ "${ELASTICSEARCH_SMARTCN_ANALYZER}" = "true" ]; then \
-    cd /usr/share/elasticsearch && \
-    ./bin/elasticsearch-plugin install analysis-smartcn \
-;fi
+  cd /usr/share/elasticsearch && \
+  ./bin/elasticsearch-plugin install --batch analysis-smartcn \
+  ;fi
 
 #########################
 # Add ik_analyzer
@@ -40,9 +40,9 @@ RUN if [ "${ELASTICSEARCH_SMARTCN_ANALYZER}" = "true" ]; then \
 USER elasticsearch
 
 RUN if [ "${ELASTICSEARCH_IK_ANALYZER}" = "true" ]; then \
-    cd /usr/share/elasticsearch && \
-    ./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v${ELASTICSEARCH_VERSION}/elasticsearch-analysis-ik-${ELASTICSEARCH_VERSION}.zip \
-;fi
+  cd /usr/share/elasticsearch && \
+  ./bin/elasticsearch-plugin install --batch https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v${ELASTICSEARCH_VERSION}/elasticsearch-analysis-ik-${ELASTICSEARCH_VERSION}.zip \
+  ;fi
 
 #########################
 # Add ANSJ analyzer
@@ -51,9 +51,9 @@ RUN if [ "${ELASTICSEARCH_IK_ANALYZER}" = "true" ]; then \
 USER elasticsearch
 
 RUN if [ "${ELASTICSEARCH_ANSJ_ANALYZER}" = "true" ]; then \
-    cd /usr/share/elasticsearch && \
-    ./bin/elasticsearch-plugin install https://github.com/NLPchina/elasticsearch-analysis-ansj/releases/download/v${ELASTICSEARCH_VERSION}/elasticsearch-analysis-ansj-${ELASTICSEARCH_VERSION}.0-release.zip \
-;fi
+  cd /usr/share/elasticsearch && \
+  ./bin/elasticsearch-plugin install --batch https://github.com/NLPchina/elasticsearch-analysis-ansj/releases/download/v${ELASTICSEARCH_VERSION}/elasticsearch-analysis-ansj-${ELASTICSEARCH_VERSION}.0-release.zip \
+  ;fi
 
 #########################
 # Start

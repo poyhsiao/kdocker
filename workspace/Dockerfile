@@ -9,7 +9,6 @@ LABEL PHP_VERSION=${PHP_VERSION}
 ##############################
 
 ARG NPROC=1
-ENV NPROC ${NPROC}
 
 RUN apt-get update && \
   apt-get -y upgrade && \
@@ -28,7 +27,8 @@ RUN apt-get install -y --no-install-recommends \
   curl \
   git \
   netcat \
-  vim
+  vim \
+  cron
 
 ### Install canvas required packages
 
@@ -76,7 +76,6 @@ RUN groupadd -g ${PGID} ${LINUX_USER} && \
 USER root
 
 ARG TZ=UTC
-ENV TZ ${TZ}
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
   echo ${TZ} > /etc/timezone
 
@@ -85,7 +84,6 @@ RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
 ##############################
 
 ARG PHP_VERSION=7.1
-ENV PHP_VERSION ${PHP_VERSION}
 
 ##############################
 # Mcrypt:
@@ -145,10 +143,15 @@ RUN if [ ${INSTALL_GD} = true ]; then \
   libjpeg62-turbo-dev \
   libpng-dev \
   libfreetype6-dev && \
+  if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.4 ]; then \
+  # gd extension
+  docker-php-ext-configure gd \
+  ;else \
   # gd extension
   docker-php-ext-configure gd \
   --with-jpeg-dir=/usr/lib \
-  --with-freetype-dir=/usr/include/freetype2 && \
+  --with-freetype-dir=/usr/include/freetype2 \
+  ;fi && \
   docker-php-ext-install -j${NPROC} gd \
   ;fi
 
@@ -256,8 +259,8 @@ RUN if [ ${INSTALL_JSON} = true ]; then \
 
 ARG INSTALL_HASH=false
 
-RUN if [ ${INSTALL_HASH} = true ]; then \
-  # Install ftp
+RUN if [ ${INSTALL_HASH} = true ] && [ `echo ${PHP_VERSION} | cut -c1-3` != 7.4 ]; then \
+  # Install hash
   docker-php-ext-install -j${NPROC} hash \
   ;fi
 
@@ -291,6 +294,9 @@ RUN if [ ${INSTALL_PDO} = true ]; then \
 ARG INSTALL_MBSTRING=false
 
 RUN if [ ${INSTALL_MBSTRING} = true ]; then \
+  if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.4 ]; then \
+  apt-get install -y --no-install-recommends libonig-dev \
+  ;fi && \
   # Install mbstring
   docker-php-ext-install -j${NPROC} mbstring \
   ;fi
@@ -306,7 +312,11 @@ RUN if [ ${INSTALL_IMAP} = true ]; then \
   apt-get install -y --no-install-recommends \
   libc-client-dev \
   libkrb5-dev && \
-  docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
+  if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.4 ]; then \
+  docker-php-ext-configure imap PHP_OPENSSL=yes --with-kerberos --with-imap-ssl \
+  ;else \
+  docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
+  ;fi && \
   docker-php-ext-install -j${NPROC} imap \
   ;fi
 
@@ -374,7 +384,7 @@ ARG INSTALL_POSIX=false
 
 # Install posix
 RUN if [ ${INSTALL_POSIX} = true ]; then \
-docker-php-ext-install -j${NPROC} posix \
+  docker-php-ext-install -j${NPROC} posix \
   ;fi
 
 #####################################
@@ -413,7 +423,7 @@ RUN if [ ${INSTALL_READLINE} = true ]; then \
 ARG INSTALL_RECODE=false
 
 #install recode
-RUN if [ ${INSTALL_RECODE} = true ]; then \
+RUN if [ ${INSTALL_RECODE} = true ] && [ `echo ${PHP_VERSION} | cut -c1-3` != 7.4 ]; then \
   apt-get install -y --no-install-recommends librecode-dev && \
   docker-php-ext-install -j${NPROC} recode \
   ;fi
@@ -511,14 +521,14 @@ RUN if [ ${INSTALL_ENCHANT} = true ]; then \
 # yaml:
 ###################################
 
-RUN INSTALL_YAML=false
+ARG INSTALL_YAML=false
 
 RUN if [ ${INSTALL_YAML} = true ]; then \
   apt-get install -y --no-install-recommends libyaml-dev && \
   if [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
-    pecl install yaml \
+  pecl install yaml \
   ;else \
-    pecl install yaml-1.3.0 \
+  pecl install yaml-1.3.0 \
   ;fi && \
   docker-php-ext-enable yaml \
   ;fi
@@ -542,7 +552,7 @@ RUN if [ ${INSTALL_TIDY} = true ]; then \
 ARG INSTALL_WDDX=false
 
 # Install wddx
-RUN if [ ${INSTALL_WDDX} = true ]; then \
+RUN if [ ${INSTALL_WDDX} = true ] && [ `echo ${PHP_VERSION} | cut -c1-3` != 7.4 ]; then \
   docker-php-ext-install -j${NPROC} wddx \
   ;fi
 
@@ -589,7 +599,7 @@ RUN if [ ${INSTALL_XMLRPC} = true ]; then \
 ARG INSTALL_XMLWRITER=false
 
 # Install xmlwriter
-RUN ${INSTALL_XMLWRITER} = true ]; then \
+RUN if [ ${INSTALL_XMLWRITER} = true ]; then \
   apt-get install -y --no-install-recommends libxml2-dev && \
   docker-php-ext-install -j${NPROC} xmlwriter \
   ;fi
@@ -637,9 +647,9 @@ ARG INSTALL_XDEBUG=false
 # Install the xdebug extension
 RUN if [ ${INSTALL_XDEBUG} = true ]; then \
   if [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
-    pecl install xdebug \
+  pecl install xdebug \
   ;else \
-    pecl install xdebug-2.5.5 \
+  pecl install xdebug-2.5.5 \
   ;fi && \
   docker-php-ext-enable xdebug \
   ;fi
@@ -667,9 +677,9 @@ ARG INSTALL_PHPREDIS=false
 
 RUN if [ ${INSTALL_PHPREDIS} = true ]; then \
   if [ `echo ${PHP_VERSION} | cut -c1` != 7 ]; then \
-    pecl install redis-4.3.0 \
+  pecl install redis-4.3.0 \
   ;else \
-    pecl install redis \
+  pecl install redis \
   ;fi && \
   docker-php-ext-enable redis \
   ;fi
@@ -745,7 +755,7 @@ ARG INSTALL_GMP=false
 RUN if [ ${INSTALL_GMP} = true ]; then \
   apt-get install -y --no-install-recommends libgmp-dev && \
   if [ `echo ${PHP_VERSION} | cut -c1` != 7 ]; then \
-    ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
+  ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
   ;fi && \
   docker-php-ext-install -j${NPROC} gmp \
   ;fi
@@ -757,12 +767,12 @@ RUN if [ ${INSTALL_GMP} = true ]; then \
 ARG INSTALL_MEMCACHED=false
 
 # Install the php memcached extension
-RUN [ ${INSTALL_MEMCACHED} = true ]; then \
+RUN if [ ${INSTALL_MEMCACHED} = true ]; then \
   apt-get install -y --no-install-recommends libmemcached-dev && \
   if [ `echo ${PHP_VERSION} | cut -c1` != 7 ]; then \
-    pecl install memcached-2.2.0 \
+  pecl install memcached-2.2.0 \
   ;else \
-    pecl install memcached \
+  pecl install memcached \
   ;fi && \
   docker-php-ext-enable memcached \
   ;fi
@@ -782,7 +792,6 @@ RUN if [ ${INSTALL_EXIF} = true ]; then \
 #####################################
 
 ARG INSTALL_AEROSPIKE=false
-ENV INSTALL_AEROSPIKE ${INSTALL_AEROSPIKE}
 
 COPY ./aerospike.ini /usr/local/etc/php/conf.d/aerospike.ini
 
@@ -887,7 +896,6 @@ RUN if [ ${INSTALL_PCNTL} = true ]; then \
 USER root
 
 ARG INSTALL_MSSQL=false
-ENV INSTALL_MSSQL ${INSTALL_MSSQL}
 
 RUN if [ ${INSTALL_MSSQL} = true ]; then \
   #####################################
@@ -969,7 +977,6 @@ RUN if [ ${INSTALL_MSSQL} = true ]; then \
 #####################################
 
 ARG INSTALL_V8JS=false
-ENV INSTALL_V8JS ${INSTALL_V8JS}
 
 RUN if [ ${INSTALL_V8JS} = true ]; then \
   apt-get install -y --no-install-recommends git && \
@@ -1077,16 +1084,17 @@ RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
 
 ARG INSTALL_SUHOSIN=false
 
-RUN [ ${INSTALL_SUHOSIN} = true ]; then \
+RUN if [ ${INSTALL_SUHOSIN} = true ]; then \
   if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ] || [ `echo ${PHP_VERSION} | cut -c1-3` = 7.1 ]; then \
-    cd /tmp && \
-    git clone https://github.com/sektioneins/suhosin7.git suhosin && \
-    cd suhosin && \
-    phpize && \
-    ./configure && \
-    make -j${NPROC} && \
-    make install && \
-    echo "extension=suhosin.so" >> /usr/local/etc/php/conf.d/suhosin.ini \
+  cd /tmp && \
+  git clone https://github.com/sektioneins/suhosin7.git suhosin && \
+  cd suhosin && \
+  phpize && \
+  ./configure && \
+  make -j${NPROC} && \
+  make install && \
+  echo "extension=suhosin.so" >> /usr/local/etc/php/conf.d/suhosin.ini \
+  ;fi \
   ;fi
 
 #####################################
@@ -1097,9 +1105,9 @@ ARG INSTALL_INOTIFY=false
 
 RUN if [ ${INSTALL_INOTIFY} = true ]; then \
   if [ `echo ${PHP_VERSION} | cut -c1` != 7 ]; then \
-    pecl install inotify-0.1.6 \
+  pecl install inotify-0.1.6 \
   ;else \
-    pecl install inotify \
+  pecl install inotify \
   ;fi && \
   echo "extension=inotify.so" >> /usr/local/etc/php/conf.d/inotify.ini \
   ;fi
@@ -1168,7 +1176,7 @@ USER root
 
 ARG INSTALL_DRUSH=false
 
-ENV DRUSH_VERSION 8.1.2
+ARG DRUSH_VERSION=8.1.2
 
 RUN if [ ${INSTALL_DRUSH} = true ]; then \
   apt-get -y install mysql-client && \
@@ -1317,25 +1325,28 @@ ARG INSTALL_PYTHON3=false
 
 RUN if [ ${INSTALL_PYTHON} = true ]; then \
   apt-get update && \
-  apt-get install -y --no-install-recommends python python-pip python-dev && \
-  pip install --upgrade virtualenv \
+  apt-get install -y --no-install-recommends \
+  python \
+  python-pip \
+  python-dev \
+  python-virtualenv \
   ;fi
 
 RUN if [ ${INSTALL_PYTHON3} = true ] && [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
-  if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.3 ]; then \
-    export PYTHON3_VERSION=3.7 \
+  if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.3 ] || [ `echo ${PHP_VERSION} | cut -c1-3` = 7.4 ]; then \
+  export PYTHON3_VERSION=3.7 \
   ;elif [ `echo ${PHP_VERSION} | cut -c1-3` = 7.2 ]; then \
-    export PYTHON3_VERSION=3.5 \
+  export PYTHON3_VERSION=3.5 \
   ;else \
-    export PYTHON3_VERSION=3.4 \
+  export PYTHON3_VERSION=3.4 \
   ;fi && \
   apt-get install -y --no-install-recommends \
   libpython$PYTHON3_VERSION \
   libpython$PYTHON3_VERSION-dev \
   python$PYTHON3_VERSION \
   python3-pip \
-  python$PYTHON3_VERSION-dev && \
-  pip3 install --upgrade virtualenv \
+  python3-virtualenv \
+  python$PYTHON3_VERSION-dev \
   ;fi
 
 #####################################
@@ -1358,7 +1369,6 @@ RUN if [ ${INSTALL_TERRAFORM} = true ]; then \
 USER root
 
 ARG CHROME_DRIVER_VERSION=stable
-ENV CHROME_DRIVER_VERSION ${CHROME_DRIVER_VERSION}
 
 ARG INSTALL_DUSK_DEPS=false
 
@@ -1394,18 +1404,12 @@ RUN if [ ${INSTALL_DUSK_DEPS} = true ]; then \
 
 # Check if nvm needs to be installed
 ARG INSTALL_NODEJS=false
-ENV INSTALL_NODEJS ${INSTALL_NODEJS}
-
 ARG NODEJS_VERSION=stable
-ENV NODEJS_VERSION ${NODEJS_VERSION}
-
 ARG NODEJS_VERSION_BACKUP=false
-ENV NODEJS_VERSION_BACKUP ${NODEJS_VERSION_BACKUP}
 
 ENV NVM_DIR /home/${LINUX_USER}/.nvm
 
 ARG NODEJS_NVM_VERSION=v0.33.5
-ENV NODEJS_NVM_VERSION ${NODEJS_NVM_VERSION}
 
 # Install nvm
 USER ${LINUX_USER}
@@ -1459,7 +1463,6 @@ USER ${LINUX_USER}
 ARG INSTALL_YARN=false
 
 ARG YARN_VERSION=latest
-ENV YARN_VERSION ${YARN_VERSION}
 
 RUN if [ ${INSTALL_NODEJS} = true ] && [ ${INSTALL_YARN} = true ]; then \
   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
@@ -1511,7 +1514,12 @@ RUN if [ ${INSTALL_WORKSPACE_SSH} = true ]; then \
 #####################################
 # Crontab
 #####################################
-# Only links from settings
+USER root
+
+COPY ./crontab/* /etc/cron.d/
+
+RUN chmod -R 644 /etc/cron.d && \
+  crontab /etc/cron.d/*
 
 ##############################
 # Final step
