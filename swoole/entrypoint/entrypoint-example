@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -e
+
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+if [ "$1" = start ]; then
+  if [ ! -e /var/www/pt2/pm2.json ]; then
+    sleep 99999999
+  else
+    cd /var/www/pt2 &&
+    pm2-docker start pm2.json
+  fi
+fi
+
+exec "$@"
