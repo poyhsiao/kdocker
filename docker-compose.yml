@@ -143,6 +143,7 @@ services:
         - "PUID=${PUID:-1000}"
         - "PGID=${PGID:-1000}"
         - "LINUX_USER=${LINUX_USER:-kimhsiao}"
+        - "SWOOLE_VERSION=${SWOOLE_VERSION:-master}"
         - "CANVAS_SUPPORT=${SWOOLE_CANVAS_SUPPORT:-false}"
         - "INSTALL_MCRYPT=${SWOOLE_INSTALL_MCRYPT:-false}"
         - "INSTALL_PDO_MYSQL=${SWOOLE_INSTALL_PDO_MYSQL:-false}"
@@ -456,7 +457,8 @@ services:
         - "TZ=${TIMEZONE:-UTC}"
         - "MYSQL_VERSION=${MYSQL_VERSION:-latest}"
     volumes:
-      - "${DATA_SAVE_PATH}/mysql:/var/lib/mysql"
+      # - "${DATA_SAVE_PATH}/mysql:/var/lib/mysql"
+      - "mysql_data:/var/lib/mysql"
       - "${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d"
       - "${LOG_DATA_SAVE_PATH}/mysql:/var/log"
       - "./mysql/${MYSQL_CONFIG_FILE:-my.cnf}:/etc/conf.d/my.cnf:ro"
@@ -825,6 +827,8 @@ volumes:
   postgres_data:
     driver: local
   postgis_data:
+    driver: local
+  mysql_data:
     driver: local
 
 networks:

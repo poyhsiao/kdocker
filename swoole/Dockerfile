@@ -673,8 +673,25 @@ RUN if [ ${INSTALL_PHPREDIS} = true ]; then \
 # Swoole EXTENSION FOR PHP 7
 #####################################
 
-RUN pecl install swoole && \
-  docker-php-ext-enable swoole
+# RUN pecl install swoole && \
+#   docker-php-ext-enable swoole
+
+ARG SWOOLE_VERSION=master
+
+RUN cd /tmp && \
+  git clone https://github.com/swoole/swoole-src.git && \
+  cd swoole-src && \
+  git checkout ${SWOOLE_VERSION} && \
+  phpize && \
+  ./configure \
+  --enable-openssl \
+  --enable-sockets \
+  --enable-http2 \
+  --enable-mysqlnd && \
+  make clean && \
+  make && \
+  make install && \
+  echo "extension=swoole.so" >> /usr/local/etc/php/conf.d/swoole.ini
 
 #####################################
 # mongoDB:
@@ -1106,8 +1123,7 @@ RUN if [ ${INSTALL_OPENCC} = true ] && [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; 
   ./configure && \
   make && \
   make install && \
-  echo "extension=opencc.so" >> /usr/local/etc/php/conf.d/opencc.ini && \
-  apt-get remove -y git \
+  echo "extension=opencc.so" >> /usr/local/etc/php/conf.d/opencc.ini \
   ;fi
 
 #####################################

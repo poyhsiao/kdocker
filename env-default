@@ -77,6 +77,8 @@ WORKSPACE_MEMORY_LIMIT=1g
 # SWOOLE
 #####################################
 SWOOLE_SSH_PORT=22222
+# may reference swoole github for version tag or `master` (https://github.com/swoole/swoole-src)
+SWOOLE_VERSION=v4.4.17
 SWOOLE_CANVAS_SUPPORT=true
 SWOOLE_INSTALL_LARAVEL_INSTALLER=false
 SWOOLE_INSTALL_DEPLOYER=false
