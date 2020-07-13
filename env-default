@@ -656,6 +656,106 @@ CRATEDB_PGSQL_PROTOCOL_PORT=5433
 #--------------------
 CRATEDB_RESTART=always
 
+#####################################
+# Gitea
+#####################################
+
+GITEA_VERSION=latest
+
+GITEA_USER_UID=1000
+GITEA_USER_GID=1000
+GITEA_WEB_PORT=10080
+GITEA_SSH_PORT=10022
+#--------------------
+# system setting
+#--------------------
+GITEA_RESTART=always
+
+
+#####################################
+# Drone server (general)
+#####################################
+DRONE_VERSION=1
+DRONE_SERVER_RESTART=always
+
+DRONE_LOGS_PRETTY=true
+DRONE_LOGS_COLOR=true
+
+#####################################
+# Drone server (gitlab)
+#####################################
+DRONE_SERVER_GITLAB_PORT=8000
+
+DRONE_SERVER_GITLAB_VOLUME=./drone/server/gitlab
+
+DRONE_SERVER_GITLAB_HOST=
+DRONE_SERVER_GITLAB_PROTO=
+DRONE_RPC_GITLAB_SECRET=
+DRONE_AGENTS_GITLAB_ENABLED=
+
+DRONE_GITLAB_SERVER=
+DRONE_GITLAB_CLIENT_ID=
+DRONE_GITLAB_CLIENT_SECRET=
+DRONE_GITLAB_ALWAYS_AUTH=
+
+#####################################
+# Drone server (gitea)
+#####################################
+DRONE_SERVER_GITEA_PORT=8000
+
+DRONE_SERVER_GITEA_VOLUME=./drone/server/gitea
+
+DRONE_SERVER_GITEA_HOST=
+DRONE_SERVER_GITEA_PROTO=
+DRONE_RPC_GITEA_SECRET=
+DRONE_AGENTS_GITEA_ENABLED=
+
+DRONE_GITEA_SERVER=http://gitea
+DRONE_GITEA_CLIENT_ID=
+DRONE_GITEA_CLIENT_SECRET=
+DRONE_GITEA_ALWAYS_AUTH=
+
+#####################################
+# Drone server (bitbucket server)
+#####################################
+DRONE_SERVER_BITBUCKET_PORT=8000
+
+DRONE_SERVER_BITBUCKET_VOLUME=./drone/server/bitbucket
+
+DRONE_SERVER_BITBUCKET_HOST=
+DRONE_SERVER_BITBUCKET_PROTO=
+DRONE_RPC_BITBUCKET_SECRET=
+
+DRONE_BITBUCKET_USERNAME=
+DRONE_BITBUCKET_PASSWORD=
+DRONE_BITBUCKET_ALWAYS_AUTH=
+DRONE_BITBUCKET_CONSUMER_KEY=
+DRONE_BITBUCKET_PRIVATE_KEY=
+DRONE_BITBUCKET_SERVER=
+
+#####################################
+# Drone server (github server)
+#####################################
+DRONE_SERVER_GITHUB_PORT=8000
+
+DRONE_SERVER_GITHUB_VOLUME=./drone/server/github
+
+DRONE_SERVER_GITHUB_HOST=
+DRONE_SERVER_GITHUB_PROTO=
+DRONE_RPC_GITHUB_SECRET=
+
+DRONE_GITHUB_CLIENT_ID=
+DRONE_GITHUB_CLIENT_SECRET=
+
+#####################################
+# Drone agent
+#####################################
+DRONE_AGENT_RETART=always
+
+DRONE_RPC_AGENT_SERVER=
+DRONE_RPC_AGENT_SECRET=
+DRONE_RUNNER_CAPACITY=3
+
 
 #####################################
 # NETWORK setting

@@ -823,12 +823,128 @@ services:
       - backend
       - frontend
 
+  gitea:
+    image: "gitea/gitea:${GITEA_VERSION:-latest}"
+    environment:
+      - "USER_UID=${GITEA_USER_UID:-1000}"
+      - "USER_GID=${GITEA_USER_GID:-1000}"
+      - "TZ=${TIMEZONE:-UTC}"
+    volumes:
+      - gitea_data:/data
+    ports:
+      - "${GITEA_WEB_PORT:-10080}:3000"
+      - "${GITEA_SSH_PORT:-10022}:22"
+    restart: ${GITEA_RESTART:-always}
+    networks:
+      - backend
+      - frontend
+
+  drone-gitea:
+    image: drone/drone:${DRONE_VERSION:-1}
+    volumes:
+      - "${DRONE_SERVER_GITEA_VOLUME:-./drone/server/gitea}:/data"
+    environment:
+      - "DRONE_SERVER_HOST=${DRONE_SERVER_GITEA_HOST:-drone-gitea}"
+      - "DRONE_SERVER_PROTO=${DRONE_SERVER_GITEA_PROTO:-http}"
+      - "DRONE_RPC_SECRET=${DRONE_RPC_GITEA_SECRET}"
+      - "DRONE_AGENTS_ENABLED=${DRONE_AGENTS_GITEA_ENABLED:-true}"
+      - "DRONE_GITEA_SERVER=${DRONE_GITEA_SERVER:-http://gitea}"
+      - "DRONE_GITEA_CLIENT_ID=${DRONE_GITEA_CLIENT_ID}"
+      - "DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}"
+      - "DRONE_GIT_ALWAYS_AUTH=${DRONE_GITEA_ALWAYS_AUTH:-false}"
+      - "DRONE_LOGS_PRETTY=${DRONE_LOGS_PRETTY}"
+      - "DRONE_LOGS_COLOR=${DRONE_LOGS_COLOR}"
+    ports:
+      - "${DRONE_SERVER_GITEA_PORT:-8000}:80"
+    restart: "${DRONE_SERVER_RESTART:-always}"
+    networks:
+      - backend
+      - frontend
+
+  drone-gitlab:
+    image: drone/drone:${DRONE_VERSION:-1}
+    volumes:
+      - "${DRONE_SERVER_GITLAB_VOLUME:-./drone/server/gitlab}:/data"
+    environment:
+      - "DRONE_SERVER_HOST=${DRONE_SERVER_GITLAB_HOST:-drone-gitlab}"
+      - "DRONE_SERVER_PROTO=${DRONE_SERVER_GITLAB_PROTO:-http}"
+      - "DRONE_RPC_SECRET=${DRONE_RPC_GITLAB_SECRET}"
+      - "DRONE_AGENTS_ENABLED=${DRONE_AGENTS_GITLAB_ENABLED:-true}"
+      - "DRONE_GITEA_SERVER=${DRONE_GITLAB_SERVER:-http://gitlab}"
+      - "DRONE_GITEA_CLIENT_ID=${DRONE_GITLAB_CLIENT_ID}"
+      - "DRONE_GITEA_CLIENT_SECRET=${DRONE_GITLAB_CLIENT_SECRET}"
+      - "DRONE_GIT_ALWAYS_AUTH=${DRONE_GITLAB_ALWAYS_AUTH:-false}"
+      - "DRONE_LOGS_PRETTY=${DRONE_LOGS_PRETTY}"
+      - "DRONE_LOGS_COLOR=${DRONE_LOGS_COLOR}"
+    ports:
+      - "${DRONE_SERVER_GITLAB_PORT:-8000}:80"
+    restart: "${DRONE_SERVER_RESTART:-always}"
+    networks:
+      - backend
+      - frontend
+
+  drone-bitbucket:
+    image: drone/drone:${DRONE_VERSION:-1}
+    volumes:
+      - "${DRONE_SERVER_BITBUCKET_VOLUME:-./drone/server/bitbucket}:/data"
+    environment:
+      - "DRONE_SERVER_HOST=${DRONE_SERVER_BITBUCKET_HOST:-drone-bitbucket}"
+      - "DRONE_SERVER_PROTO=${DRONE_SERVER_BITBUCKET_PROTO:-http}"
+      - "DRONE_RPC_SECRET=${DRONE_RPC_BITBUCKET_SECRET}"
+      - "DRONE_GIT_USERNAME=${DRONE_BITBUCKET_USERNAME}"
+      - "DRONE_GIT_PASSWORD=${DRONE_BITBUCKET_PASSWORD}"
+      - "DRONE_GIT_ALWAYS_AUTH=${DRONE_BITBUCKET_ALWAYS_AUTH}"
+      - "DRONE_STASH_CONSUMER_KEY=${DRONE_BITBUCKET_CONSUMER_KEY}"
+      - "DRONE_STASH_PRIVATE_KEY=${DRONE_BITBUCKET_PRIVATE_KEY}"
+      - "DRONE_STASH_SERVER=${DRONE_BITBUCKET_SERVER}"
+      - "DRONE_LOGS_PRETTY=${DRONE_LOGS_PRETTY}"
+      - "DRONE_LOGS_COLOR=${DRONE_LOGS_COLOR}"
+    ports:
+      - "${DRONE_SERVER_BITBUCKET_PORT:-8000}:80"
+    restart: "${DRONE_SERVER_RESTART:-always}"
+    networks:
+      - backend
+      - frontend
+
+  drone-github:
+    image: drone/drone:${DRONE_VERSION:-1}
+    volumes:
+      - "${DRONE_SERVER_GITHUB_VOLUME:-./drone/server/github}:/data"
+    environment:
+      - "DRONE_SERVER_HOST=${DRONE_SERVER_GITLAB_HOST:-drone-gitlab}"
+      - "DRONE_SERVER_PROTO=${DRONE_SERVER_GITLAB_PROTO:-http}"
+      - "DRONE_RPC_SECRET=${DRONE_RPC_GITLAB_SECRET}"
+      - "DRONE_GITHUB_CLIENT_ID=${DRONE_GITHUB_CLIENT_ID}"
+      - "DRONE_GITHUB_CLIENT_SECRET=${DRONE_GITHUB_CLIENT_SECRET}"
+      - "DRONE_LOGS_PRETTY=${DRONE_LOGS_PRETTY}"
+      - "DRONE_LOGS_COLOR=${DRONE_LOGS_COLOR}"
+    ports:
+      - "${DRONE_SERVER_GITHUB_PORT:-8000}:80"
+    restart: "${DRONE_SERVER_RESTART:-always}"
+    networks:
+      - backend
+      - frontend
+
+  drone-agent:
+    image: drone/agent:${DRONE_VERSION:-1}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker:sock
+    environment:
+      - DRONE_RPC_SERVER=${DRONE_RPC_AGENT_SERVER}
+      - DRONE_RPC_SECRET=${DRONE_RPC_AGENT_SECRET}
+      - DRONE_RUNNER_CAPACITY=${DRONE_RUNNER_CAPACITY:-2}
+    restart: "${DRONE_AGENT_RETART:-always}"
+    networks:
+      - backend
+
 volumes:
   postgres_data:
     driver: local
   postgis_data:
     driver: local
   mysql_data:
+    driver: local
+  gitea_data:
     driver: local
 
 networks:
