@@ -408,6 +408,7 @@ POSTGRES_RESTART=always
 
 POSTGIS_VERSION=11
 # available version: 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0 with alpine
+# please refer the settings from https://github.com/postgis/docker-postgis
 
 POSTGIS_PORT=5432
 
