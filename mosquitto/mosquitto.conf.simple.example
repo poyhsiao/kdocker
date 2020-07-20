@@ -1,0 +1,18 @@
+# Port to use for the default listener.
+port 1883
+
+# normal mqtt mqtt://
+listener 8883
+protocol mqtt
+
+# encrypt mqtt
+listener 8884
+protocol mqtt
+
+# normal websocket ws://
+listener 8080
+protocol websockets
+
+# encrypt websocket wss://
+listener 8081
+protocol websockets

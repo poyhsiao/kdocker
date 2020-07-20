@@ -757,6 +757,20 @@ DRONE_RPC_AGENT_SERVER=
 DRONE_RPC_AGENT_SECRET=
 DRONE_RUNNER_CAPACITY=3
 
+#####################################
+# Mosquitto
+#####################################
+MOSQUITTO_VERSION=latest
+# available including 1.5, 1.6, may check official github site (https://github.com/eclipse/mosquitto)
+
+# export port for external access
+MOSQUITTO_UNENCRYPTED_PORT=1883
+MOSQUITTO_ENCRYPTED_PORT=8883
+MOSQUITTO_ENCRYPTED_CLIENT_CERT_PORT=8884
+MOSQUITTO_UNENCRYPTED_WEBSOCKET_PORT=8080
+MOSQUITTO_ENCRYPTED_WEBSOCKET_PORT=8081
+
+MOSQUITTO_RESTART=always
 
 #####################################
 # NETWORK setting
