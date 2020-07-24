@@ -773,6 +773,17 @@ MOSQUITTO_ENCRYPTED_WEBSOCKET_PORT=8081
 MOSQUITTO_RESTART=always
 
 #####################################
+# Mailhog setting
+#####################################
+MAILHOG_VERSION=latest
+# available including v1.0.0, latest, may check official github site (https://github.com/mailhog/MailHog)
+
+MAILHOG_SMTP_PORT=1025
+MAILHOG_WEB_PORT=8025
+
+MAILHOG_RESTART=always
+
+#####################################
 # NETWORK setting
 #####################################
 

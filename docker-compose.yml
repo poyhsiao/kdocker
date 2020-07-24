@@ -958,6 +958,20 @@ services:
       - backend
       - frontend
 
+  mailhog:
+    build:
+      context: ./mailhog
+      args:
+        - "TZ=${TIMEZONE:-UTC}"
+        - "MAILHOG_VERSION=${MAILHOG_VERSION:-latest}"
+    ports:
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"
+      - "${MAILHOG_WEB_PORT:-8025}:8025"
+    restart: ${MAILHOG_RESTART:-always}
+    networks:
+      - backend
+      - frontend
+
 volumes:
   postgres_data:
     driver: local
