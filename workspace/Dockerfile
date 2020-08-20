@@ -139,18 +139,23 @@ RUN if [ ${INSTALL_PDO_SQLITE} = true ]; then \
 ARG INSTALL_GD=false
 
 RUN if [ ${INSTALL_GD} = true ]; then \
+  apt-get update && \
   apt-get install -y --no-install-recommends \
   libjpeg62-turbo-dev \
   libpng-dev \
+  libgdchart-gd2-xpm-dev \
   libfreetype6-dev && \
   if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.4 ]; then \
   # gd extension
   docker-php-ext-configure gd \
+  --with-freetype \
+  --with-xpm \
   ;else \
   # gd extension
   docker-php-ext-configure gd \
   --with-jpeg-dir=/usr/lib \
   --with-freetype-dir=/usr/include/freetype2 \
+  --with-xpm=/usr/lib \
   ;fi && \
   docker-php-ext-install -j${NPROC} gd \
   ;fi
@@ -864,6 +869,7 @@ ARG INSTALL_GHOSTSCRIPT=false
 # install the ghostscript extension
 RUN if [ ${INSTALL_GHOSTSCRIPT} = true ]; then \
   # for PDF editing
+  apt-get update && \
   apt-get install -y --no-install-recommends poppler-utils ghostscript \
   ;fi
 
@@ -1072,6 +1078,7 @@ RUN if [ ${INSTALL_IMAGE_OPTIMIZERS} = true ]; then \
 ARG INSTALL_IMAGEMAGICK=false
 
 RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
+  apt-get update && \
   apt-get install -y --no-install-recommends libmagickwand-dev imagemagick && \
   pecl install imagick && \
   docker-php-ext-enable imagick \

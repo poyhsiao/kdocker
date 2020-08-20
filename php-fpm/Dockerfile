@@ -91,16 +91,24 @@ RUN if [ ${INSTALL_PDO_SQLITE} = true ]; then \
 ARG INSTALL_GD=false
 
 RUN if [ ${INSTALL_GD} = true ]; then \
+  apt-get update && \
   apt-get install -y --no-install-recommends \
   libjpeg62-turbo-dev \
   libpng-dev \
+  libgdchart-gd2-xpm-dev \
   libfreetype6-dev && \
-  #
+  if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.4 ]; then \
   # gd extension
-  #
+  docker-php-ext-configure gd \
+  --with-freetype \
+  --with-xpm \
+  ;else \
+  # gd extension
   docker-php-ext-configure gd \
   --with-jpeg-dir=/usr/lib \
-  --with-freetype-dir=/usr/include/freetype2 && \
+  --with-freetype-dir=/usr/include/freetype2 \
+  --with-xpm=/usr/lib \
+  ;fi && \
   docker-php-ext-install -j${NPROC} gd \
   ;fi
 
