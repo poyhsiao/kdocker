@@ -972,6 +972,46 @@ services:
       - backend
       - frontend
 
+  grafana:
+    build:
+      context: ./grafana
+      args:
+        - "TZ=${TIMEZONE:-UTC}"
+        - "GRAFANA_VERSION=${GRAFANA_VERSION:-latest}"
+        - "GF_INSTALL_IMAGE_RENDERER_PLUGIN=${GRAFANA_PLUGINS_INSTALL:-true}"
+    environment:
+      - "GF_INSTALL_PLUGINS=${GRAFANA_PLUGINS}"
+      - "GF_RENDERING_SERVER_URL=${GRAFANA_RENDERING_SERVER_URL}"
+      - "GF_RENDERING_CALLBACK_URL=${GRAFANA_RENDERING_CALLBACK_URL}"
+      - "GF_LOG_FILTERS=${GRAFANA_LOG_FILTER}"
+    volumes:
+      - "${DATA_SAVE_PATH}/grafana:/var/lib/grafana"
+    ports:
+      - "${GRAFANA_EXTERNAL_PORT:-3000}:3000"
+    restart: ${GRAFANA_RESTART:-always}
+    networks:
+      - backend
+      - frontend
+
+  grafana-render:
+    image: grafana/grafana-image-renderer:latest
+    environment:
+      - "ENABLE_METRICS=${GRAFANA_RENDER_METRICS:-true}"
+      - "BROWSER_TZ=${TIMEZONE:-UTC}"
+      - "IGNORE_HTTPS_ERRORS=${GRAFANA_RENDER_IGNORE_HTTPS_ERRORS:-true}"
+      - "LOG_LEVEL=${GRAFANA_RENDER_LOG_LEVEL:-debug}"
+      - "RENDERING_VERBOSE_LOGGING=${GRAFANA_RENDER_VERBOSE_LOGGING:-true}"
+      - "RENDERING_DUMPIO=${GRAFANA_RENDER_DUMPIO:-true}"
+      - "RENDERING_ARGS=${GRAFANA_RENDER_ARGS}"
+      - "RENDERING_MODE=${GRAFANA_RENDER_MODE:-default}"
+    ports:
+      - "${GRAFANA_RENDER_PORT:-8081}:8081"
+    depends_on:
+      - grafana
+    restart: ${GRAFANA_RENDER_RESTART:-always}
+    networks:
+      - frontend
+
 volumes:
   postgres_data:
     driver: local

@@ -784,6 +784,42 @@ MAILHOG_WEB_PORT=8025
 MAILHOG_RESTART=always
 
 #####################################
+# Grafana setting
+#####################################
+GRAFANA_VERSION=latest
+# available version can check official docker-hub (https://hub.docker.com/r/grafana/grafana/)
+
+GRAFANA_PLUGINS_INSTALL=true
+# only set true if you want to install plugin (set true first time only)
+
+GRAFANA_PLUGINS=grafana-image-renderer
+# please refer the url: https://grafana.com/docs/grafana/latest/installation/docker/#custom-image-with-grafana-image-renderer-plugin-pre-installed to install, give the plugin names and/or urls, split by ;
+
+## the following setting is only required for image renderer plugin
+GRAFANA_RENDERING_SERVER_URL=http://grafana-render:8081/render
+# the port number should match the export port number of grafana-rander server
+GRAFANA_RENDERING_CALLBACK_URL=http://grafana:3001
+# the port number should match the export port number of its external port
+GRAFANA_LOG_FILTER="rendering:debug"
+
+GRAFANA_EXTERNAL_PORT=3001
+GRAFANA_RESTART=always
+
+#####################################
+# Grafana image render setting
+#####################################
+# all the settings should check the official document: https://github.com/grafana/grafana-image-renderer/blob/master/docs/remote_rendering_using_docker.md
+GRAFANA_RENDER_METRICS=true
+GRAFANA_RENDER_IGNORE_HTTPS_ERRORS=true
+GRAFANA_RENDER_LOG_LEVEL=debug
+GRAFANA_RENDER_VERBOSE_LOGGING=true
+GRAFANA_RENDER_DUMPIO=true
+GRAFANA_RENDER_ARGS="--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-accelerated-2d-canvas,--disable-gpu,--window-size=1280x758"
+GRAFANA_RENDER_MODE=default
+
+GRAFANA_RENDER_RESTART=always
+
+#####################################
 # NETWORK setting
 #####################################
 
