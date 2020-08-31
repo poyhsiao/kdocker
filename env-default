@@ -313,6 +313,52 @@ NGINX_PHP_UPSTREAM_PORT=9000
 NGINX_RESTART=always
 
 #####################################
+# Nginx Advanced
+#####################################
+
+NGINX_ADV_SITES_PATH=./nginx-adv/sites-enabled
+
+NGINX_ADV_ALPINE_VERSION=latest
+# available: 3.9, 3.10, 3.11, 3.12, edge, please check https://hub.docker.com/_/ for detail information.
+
+NGINX_ADV_VERSION=1.19.2
+# available: 1.13 and above, please check https://github.com/nginx/nginx for available versions
+
+NGINX_ADV_DEV_KIT_VERSION=0.3.1
+# available: 0.3.0, 0.3.1, please check https://github.com/vision5/ngx_devel_kit for available versions
+
+NGINX_ADV_RTMP_VERSION=1.2.1
+# available: 1.2.1, please check https://github.com/arut/nginx-rtmp-module for available versions
+
+NGINX_ADV_LUA_VERSION=0.10.17
+# available: 0.10.13, 0.10.17, please check https://github.com/openresty/lua-nginx-module for available versions
+
+NGINX_ADV_LUAJIT_VERSION=2.0.5
+# available: 2.0.5, please check http://luajit.org/download.html for available versions
+
+NGINX_ADV_FFMPEG_VERSION=4.3.1
+# available: 4.3, 4.3.1, please check http://ffmpeg.org/releases/ for available versions
+
+NGINX_ADV_LUAROCKS_VERSION=3.3.1
+# available: 3.0.0, 3.3.1, please check https://github.com/luarocks/luarocks for available versions
+
+NGINX_ADV_OPENRESTY_VERSION=1.17.8.2
+# available: 1.13.6.1, 1.17.8.2, please check http://openresty.org/download/ for available versions
+
+NGINX_ADV_HEADERS_MORE_MODULE_VERSION=0.33
+# available: 0.33, please check https://github.com/openresty/headers-more-nginx-module for available versions
+
+NGINX_ADV_PHP_UPSTREAM_CONTAINER=workspace
+NGINX_ADV_PHP_UPSTREAM_PORT=9000
+
+NGINX_ADV_RTMP_PORT=1935
+
+#--------------------
+# system setting
+#--------------------
+NGINX_ADV_RESTART=always
+
+#####################################
 #
 # MySQL family:
 #

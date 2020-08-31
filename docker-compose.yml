@@ -395,7 +395,7 @@ services:
       - "${LOG_DATA_SAVE_PATH}/nginx:/var/log/nginx"
       - "./nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
       - "./nginx/settings:/etc/nginx/settings"
-      - "${NGINX_SITES_PATH}:/etc/nginx/sites-enabled:ro"
+      - "${NGINX_SITES_PATH:-./nginx/sites-enabled}:/etc/nginx/sites-enabled:ro"
     ports:
       - "${HTTP_PORT:-80}:80"
       - "${HTTPS_PORT:-443}:443"
@@ -403,6 +403,43 @@ services:
     depends_on:
       - workspace
     restart: ${NGINX_RESTART:-always}
+    networks:
+      - frontend
+      - backend
+
+  nginx-adv:
+    build:
+      context: ./nginx-adv
+      args:
+        - "NPROC=${NPROC:-1}"
+        - "ALPINE_VERSION=${NGINX_ADV_ALPINE_VERSION:-latest}"
+        - "NGINX_VERSION=${NGINX_ADV_VERSION:-1.19.2}"
+        - "NGINX_DEVEL_KIT_VERSION=${NGINX_ADV_DEV_KIT_VERSION:-0.3.1}"
+        - "NGINX_RTMP_MODULE_VERSION=${NGINX_ADV_RTMP_VERSION:-1.2.1}"
+        - "NGINX_LUA_MODULE_VERSION=${NGINX_ADV_LUA_VERSION:-0.10.17}"
+        - "LUA_JIT_VERSION=${NGINX_ADV_LUAJIT_VERSION:-2.0.5}"
+        - "FFMPEG_VERSION=${NGINX_ADV_FFMPEG_VERSION:-4.3.1}"
+        - "LUAROCKS_VERSION=${NGINX_ADV_LUAROCKS_VERSION:-3.3.1}"
+        - "OPENRESTY_VERSION=${NGINX_ADV_OPENRESTY_VERSION:-1.17.8.2}"
+        - "HEADERS_MORE_MODULE_VERSION=${NGINX_ADV_HEADERS_MORE_MODULE_VERSION:-0.33}"
+        - "TZ=${TIMEZONE:-UTC}"
+        - "PHP_UPSTREAM_CONTAINER=${NGINX_ADV_PHP_UPSTREAM_CONTAINER:-workspace}"
+        - "PHP_UPSTREAM_PORT=${NGINX_ADV_PHP_UPSTREAM_PORT:-9000}"
+    volumes_from:
+      - applications
+    volumes:
+      - "${LOG_DATA_SAVE_PATH}/nginx:/var/log/nginx"
+      - "./nginx-adv/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "./nginx-adv/settings:/etc/nginx/settings"
+      - "${NGINX_ADV_SITES_PATH:-./nginx-adv/sites-enabled}:/etc/nginx/sites-enabled:ro"
+    ports:
+      - "${NGINX_ADV_RTMP_PORT:-1935}:1935"
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+      - "${HTTP_OTHER_PORT:-2018}:2018"
+    depends_on:
+      - workspace
+    restart: ${NGINX_ADV_RESTART:-always}
     networks:
       - frontend
       - backend
