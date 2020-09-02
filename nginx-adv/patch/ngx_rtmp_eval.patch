@@ -1,0 +1,10 @@
+--- a/ngx_rtmp_eval.c	2018-06-02 19:23:28.993466673 +0200
++++ ngx_rtmp_eval.c	2018-06-02 19:23:26.532371311 +0200
+@@ -166,6 +166,7 @@
+                         state = ESCAPE;
+                         continue;
+                 }
++				 /* fall through */
+
+             case ESCAPE:
+                 ngx_rtmp_eval_append(&b, &c, 1, log);

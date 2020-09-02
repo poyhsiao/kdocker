@@ -35,7 +35,6 @@ ENV OPENRESTY=openresty-${OPENRESTY_VERSION}
 ENV LUAJIT_LIB=/usr/local/lib
 ENV LUAJIT_INC=/usr/local/include/luajit-2.0
 
-
 ##############################
 # Set Timezone
 ##############################
@@ -45,6 +44,12 @@ ARG TZ=UTC
 ENV TZ ${TZ}
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
   echo ${TZ} > /etc/timezone
+
+##############################
+# Add user
+##############################
+RUN addgroup -S www-data && \
+  adduser -S www-data -G www-data
 
 ##############################
 # Install dependencies
@@ -59,29 +64,28 @@ RUN apk update && \
   apk add --virtual .common-dependencies \
     bash \
     nano \
-    lua
+    lua \
+    libgcc \
+    openssl \
+    coreutils \
+    pcre
 
 # Common build tools
 RUN apk update && \
   apk add --virtual .build-dependencies \
     git \
     perl \
+    patch \
     unzip \
-    gcc \
     binutils \
     build-base \
-    libgcc \
     make \
     pkgconf \
     pkgconfig \
-    openssl \
     openssl-dev \
-    ca-certificates \
-    pcre \
     nasm \
     yasm \
     yasm-dev \
-    coreutils \
     musl-dev \
     libc-dev \
     pcre-dev \
@@ -101,7 +105,8 @@ RUN wget -c https://github.com/luarocks/luarocks/archive/v${LUAROCKS_VERSION}.ta
   cd ${LUAROCKS} && \
   ./configure && \
   make build -j${NPROC} && \
-  make install
+  make install && \
+  make clean
 
 # Build LuaJIT
 WORKDIR /tmp
@@ -110,8 +115,9 @@ RUN wget -c http://luajit.org/download/LuaJIT-${LUA_JIT_VERSION}.tar.gz && \
   tar zxvf LuaJIT-${LUA_JIT_VERSION}.tar.gz && \
   rm LuaJIT-${LUA_JIT_VERSION}.tar.gz && \
   cd LuaJIT-${LUA_JIT_VERSION} && \
-  make -j${NPROC}&& \
-  make install
+  make -j${NPROC} && \
+  make install && \
+  make clean
 
 # Build OpenResty
 WORKDIR /tmp
@@ -122,7 +128,8 @@ RUN wget -c https://openresty.org/download/openresty-${OPENRESTY_VERSION}.tar.gz
   cd ${OPENRESTY} && \
   ./configure -j${NPROC} && \
   make -j${NPROC} && \
-  make install
+  make install && \
+  make clean
 
 # Get ngx_devel_kit
 WORKDIR /tmp
@@ -134,9 +141,17 @@ RUN wget -c https://github.com/simpl/ngx_devel_kit/archive/v${NGINX_DEVEL_KIT_VE
 # Get nginx-rtmp module
 WORKDIR /tmp
 
-RUN wget -c https://github.com/arut/nginx-rtmp-module/archive/v${NGINX_RTMP_MODULE_VERSION}.tar.gz -O ${NGINX_RTMP_MODULE}.tar.gz && \
+COPY ./patch/ngx_rtmp_eval.patch /tmp/ngx_rtmp_eval.patch
+RUN if [ ${NGINX_RTMP_MODULE_VERSION} = master ]; then \
+  wget -c https://github.com/arut/nginx-rtmp-module/archive/${NGINX_RTMP_MODULE_VERSION}.tar.gz -O ${NGINX_RTMP_MODULE}.tar.gz \
+  ;else \
+  wget -c https://github.com/arut/nginx-rtmp-module/archive/v${NGINX_RTMP_MODULE_VERSION}.tar.gz -O ${NGINX_RTMP_MODULE}.tar.gz \
+  ;fi && \
   tar zxvf ${NGINX_RTMP_MODULE}.tar.gz && \
-  rm ${NGINX_RTMP_MODULE}.tar.gz
+  cd ${NGINX_RTMP_MODULE} && \
+  # patch for rtmp issue, reference to https://github.com/arut/nginx-rtmp-module/issues/1358
+  patch -p0 -f < /tmp/ngx_rtmp_eval.patch && \
+  rm /tmp/${NGINX_RTMP_MODULE}.tar.gz
 
 # Get lua-nginx-module
 WORKDIR /tmp
@@ -260,7 +275,7 @@ RUN wget -c http://ffmpeg.org/releases/ffmpeg-${FFMPEG_VERSION}.tar.gz && \
 # Build ffmpeg
 WORKDIR /tmp/ffmpeg-${FFMPEG_VERSION}
 
-RUN ./configure -j${NPROC} \
+RUN ./configure \
   --enable-version3 \
   --enable-gpl \
   --enable-nonfree \
@@ -297,14 +312,27 @@ RUN make -j${NPROC} && \
   make distclean
 
 ##############################
+# Final fix
+##############################
+# pcre
+# RUN ls -alh /usr/lib && \
+#   sleep 50
+# RUN ldd $(which /usr/sbin/nginx) && \
+#   sleep 50
+# RUN ln -s /usr/lib/libpcre.so.1.2.10 /usr/local/lib/libpcre.so.1
+
+# RUN export LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:$LD_LIBRARY_PATH
+# ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:$LD_LIBRARY_PATH
+
+##############################
 # Add php support
 ##############################
 ARG PHP_UPSTREAM_CONTAINER=workspace
 ARG PHP_UPSTREAM_PORT=9000
 
 # Set upstream conf and remove the default conf
-RUN echo "upstream php-upstream { server ${PHP_UPSTREAM_CONTAINER}:${PHP_UPSTREAM_PORT}; }" > /etc/nginx/conf.d/upstream.conf \
-  && rm /etc/nginx/conf.d/default.conf
+RUN mkdir -p /etc/nginx/conf.d && \
+  echo "upstream php-upstream { server ${PHP_UPSTREAM_CONTAINER}:${PHP_UPSTREAM_PORT}; }" > /etc/nginx/conf.d/upstream.conf
 
 ##############################
 # Cleanup
@@ -325,4 +353,4 @@ EXPOSE 1935
 # HTTP ports
 EXPOSE 80 443 2018
 
-CMD ["nginx"]
+CMD ["/usr/sbin/nginx"]
