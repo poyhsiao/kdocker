@@ -18,8 +18,11 @@ ARG NPROC=1
 ARG NGINX_VERSION=1.19.2
 ARG NGINX_DEVEL_KIT_VERSION=0.3.1
 ARG NGINX_RTMP_MODULE_VERSION=1.2.1
-ARG NGINX_LUA_MODULE_VERSION=0.10.13
+ARG NGINX_LUA_MODULE_VERSION=0.10.16
 ARG LUA_JIT_VERSION=2.0.5
+ARG NGINX_LUA_RESTY_VERSION=0.1.16
+ARG NGINX_STREAM_LUA_MODULE_VERSION=0.0.8
+ARG NGINX_LUA_RESTY_LRUCACHE_VERSION=0.10
 ARG FFMPEG_VERSION=4.3.1
 ARG LUAROCKS_VERSION=3.3.1
 ARG OPENRESTY_VERSION=1.17.8.2
@@ -28,6 +31,9 @@ ARG HEADERS_MORE_MODULE_VERSION=0.33
 ENV NGINX_DEVEL_KIT=ngx_devel_kit-${NGINX_DEVEL_KIT_VERSION}
 ENV NGINX_RTMP_MODULE=nginx-rtmp-module-${NGINX_RTMP_MODULE_VERSION}
 ENV NGINX_LUA_MODULE=lua-nginx-module-${NGINX_LUA_MODULE_VERSION}
+ENV NGINX_LUA_RESTY_CORE=lua-resty-core-${NGINX_LUA_RESTY_VERSION}
+ENV NGINX_STREAM_LUA_MODULE=stream-lua-nginx-module-${NGINX_STREAM_LUA_MODULE_VERSION}
+ENV NGINX_LUA_RESTY_LRUCACHE=lua-resty-lrucache-${NGINX_LUA_RESTY_LRUCACHE_VERSION}
 ENV NGINX_HEADER_MORE_MODULE=headers-more-nginx-module-${HEADERS_MORE_MODULE_VERSION}
 ENV LUAROCKS=luarocks-${LUAROCKS_VERSION}
 ENV OPENRESTY=openresty-${OPENRESTY_VERSION}
@@ -131,6 +137,26 @@ RUN wget -c https://openresty.org/download/openresty-${OPENRESTY_VERSION}.tar.gz
   make install && \
   make clean
 
+# Build lua-resty-core
+WORKDIR /tmp
+
+RUN wget -c https://github.com/openresty/lua-resty-core/archive/v${NGINX_LUA_RESTY_VERSION}.tar.gz -O ${NGINX_LUA_RESTY_CORE}.tar.gz && \
+  tar zxvf ${NGINX_LUA_RESTY_CORE}.tar.gz && \
+  rm ${NGINX_LUA_RESTY_CORE}.tar.gz && \
+  cd ${NGINX_LUA_RESTY_CORE} && \
+  make -j${NPROC} && \
+  make install
+
+# Build lua-resty-lrucache
+WORKDIR /tmp
+
+RUN wget -c https://github.com/openresty/lua-resty-lrucache/archive/v${NGINX_LUA_RESTY_LRUCACHE_VERSION}.tar.gz -O ${NGINX_LUA_RESTY_LRUCACHE}.tar.gz && \
+  tar zxvf ${NGINX_LUA_RESTY_LRUCACHE}.tar.gz && \
+  rm ${NGINX_LUA_RESTY_LRUCACHE}.tar.gz && \
+  cd ${NGINX_LUA_RESTY_LRUCACHE} && \
+  make -j${NPROC} && \
+  make install
+
 # Get ngx_devel_kit
 WORKDIR /tmp
 
@@ -152,6 +178,13 @@ RUN if [ ${NGINX_RTMP_MODULE_VERSION} = master ]; then \
   # patch for rtmp issue, reference to https://github.com/arut/nginx-rtmp-module/issues/1358
   patch -p0 -f < /tmp/ngx_rtmp_eval.patch && \
   rm /tmp/${NGINX_RTMP_MODULE}.tar.gz
+
+# Get strem lua module
+WORKDIR /tmp
+
+RUN wget -c https://github.com/openresty/stream-lua-nginx-module/archive/v${NGINX_STREAM_LUA_MODULE_VERSION}.tar.gz -O ${NGINX_STREAM_LUA_MODULE}.tar.gz && \
+  tar zxvf ${NGINX_STREAM_LUA_MODULE}.tar.gz && \
+  rm ${NGINX_STREAM_LUA_MODULE}.tar.gz
 
 # Get lua-nginx-module
 WORKDIR /tmp
@@ -225,8 +258,9 @@ RUN ./configure \
   --add-module=/tmp/${NGINX_LUA_MODULE} \
   --add-module=/tmp/${NGINX_RTMP_MODULE} \
   --add-module=/tmp/${NGINX_HEADER_MORE_MODULE} \
+  --add-module=/tmp/${NGINX_STREAM_LUA_MODULE} \
   --with-cc-opt="-Os -fomit-frame-pointer" \
-  --with-ld-opt="-Wl,--as-needed,-rpath,${LUAJIT_LIB}}"
+  --with-ld-opt="-Wl,-rpath,${LUAJIT_LIB}"
 
 RUN make -j${NPROC} && \
   make install
@@ -312,19 +346,6 @@ RUN make -j${NPROC} && \
   make distclean
 
 ##############################
-# Final fix
-##############################
-# pcre
-# RUN ls -alh /usr/lib && \
-#   sleep 50
-# RUN ldd $(which /usr/sbin/nginx) && \
-#   sleep 50
-# RUN ln -s /usr/lib/libpcre.so.1.2.10 /usr/local/lib/libpcre.so.1
-
-# RUN export LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:$LD_LIBRARY_PATH
-# ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:$LD_LIBRARY_PATH
-
-##############################
 # Add php support
 ##############################
 ARG PHP_UPSTREAM_CONTAINER=workspace
@@ -347,6 +368,8 @@ RUN rm -rf /tmp/*
 ##############################
 # Finally
 ##############################
+WORKDIR /
+
 # RTMP port
 EXPOSE 1935
 

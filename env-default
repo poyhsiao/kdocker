@@ -333,8 +333,17 @@ NGINX_ADV_RTMP_VERSION=1.2.1
 NGINX_ADV_LUA_VERSION=0.10.17
 # available: 0.10.13, 0.10.17, please check https://github.com/openresty/lua-nginx-module for available versions
 
+NGINX_ADV_STREAM_LUA_VERSION=0.0.8
+# available: 0.0.8, please check https://github.com/openresty/stream-lua-nginx-module for available versions
+
 NGINX_ADV_LUAJIT_VERSION=2.0.5
 # available: 2.0.5, please check http://luajit.org/download.html for available versions
+
+NGINX_ADV_LUA_RESTY_VERSION=0.1.19
+# availalbe: 0.1.16, please check https://github.com/openresty/lua-resty-core for available versions
+
+NGINX_ADV_LUA_RESTY_LRUCACHE_VERSION=0.10
+# available: 0.10, please check https://github.com/openresty/lua-resty-lrucache for available versions
 
 NGINX_ADV_FFMPEG_VERSION=4.3.1
 # available: 4.3, 4.3.1, please check http://ffmpeg.org/releases/ for available versions
