@@ -855,7 +855,7 @@ GRAFANA_RENDERING_SERVER_URL=http://grafana-render:8081/render
 # the port number should match the export port number of grafana-rander server
 GRAFANA_RENDERING_CALLBACK_URL=http://grafana:3001
 # the port number should match the export port number of its external port
-GRAFANA_LOG_FILTER="rendering:debug"
+GRAFANA_LOG_FILTER=rendering:debug
 
 GRAFANA_EXTERNAL_PORT=3001
 GRAFANA_RESTART=always
@@ -869,7 +869,7 @@ GRAFANA_RENDER_IGNORE_HTTPS_ERRORS=true
 GRAFANA_RENDER_LOG_LEVEL=debug
 GRAFANA_RENDER_VERBOSE_LOGGING=true
 GRAFANA_RENDER_DUMPIO=true
-GRAFANA_RENDER_ARGS="--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-accelerated-2d-canvas,--disable-gpu,--window-size=1280x758"
+GRAFANA_RENDER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-accelerated-2d-canvas,--disable-gpu,--window-size=1280x758
 GRAFANA_RENDER_MODE=default
 
 GRAFANA_RENDER_RESTART=always

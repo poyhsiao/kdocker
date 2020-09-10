@@ -1026,6 +1026,7 @@ services:
       - "GF_LOG_FILTERS=${GRAFANA_LOG_FILTER}"
     volumes:
       - "${DATA_SAVE_PATH}/grafana:/var/lib/grafana"
+      - "./grafana/config/grafana.ini:/etc/grafana/grafana.ini:ro"
     ports:
       - "${GRAFANA_EXTERNAL_PORT:-3000}:3000"
     restart: ${GRAFANA_RESTART:-always}
