@@ -431,6 +431,7 @@ services:
     volumes_from:
       - applications
     volumes:
+      - "${DATA_SAVE_PATH}/nginx-adv/cache:/var/cache/nginx"
       - "${LOG_DATA_SAVE_PATH}/nginx-adv:/var/log/nginx"
       - "./nginx-adv/nginx.conf:/etc/nginx/nginx.conf:ro"
       - "./nginx-adv/settings:/etc/nginx/settings"
