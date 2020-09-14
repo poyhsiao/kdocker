@@ -357,6 +357,9 @@ NGINX_ADV_OPENRESTY_VERSION=1.17.8.2
 NGINX_ADV_HEADERS_MORE_MODULE_VERSION=0.33
 # available: 0.33, please check https://github.com/openresty/headers-more-nginx-module for available versions
 
+NGINX_ADV_VOD_MODULE_VERSION=1.27
+# available: 1.27, please check https://github.com/kaltura/nginx-vod-module for available versions
+
 NGINX_ADV_PHP_UPSTREAM_CONTAINER=workspace
 NGINX_ADV_PHP_UPSTREAM_PORT=9000
 

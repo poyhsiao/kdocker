@@ -1,0 +1,23 @@
+# Check https://www.modpagespeed.com/doc/config_filters for detail settings
+# Rewrite Level
+pagespeed RewriteLevel CoreFilters;
+
+# Minimize and optimize HTTP requests
+pagespeed EnableFilters rewrite_css;
+pagespeed EnableFilters rewrite_javascript;
+pagespeed EnableFilters combine_css;
+pagespeed EnableFilters combine_javascript;
+pagespeed EnableFilters inline_css;
+pagespeed CssInlineMaxBytes 4096;
+pagespeed EnableFilters inline_javascript;
+pagespeed JsInlineMaxBytes 4096;
+
+# Image Optimization and lazy load
+pagespeed EnableFilters rewrite_images;
+pagespeed EnableFilters inline_images;
+pagespeed EnableFilters resize_images;
+pagespeed EnableFilters recompress_images;
+
+# Controlling the use of beacons
+pagespeed AvoidRenamingIntrospectiveJavascript off;
+pagespeed CriticalImagesBeaconEnabled false;

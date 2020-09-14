@@ -27,6 +27,7 @@ ARG FFMPEG_VERSION=4.3.1
 ARG LUAROCKS_VERSION=3.3.1
 ARG OPENRESTY_VERSION=1.17.8.2
 ARG HEADERS_MORE_MODULE_VERSION=0.33
+ARG NGINX_VOD_MODULE_VERSION=1.27
 
 ENV NGINX_DEVEL_KIT=ngx_devel_kit-${NGINX_DEVEL_KIT_VERSION}
 ENV NGINX_RTMP_MODULE=nginx-rtmp-module-${NGINX_RTMP_MODULE_VERSION}
@@ -35,6 +36,7 @@ ENV NGINX_LUA_RESTY_CORE=lua-resty-core-${NGINX_LUA_RESTY_VERSION}
 ENV NGINX_STREAM_LUA_MODULE=stream-lua-nginx-module-${NGINX_STREAM_LUA_MODULE_VERSION}
 ENV NGINX_LUA_RESTY_LRUCACHE=lua-resty-lrucache-${NGINX_LUA_RESTY_LRUCACHE_VERSION}
 ENV NGINX_HEADER_MORE_MODULE=headers-more-nginx-module-${HEADERS_MORE_MODULE_VERSION}
+ENV NGINX_VOD_MODULE=nginx-vod-module-${NGINX_VOD_MODULE_VERSION}
 ENV LUAROCKS=luarocks-${LUAROCKS_VERSION}
 ENV OPENRESTY=openresty-${OPENRESTY_VERSION}
 
@@ -74,7 +76,8 @@ RUN apk update && \
     libgcc \
     openssl \
     coreutils \
-    pcre
+    pcre \
+    libxml2
 
 # Common build tools
 RUN apk update && \
@@ -83,21 +86,27 @@ RUN apk update && \
     perl \
     patch \
     unzip \
-    binutils \
-    build-base \
-    make \
-    pkgconf \
-    pkgconfig \
-    openssl-dev \
     nasm \
     yasm \
-    yasm-dev \
-    musl-dev \
-    libc-dev \
+    binutils \
+    build-base \
     pcre-dev \
     zlib-dev \
     lua-dev \
-    linux-headers
+    linux-headers \
+    apache2-dev \
+    apr-dev \
+    apr-util-dev \
+    gettext-dev \
+    gperf \
+    icu-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    libressl-dev \
+    py-setuptools \
+    libxml2-dev \
+    libxslt-dev \
+    gd-dev
 
 ##############################
 # Build packages
@@ -200,6 +209,13 @@ RUN wget -c https://github.com/openresty/headers-more-nginx-module/archive/v${HE
   tar zxvf ${NGINX_HEADER_MORE_MODULE}.tar.gz && \
   rm ${NGINX_HEADER_MORE_MODULE}.tar.gz
 
+# Get nginx-vod-module
+WORKDIR /tmp
+
+RUN wget -c https://github.com/kaltura/nginx-vod-module/archive/${NGINX_VOD_MODULE_VERSION}.tar.gz -O ${NGINX_VOD_MODULE}.tar.gz && \
+  tar zxvf ${NGINX_VOD_MODULE}.tar.gz && \
+  rm ${NGINX_VOD_MODULE}.tar.gz
+
 ##############################
 # Build nginx
 ##############################
@@ -237,6 +253,7 @@ RUN ./configure \
   --with-http_auth_request_module \
   --with-http_dav_module \
   --with-http_flv_module \
+  --with-http_mp4_module \
   --with-http_gunzip_module \
   --with-http_gzip_static_module \
   --with-http_mp4_module \
@@ -247,6 +264,9 @@ RUN ./configure \
   --with-http_ssl_module \
   --with-http_stub_status_module \
   --with-http_sub_module \
+  --with-http_degradation_module \
+  --with-http_xslt_module=dynamic \
+  --with-http_image_filter_module=dynamic \
   --with-http_v2_module \
   --with-mail \
   --with-mail_ssl_module \
@@ -259,7 +279,8 @@ RUN ./configure \
   --add-module=/tmp/${NGINX_RTMP_MODULE} \
   --add-module=/tmp/${NGINX_HEADER_MORE_MODULE} \
   --add-module=/tmp/${NGINX_STREAM_LUA_MODULE} \
-  --with-cc-opt="-Os -fomit-frame-pointer" \
+  --add-module=/tmp/${NGINX_VOD_MODULE} \
+  --with-cc-opt="-O3 -fomit-frame-pointer" \
   --with-ld-opt="-Wl,-rpath,${LUAJIT_LIB}"
 
 RUN make -j${NPROC} && \
@@ -344,16 +365,6 @@ RUN ./configure \
 RUN make -j${NPROC} && \
   make install && \
   make distclean
-
-##############################
-# Add php support
-##############################
-ARG PHP_UPSTREAM_CONTAINER=workspace
-ARG PHP_UPSTREAM_PORT=9000
-
-# Set upstream conf and remove the default conf
-RUN mkdir -p /etc/nginx/conf.d && \
-  echo "upstream php-upstream { server ${PHP_UPSTREAM_CONTAINER}:${PHP_UPSTREAM_PORT}; }" > /etc/nginx/conf.d/upstream.conf
 
 ##############################
 # Cleanup

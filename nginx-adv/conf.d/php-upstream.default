@@ -1,0 +1,4 @@
+# PHP upstream for php handling
+upstream php-upstream {
+  server workspace:9000;
+}

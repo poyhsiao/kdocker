@@ -394,7 +394,7 @@ services:
     volumes:
       - "${LOG_DATA_SAVE_PATH}/nginx:/var/log/nginx"
       - "./nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
-      - "./nginx/settings:/etc/nginx/settings"
+      - "./nginx/conf.d:/etc/nginx/conf.d"
       - "${NGINX_SITES_PATH:-./nginx/sites-enabled}:/etc/nginx/sites-enabled:ro"
     ports:
       - "${HTTP_PORT:-80}:80"
@@ -425,16 +425,15 @@ services:
         - "LUAROCKS_VERSION=${NGINX_ADV_LUAROCKS_VERSION:-3.3.1}"
         - "OPENRESTY_VERSION=${NGINX_ADV_OPENRESTY_VERSION:-1.17.8.2}"
         - "HEADERS_MORE_MODULE_VERSION=${NGINX_ADV_HEADERS_MORE_MODULE_VERSION:-0.33}"
+        - "NGINX_VOD_MODULE_VERSION=${NGINX_ADV_VOD_MODULE_VERSION:-1.27}"
         - "TZ=${TIMEZONE:-UTC}"
-        - "PHP_UPSTREAM_CONTAINER=${NGINX_ADV_PHP_UPSTREAM_CONTAINER:-workspace}"
-        - "PHP_UPSTREAM_PORT=${NGINX_ADV_PHP_UPSTREAM_PORT:-9000}"
     volumes_from:
       - applications
     volumes:
       - "${DATA_SAVE_PATH}/nginx-adv/cache:/var/cache/nginx"
       - "${LOG_DATA_SAVE_PATH}/nginx-adv:/var/log/nginx"
       - "./nginx-adv/nginx.conf:/etc/nginx/nginx.conf:ro"
-      - "./nginx-adv/settings:/etc/nginx/settings"
+      - "./nginx-adv/conf.d:/etc/nginx/conf.d"
       - "${NGINX_ADV_SITES_PATH:-./nginx-adv/sites-enabled}:/etc/nginx/sites-enabled:ro"
     ports:
       - "${NGINX_ADV_RTMP_PORT:-1935}:1935"
