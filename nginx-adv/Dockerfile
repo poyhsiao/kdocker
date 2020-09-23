@@ -28,6 +28,7 @@ ARG LUAROCKS_VERSION=3.3.1
 ARG OPENRESTY_VERSION=1.17.8.2
 ARG HEADERS_MORE_MODULE_VERSION=0.33
 ARG NGINX_VOD_MODULE_VERSION=1.27
+ARG NGINX_UPLOAD_PROGRESS_MODULE_VERSION=0.9.2
 
 ENV NGINX_DEVEL_KIT=ngx_devel_kit-${NGINX_DEVEL_KIT_VERSION}
 ENV NGINX_RTMP_MODULE=nginx-rtmp-module-${NGINX_RTMP_MODULE_VERSION}
@@ -37,6 +38,7 @@ ENV NGINX_STREAM_LUA_MODULE=stream-lua-nginx-module-${NGINX_STREAM_LUA_MODULE_VE
 ENV NGINX_LUA_RESTY_LRUCACHE=lua-resty-lrucache-${NGINX_LUA_RESTY_LRUCACHE_VERSION}
 ENV NGINX_HEADER_MORE_MODULE=headers-more-nginx-module-${HEADERS_MORE_MODULE_VERSION}
 ENV NGINX_VOD_MODULE=nginx-vod-module-${NGINX_VOD_MODULE_VERSION}
+ENV NGINX_UPLOAD_PROGRESS_MODULE=nginx-upload-progress-module-${NGINX_UPLOAD_PROGRESS_MODULE_VERSION}
 ENV LUAROCKS=luarocks-${LUAROCKS_VERSION}
 ENV OPENRESTY=openresty-${OPENRESTY_VERSION}
 
@@ -74,6 +76,7 @@ RUN apk update && \
     nano \
     lua \
     libgcc \
+    curl \
     openssl \
     coreutils \
     pcre \
@@ -216,6 +219,13 @@ RUN wget -c https://github.com/kaltura/nginx-vod-module/archive/${NGINX_VOD_MODU
   tar zxvf ${NGINX_VOD_MODULE}.tar.gz && \
   rm ${NGINX_VOD_MODULE}.tar.gz
 
+# Get nginx upload progress module
+WORKDIR /tmp
+
+RUN wget -c https://github.com/masterzen/nginx-upload-progress-module/archive/v${NGINX_UPLOAD_PROGRESS_MODULE_VERSION}.tar.gz -O ${NGINX_UPLOAD_PROGRESS_MODULE}.tar.gz && \
+  tar zxvf ${NGINX_UPLOAD_PROGRESS_MODULE}.tar.gz && \
+  rm ${NGINX_UPLOAD_PROGRESS_MODULE}.tar.gz
+
 ##############################
 # Build nginx
 ##############################
@@ -280,6 +290,7 @@ RUN ./configure \
   --add-module=/tmp/${NGINX_HEADER_MORE_MODULE} \
   --add-module=/tmp/${NGINX_STREAM_LUA_MODULE} \
   --add-module=/tmp/${NGINX_VOD_MODULE} \
+  --add-module=/tmp/${NGINX_UPLOAD_PROGRESS_MODULE} \
   --with-cc-opt="-O3 -fomit-frame-pointer" \
   --with-ld-opt="-Wl,-rpath,${LUAJIT_LIB}"
 
