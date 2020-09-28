@@ -698,13 +698,15 @@ services:
       context: ./logstash
       args:
         - "LOGSTASH_VERSION=${LOGSTASH_VERSION:-6.2.2}"
+        - "LOGSTASH_PLUGINS=${LOGSTASH_PLUGINS:-NONE}"
     environment:
       - "LS_JAVA_OPTS=-Xms${LOGSTASH_MIN_MEMORY:-256m} -Xmx${LOGSTASH_MAX_MEMORY:-256m}"
     volumes:
       - "./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro"
-      - "./logstash/pipeline:/usr/share/logstash/pipeline:ro"
+      - "./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
+      - "${DATA_SAVE_PATH}/logstash/pipeline:/usr/share/logstash/pipeline"
+      - "${DATA_SAVE_PATH}/logstash/data:/usr/share/logstash/data"
       - "${LOG_DATA_SAVE_PATH}/logstash:/var/log"
-      - "${DATA_SAVE_PATH}/logstash:/usr/share/logstash/data"
     links:
       - elasticsearch
     ports:

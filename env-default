@@ -582,6 +582,11 @@ KIBANA_RESTART=always
 
 LOGSTASH_VERSION=6.2.2
 # available versions: plz check official website: https://www.docker.elastic.co
+
+LOGSTASH_PLUGINS=
+# split by ';', set 'NONE' to ignore install plugins. $please check https://www.elastic.co/guide/en/logstash/current/input-plugins.html for plugin list.
+# tested plugins: github;logstash-input-google_cloud_storage;logstash-input-google_pubsub;graphite;heartbeat;logstash-input-http_poller;kinesis;logstash-input-log4j;meetup;logstash-input-puppet_facter;relp;rss;	logstash-input-s3-sns-sqs;stomp;websocket;logstash-input-wmi;xmpp
+
 LOGSTASH_MIN_MEMORY=256m
 LOGSTASH_MAX_MEMORY=256m
 LOGSTASH_PORT=5002
