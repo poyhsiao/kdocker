@@ -881,6 +881,85 @@ GRAFANA_RENDER_MODE=default
 GRAFANA_RENDER_RESTART=always
 
 #####################################
+# Zookeeper setting
+#####################################
+
+ZOOKEEPER_VERSION=latest
+
+# ZooKeeper's tickTime. The length of a single tick, which is the basic time unit used by ZooKeeper, as measured in milliseconds. It is used to regulate heartbeats, and timeouts. For example, the minimum session timeout will be two ticks
+ZOO_TICK_TIME=2000
+
+# ZooKeeper's initLimit. Amount of time, in ticks (see tickTime), to allow followers to connect and sync to a leader. Increased this value as needed, if the amount of data managed by ZooKeeper is large.
+ZOO_INIT_LIMIT=5
+
+# ZooKeeper's syncLimit. Amount of time, in ticks (see tickTime), to allow followers to sync with ZooKeeper. If followers fall too far behind a leader, they will be dropped.
+ZOO_MAX_CLIENT_CNXNS=2
+
+# Zookeeper's standaloneEnabled. Prior to 3.5.0, one could run ZooKeeper in Standalone mode or in a Distributed mode. These are separate implementation stacks, and switching between them during run time is not possible. By default (for backward compatibility) standaloneEnabled is set to true. The consequence of using this default is that if started with a single server the ensemble will not be allowed to grow, and if started with more than one server it will not be allowed to shrink to contain fewer than two participants.
+ZOO_STANDALONE_ENABLED=true
+
+# Zookeeper's standaloneEnabled. Prior to 3.5.0, one could run ZooKeeper in Standalone mode or in a Distributed mode. These are separate implementation stacks, and switching between them during run time is not possible. By default (for backward compatibility) standaloneEnabled is set to true. The consequence of using this default is that if started with a single server the ensemble will not be allowed to grow, and if started with more than one server it will not be allowed to shrink to contain fewer than two participants.
+ZOO_ADMINSERVER_ENABLED=true
+
+# Zookeeper's admin.enableServer. New in 3.5.0: The AdminServer is an embedded Jetty server that provides an HTTP interface to the four letter word commands. By default, the server is started on port 8080, and commands are issued by going to the URL "/commands/[command name]", e.g., http://localhost:8080/commands/stat.
+ZOO_AUTOPURGE_PURGEINTERVAL=0
+
+# Zookeeper's autoPurge.purgeInterval. The time interval in hours for which the purge task has to be triggered. Set to a positive integer (1 and above) to enable the auto purging. Defaults to 0.
+ZOO_AUTOPURGE_SNAPRETAINCOUNT=0
+
+# Zookeeper's 4lw.commands.whitelist. A list of comma separated Four Letter Words commands that user wants to use. A valid Four Letter Words command must be put in this list else ZooKeeper server will not enable the command. By default the whitelist only contains "srvr" command which zkServer.sh uses. The rest of four letter word commands are disabled by default.
+ZOO_4LW_COMMANDS_WHITELIST=srvr
+
+##################
+# Adv config
+##################
+
+# Not every Zookeeper configuration setting is exposed via the environment variables listed above. These variables are only meant to cover minimum configuration keywords and some often changing options. If mounting your custom config file as a volume doesn't work for you, consider using ZOO_CFG_EXTRA environment variable. You can add arbitrary configuration parameters to Zookeeper configuration file using this variable. The following example shows how to enable Prometheus metrics exporter on port 7070:
+#
+# $ docker run --name some-zookeeper --restart always -e ZOO_CFG_EXTRA="metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider metri
+# ZOO_CFG_EXTRA=
+
+# Many of the Zookeeper advanced configuration options can be set there using Java system properties in the form of -Dproperty=value. For example, you can use Netty instead of NIO (default option) as a server communication framework:
+#
+# $ docker run --name some-zookeeper --restart always -e JVMFLAGS="-Dzookeeper.serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory" zookeeper
+# See Advanced Configuration for the full list of supported Java system properties.
+#
+# Another example use case for the JVMFLAGS is setting a maximum JWM heap size of 1 GB:
+#
+# $ docker run --name some-zookeeper --restart always -e JVMFLAGS="-Xmx1024m" zookeeper
+# ZOO_JVMFLAGS=
+
+##################
+# Replicated mode (https://hub.docker.com/_/zookeeper)
+##################
+
+# The id must be unique within the ensemble and should have a value between 1 and 255. Do note that this variable will not have any effect if you start the container with a /data directory that already contains the myid file.
+# ZOO_MY_ID=
+
+# This variable allows you to specify a list of machines of the Zookeeper ensemble. Each entry has the form of server.id=host:port:port. Entries are separated with space. Do note that this variable will not have any effect if you start the container with a /conf directory that already contains the zoo.cfg file.
+#
+# In 3.5, the syntax of this has changed. Servers should be specified as such: server.id=<address1>:<port1>:<port2>[:role];[<client port address>:]<client port> Zookeeper Dynamic Reconfiguration
+# ZOO_SERVERS
+
+ZOOKEEP_RESTART=always
+
+#####################################
+# Kafka setting
+#####################################
+
+# check https://github.com/wurstmeister/kafka-docker for available versions
+KAFKA_DOCERK_VERSION=latest
+
+# check https://github.com/wurstmeister/kafka-docker/blob/master/README.md for Advertised settings
+KAFKA_ADVERTISED_HOST_NAME=10.89.20.109
+
+KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+
+KAFKA_PORT=9092
+
+KAFKA_RESTART=always
+
+#####################################
 # NETWORK setting
 #####################################
 

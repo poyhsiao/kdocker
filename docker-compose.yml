@@ -1053,6 +1053,80 @@ services:
     networks:
       - frontend
 
+  zookeeper:
+    image: zookeeper:${ZOOKEEPER_VERSION:-latest}
+    environment:
+      - "ZOO_TICK_TIME=${ZOO_TICK_TIME:-2000}"
+      - "ZOO_INIT_LIMIT=${ZOO_INIT_LIMIT:-2}"
+      - "ZOO_MAX_CLIENT_CNXNS=${ZOO_MAX_CLIENT_CNXNS:-60}"
+      - "ZOO_STANDALONE_ENABLED=${ZOO_STANDALONE_ENABLED:-true}"
+      - "ZOO_ADMINSERVER_ENABLED=${ZOO_ADMINSERVER_ENABLED:-true}"
+      - "ZOO_AUTOPURGE_PURGEINTERVAL=${ZOO_AUTOPURGE_PURGEINTERVAL:-0}"
+      - "ZOO_AUTOPURGE_SNAPRETAINCOUNT=${ZOO_AUTOPURGE_SNAPRETAINCOUNT:-3}"
+      - "ZOO_4LW_COMMANDS_WHITELIST=${ZOO_4LW_COMMANDS_WHITELIST:-srvr}"
+      - "ZOO_CFG_EXTRA=${ZOO_CFG_EXTRA}"
+      - "JVMFLAGS=${ZOO_JVMFLAGS}"
+    volumes:
+      - "${DATA_SAVE_PATH}/zookeeper/conf:/conf"
+      - "${DATA_SAVE_PATH}/zookeeper/data:/data"
+      - "${DATA_SAVE_PATH}/zookeeper/datalog:/datalog"
+    ports:
+      - "${ZOO_EXT_CLIENT_PORT:-2181}:2181"
+      - "${ZOO_EXT_FOLLOWER_PORT:-2888}:2888"
+      - "${ZOO_EXT_ELECTION_PORT:-3888}:3888"
+      - "${ZOO_EXT_ADMIN_SERVER_PORT:-8080}:8080"
+    restart: ${ZOOKEEP_RESTART:-always}
+    networks:
+      - backend
+      - frontend
+
+  zookeeper-replica-template:
+    image: zookeeper:${ZOOKEEPER_VERSION:-latest}
+    environment:
+      - "ZOO_TICK_TIME=${ZOO_TICK_TIME:-2000}"
+      - "ZOO_INIT_LIMIT=${ZOO_INIT_LIMIT:-2}"
+      - "ZOO_MAX_CLIENT_CNXNS=${ZOO_MAX_CLIENT_CNXNS:-60}"
+      - "ZOO_STANDALONE_ENABLED=${ZOO_STANDALONE_ENABLED:-true}"
+      - "ZOO_ADMINSERVER_ENABLED=${ZOO_ADMINSERVER_ENABLED:-true}"
+      - "ZOO_AUTOPURGE_PURGEINTERVAL=${ZOO_AUTOPURGE_PURGEINTERVAL:-0}"
+      - "ZOO_AUTOPURGE_SNAPRETAINCOUNT=${ZOO_AUTOPURGE_SNAPRETAINCOUNT:-3}"
+      - "ZOO_4LW_COMMANDS_WHITELIST=${ZOO_4LW_COMMANDS_WHITELIST:-srvr}"
+      - "ZOO_CFG_EXTRA=${ZOO_CFG_EXTRA}"
+      - "JVMFLAGS=${ZOO_JVMFLAGS}"
+      - "ZOO_MY_ID=${ZOO_MY_ID}"
+      - "ZOO_SERVERS=${ZOO_SERVERS}"
+    volumes:
+      - "${DATA_SAVE_PATH}/zookeeper-replica/conf:/conf"
+      - "${DATA_SAVE_PATH}/zookeeper-replica/data:/data"
+      - "${DATA_SAVE_PATH}/zookeeper-replica/datalog:/datalog"
+    ports:
+      - "${ZOO_EXT_CLIENT_PORT:-2181}:2181"
+      - "${ZOO_EXT_FOLLOWER_PORT:-2888}:2888"
+      - "${ZOO_EXT_ELECTION_PORT:-3888}:3888"
+      - "${ZOO_EXT_ADMIN_SERVER_PORT:-8080}:8080"
+    restart: ${ZOOKEEP_RESTART:-always}
+    networks:
+      - backend
+      - frontend
+
+  kafka:
+    image: wurstmeister/kafka:${KAFKA_DOCERK_VERSION:-latest}
+    environment:
+      - "KAFKA_ADVERTISED_HOST_NAME=${KAFKA_ADVERTISED_HOST_NAME}"
+      - "KAFKA_ZOOKEEPER_CONNECT=${KAFKA_ZOOKEEPER_CONNECT:-zookeeper:2181}"
+    volumes:
+      - "${DATA_SAVE_PATH}/kafka/data:/var/lib/kafka/data"
+      - "${DATA_SAVE_PATH}/kafka/secrets:/etc/kafka/secrets"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    ports:
+      - "${KAFKA_PORT:-9092}:9092"
+    depends_on:
+      - zookeeper
+    restart: ${KAFKA_RESTART:-always}
+    networks:
+      - backend
+      - frontend
+
 volumes:
   postgres_data:
     driver: local
