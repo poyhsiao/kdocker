@@ -479,7 +479,7 @@ POSTGIS_RESTART=always
 # Elasticsearch
 #####################################
 
-ELASTICSEARCH_VERSION=7.4.2
+ELASTICSEARCH_VERSION=7.8.0
 # available version: plz check official website: https://www.docker.elastic.co
 
 ELASTICSEARCH_SMARTCN_ANALYZER=true
@@ -489,7 +489,6 @@ ELASTICSEARCH_HOST_HTTP_PORT=9200
 ELASTICSEARCH_HOST_TRANSPORT_PORT=9300
 ELASTICSEARCH_HTTP_HOST=0.0.0.0
 ELASTICSEARCH_TRANSPORT_HOST=127.0.0.1
-ELASTICSEARCH_ENABLE_SECURITY=false
 ELASTICSEARCH_ENABLE_PLUGINS=true
 ELASTICSEARCH_LICENSE_TYPE=basic
 ELASTICSEARCH_MIN_MEMORY=512m
@@ -565,10 +564,9 @@ MINIO_MEMORY_LIMIT=1g
 # kibana
 #####################################
 
-KIBANA_VERSION=6.2.2
+KIBANA_VERSION=7.8.0
 # available version: plz check official website: https://www.docker.elastic.co
 
-KIBANA_ENABLE_SECURITY=false
 KIBANA_PORT=5601
 
 #--------------------
@@ -580,7 +578,7 @@ KIBANA_RESTART=always
 # logstash
 #####################################
 
-LOGSTASH_VERSION=6.2.2
+LOGSTASH_VERSION=7.8.0
 # available versions: plz check official website: https://www.docker.elastic.co
 
 LOGSTASH_PLUGINS=

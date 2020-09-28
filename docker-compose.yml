@@ -586,8 +586,6 @@ services:
     environment:
       - "http.host=${ELASTICSEARCH_HTTP_HOST:-9200}"
       - "transport.host=${ELASTICSEARCH_TRANSPORT_HOST:-9300}"
-      - "xpack.security.enabled=${ELASTICSEARCH_ENABLE_SECURITY:-false}"
-      - "xpack.monitoring.enable=${ELASTICSEARCH_ENABLE_SECURITY:-false}"
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms${ELASTICSEARCH_MIN_MEMORY:-512m} -Xmx${ELASTICSEARCH_MAX_MEMORY}"
     ulimits:
@@ -677,7 +675,6 @@ services:
     environment:
       - "ELASTICSEARCH_URL=http://elasticsearch:${ELASTICSEARCH_HOST_HTTP_PORT:-9300}"
       - "XPACK_MONITORING_ENABLED=${KIBANA_ENABLE_SECURITY:-false}"
-      - "XPACK_SECURITY_ENABLED=${KIBANA_ENABLE_SECURITY:-false}"
     volumes:
       - "./kibana/config:/usr/share/kibana/config:ro"
       - "${LOG_DATA_SAVE_PATH}/kibana:/var/log"
