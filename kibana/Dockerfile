@@ -12,4 +12,4 @@ WORKDIR /user/share/kibana
 
 EXPOSE 5601
 
-CMD [ "kibana" ]
+CMD [ "kibana", "--allow-root" ]
