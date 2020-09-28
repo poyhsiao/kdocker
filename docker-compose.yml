@@ -1115,8 +1115,10 @@ services:
       - "KAFKA_ADVERTISED_HOST_NAME=${KAFKA_ADVERTISED_HOST_NAME}"
       - "KAFKA_ZOOKEEPER_CONNECT=${KAFKA_ZOOKEEPER_CONNECT:-zookeeper:2181}"
     volumes:
+      - "${DATA_SAVE_PATH}/kafka/config:/opt/kafka/config"
       - "${DATA_SAVE_PATH}/kafka/data:/var/lib/kafka/data"
       - "${DATA_SAVE_PATH}/kafka/secrets:/etc/kafka/secrets"
+      - "${LOG_DATA_SAVE_PATH}/kafka:/opt/kafka/logs"
       - "/var/run/docker.sock:/var/run/docker.sock"
     ports:
       - "${KAFKA_PORT:-9092}:9092"
