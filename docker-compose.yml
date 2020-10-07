@@ -700,14 +700,15 @@ services:
       - "LS_JAVA_OPTS=-Xms${LOGSTASH_MIN_MEMORY:-256m} -Xmx${LOGSTASH_MAX_MEMORY:-256m}"
     volumes:
       - "./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro"
-      - "./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
-      - "${DATA_SAVE_PATH}/logstash/pipeline:/usr/share/logstash/pipeline"
+      - "./logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro"
+      - "./pipelines:/usr/share/logstash/pipelines"
       - "${DATA_SAVE_PATH}/logstash/data:/usr/share/logstash/data"
       - "${LOG_DATA_SAVE_PATH}/logstash:/var/log"
     links:
       - elasticsearch
     ports:
-      - "${LOGSTASH_PORT:-5002}:5002"
+      - "${LOGSTASH_PORT_RANGE:-5041-5050}:5041-5050"
+      - "${LOGSTASH_UDP_PORT:-10101}:10101/udp"
     depends_on:
       - elasticsearch
     restart: ${LOGSTASH_RESTART:-always}

@@ -479,7 +479,7 @@ POSTGIS_RESTART=always
 # Elasticsearch
 #####################################
 
-ELASTICSEARCH_VERSION=7.8.0
+ELASTICSEARCH_VERSION="${ELK_VERSION}"
 # available version: plz check official website: https://www.docker.elastic.co
 
 ELASTICSEARCH_SMARTCN_ANALYZER=true
@@ -564,7 +564,7 @@ MINIO_MEMORY_LIMIT=1g
 # kibana
 #####################################
 
-KIBANA_VERSION=7.8.0
+KIBANA_VERSION="${ELK_VERSION}"
 # available version: plz check official website: https://www.docker.elastic.co
 
 KIBANA_PORT=5601
@@ -578,7 +578,7 @@ KIBANA_RESTART=always
 # logstash
 #####################################
 
-LOGSTASH_VERSION=7.8.0
+LOGSTASH_VERSION="${ELK_VERSION}"
 # available versions: plz check official website: https://www.docker.elastic.co
 
 LOGSTASH_PLUGINS=
@@ -587,7 +587,12 @@ LOGSTASH_PLUGINS=
 
 LOGSTASH_MIN_MEMORY=256m
 LOGSTASH_MAX_MEMORY=256m
-LOGSTASH_PORT=5002
+
+# 10 ports available
+LOGSTASH_PORT_RANGE=5041-5050
+
+# 1 udp port available
+LOGSTASH_UDP_PORT=10101
 
 #--------------------
 # system setting
@@ -970,6 +975,9 @@ HTTP_OTHER_PORT=2018
 #####################################
 # Misc setting
 #####################################
+
+# Unified ELK version
+ELK_VERSION=6.2.2
 
 # numbers of cpu (core)
 NPROC=2

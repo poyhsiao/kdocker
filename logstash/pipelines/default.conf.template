@@ -1,4 +1,4 @@
-cdinput {
+input {
 	tcp {
 		port => 5002
 	}
@@ -6,8 +6,10 @@ cdinput {
 
 ## Add your filters / logstash plugins configuration here
 
+filter {}
+
 output {
 	elasticsearch {
-		hosts => "elasticsearch:9200"
+		hosts => ["elasticsearch:9200"]
 	}
 }

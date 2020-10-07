@@ -8,8 +8,6 @@ ENV PATH /usr/share/logstash/bin:$PATH
 
 WORKDIR /usr/share/logstash
 
-RUN logstash-plugin update
-
 ARG LOGSTASH_PLUGINS=NONE
 ENV LOGSTASH_PLUGINS=${LOGSTASH_PLUGINS}
 
@@ -20,6 +18,6 @@ RUN if [ "$LOGSTASH_PLUGINS" != "NONE" ]; then \
       logstash-plugin install --no-verify `echo $LOGSTASH_PLUGINS | sed 's/;/ /g'` \
     ;fi
 
-EXPOSE 5002
+EXPOSE 5041-5050 10101/udp
 
 CMD [ "logstash" ]
