@@ -11,8 +11,6 @@ WORKDIR /usr/share/logstash
 ARG LOGSTASH_PLUGINS=NONE
 ENV LOGSTASH_PLUGINS=${LOGSTASH_PLUGINS}
 
-# RUN echo [ "${LOGSTASH_PLUGINS}" != "NONE" ]; && \
-#   sleep 10 && \
 RUN if [ "$LOGSTASH_PLUGINS" != "NONE" ]; then \
       rm -f /usr/share/logstash/pipeline/logstash.conf && \
       logstash-plugin install --no-verify `echo $LOGSTASH_PLUGINS | sed 's/;/ /g'` \

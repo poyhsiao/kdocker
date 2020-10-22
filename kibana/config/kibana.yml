@@ -4,5 +4,5 @@
 #
 server.name: kibana
 server.host: "0"
-elasticsearch.hosts: ['http://elasticsearch:9200']
+elasticsearch.hosts: ['${ELASTICSEARCH_URLS}']
 # xpack.security.enabled: false
