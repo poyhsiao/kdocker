@@ -567,6 +567,10 @@ MINIO_MEMORY_LIMIT=1g
 KIBANA_VERSION="${ELK_VERSION}"
 # available version: plz check official website: https://www.docker.elastic.co
 
+KIBANA_ENABLE_SECURITY=false
+KIBANA_ELASTICSEARCH_URLS=http://elasticsearch:9200
+KIBANA_MONTOR_ENABLED=false
+
 KIBANA_PORT=5601
 
 #--------------------

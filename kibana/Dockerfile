@@ -11,5 +11,3 @@ ENV PATH /user/share/kibana/bin:$PATH
 WORKDIR /user/share/kibana
 
 EXPOSE 5601
-
-# CMD [ "kibana", "--allow-root" ]
