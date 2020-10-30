@@ -965,6 +965,20 @@ KAFKA_PORT=9092
 KAFKA_RESTART=always
 
 #####################################
+# Wekan setting
+#####################################
+
+# check https://hub.docker.com/r/wekanteam/wekan/tags for available versions
+WEKAN_DOCKER_VERSION=latest
+
+WEKAN_ROOT_URL=http://localhost
+WEKAN_MONGO_URL=mongodb://mongo
+
+WEKAN_PORT=8080
+
+WEKAN_RESTART=always
+
+#####################################
 # NETWORK setting
 #####################################
 
