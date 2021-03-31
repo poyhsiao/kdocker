@@ -1061,10 +1061,6 @@ services:
       - "ZOO_4LW_COMMANDS_WHITELIST=${ZOO_4LW_COMMANDS_WHITELIST:-srvr}"
       - "ZOO_CFG_EXTRA=${ZOO_CFG_EXTRA}"
       - "JVMFLAGS=${ZOO_JVMFLAGS}"
-    volumes:
-      - "${DATA_SAVE_PATH}/zookeeper/conf:/conf"
-      - "${DATA_SAVE_PATH}/zookeeper/data:/data"
-      - "${DATA_SAVE_PATH}/zookeeper/datalog:/datalog"
     ports:
       - "${ZOO_EXT_CLIENT_PORT:-2181}:2181"
       - "${ZOO_EXT_FOLLOWER_PORT:-2888}:2888"
@@ -1090,10 +1086,6 @@ services:
       - "JVMFLAGS=${ZOO_JVMFLAGS}"
       - "ZOO_MY_ID=${ZOO_MY_ID}"
       - "ZOO_SERVERS=${ZOO_SERVERS}"
-    volumes:
-      - "${DATA_SAVE_PATH}/zookeeper-replica/conf:/conf"
-      - "${DATA_SAVE_PATH}/zookeeper-replica/data:/data"
-      - "${DATA_SAVE_PATH}/zookeeper-replica/datalog:/datalog"
     ports:
       - "${ZOO_EXT_CLIENT_PORT:-2181}:2181"
       - "${ZOO_EXT_FOLLOWER_PORT:-2888}:2888"
@@ -1110,10 +1102,6 @@ services:
       - "KAFKA_ADVERTISED_HOST_NAME=${KAFKA_ADVERTISED_HOST_NAME}"
       - "KAFKA_ZOOKEEPER_CONNECT=${KAFKA_ZOOKEEPER_CONNECT:-zookeeper:2181}"
     volumes:
-      - "${DATA_SAVE_PATH}/kafka/config:/opt/kafka/config"
-      - "${DATA_SAVE_PATH}/kafka/data:/var/lib/kafka/data"
-      - "${DATA_SAVE_PATH}/kafka/secrets:/etc/kafka/secrets"
-      - "${LOG_DATA_SAVE_PATH}/kafka:/opt/kafka/logs"
       - "/var/run/docker.sock:/var/run/docker.sock"
     ports:
       - "${KAFKA_PORT:-9092}:9092"
@@ -1144,6 +1132,10 @@ volumes:
   mysql_data:
     driver: local
   gitea_data:
+    driver: local
+  zookeeper_data:
+    driver: local
+  kafka_data:
     driver: local
 
 networks:
