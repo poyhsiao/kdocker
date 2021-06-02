@@ -918,6 +918,19 @@ RUN if [ ${INSTALL_OPENCC} = true ]; then \
   ;fi
 
 #####################################
+# gRpc:
+#
+# url: https://cloud.google.com/php/grpc
+#####################################
+
+ARG INSTALL_GRPC=false
+
+RUN if [ ${INSTALL_GRPC} = true ]; then \
+  pecl install grpc && \
+  echo "extension=grpc.so" >> /usr/local/etc/php/conf.d/grpc.ini \
+  ;fi
+
+#####################################
 # Protobuf:
 #
 # pecl: https://pecl.php.net/package/protobuf

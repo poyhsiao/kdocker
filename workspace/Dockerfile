@@ -1138,6 +1138,20 @@ RUN if [ ${INSTALL_OPENCC} = true ] && [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; 
   apt-get remove -y git \
   ;fi
 
+
+#####################################
+# gRpc:
+#
+# url: https://cloud.google.com/php/grpc
+#####################################
+
+ARG INSTALL_GRPC=false
+
+RUN if [ ${INSTALL_GRPC} = true ]; then \
+  pecl install grpc && \
+  echo "extension=grpc.so" >> /usr/local/etc/php/conf.d/grpc.ini \
+  ;fi
+
 #####################################
 # Protobuf:
 #
@@ -1164,8 +1178,11 @@ ENV PATH="$PATH:/usr/local/bin"
 ADD ./composer.json /root/.composer/composer.json
 
 RUN composer global install && \
-  composer global --verbose require "hirak/prestissimo" && \
   rm /root/.composer/composer.json
+
+RUN if [ ${INSTALL_GRPC} = true ]; then \
+  composer global --verbose require "grpc/grpc:^v1.27.0" \
+  ;fi
 
 ARG INSTALL_PHP_CODE_QUALITY_TOOLS=false
 
@@ -1488,7 +1505,7 @@ RUN if [ ${INSTALL_NODEJS} = true ] && [ ${INSTALL_YARN} = true ]; then \
 # ADD YARN binaries to root's .bashrc
 USER root
 
-ENV YARB_PATH /home/${USER}/.yarn
+ENV YARN_PATH /home/${USER}/.yarn
 ENV ROOT_YARN_COMMAND "export YARN_DIR=\"/home/${USER}/.yarn\""
 
 RUN if [ ${INSTALL_NODEJS} = true ] && [ ${INSTALL_YARN} = true ]; then \
