@@ -506,6 +506,8 @@ services:
       - "${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d"
       - "${LOG_DATA_SAVE_PATH}/mysql:/var/log"
       - "./mysql/${MYSQL_CONFIG_FILE:-my.cnf}:/etc/conf.d/my.cnf:ro"
+    cap_add:
+      - SYS_NICE
     ports:
       - "${MYSQL_PORT:-3306}:3306"
     environment:
