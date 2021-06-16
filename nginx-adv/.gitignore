@@ -1,2 +1,2 @@
-Caddyfile
+*.conf
 !.gitignore

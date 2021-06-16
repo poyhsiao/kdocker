@@ -1,0 +1,53 @@
+map $http_host $blogid {
+    default -999;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name giikr.info *.giikr.info;
+
+    root /var/www/pt3/;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_intercept_errors on;
+        fastcgi_pass php-upstream;
+        fastcgi_index index.php;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+        fastcgi_read_timeout 12000;
+
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+        expires max;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Multisite (MU) files
+    location ~ ^/files/(.*)$ {
+        try_files /wp-content/blogs.dir/$blogid/$uri /wp-includes/ms-files.php?file=$1;
+        access_log off;
+        log_not_found off;
+        expires max;
+    }
+
+    # Multisite (MU) x-sendfile to avoid php readfile()
+    location ^~ /blogs.dir {
+        internal;
+        alias /var/www/pt3/htdocs/wp-content/blogs.dir;
+        access_log off;
+        log_not_found off;
+        expires max;
+    }
+}
