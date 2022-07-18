@@ -1,3 +1,4 @@
+# syntax = docker/dockerfile:experimental
 ARG MINIO_VERSION=latest
 FROM minio/minio:${MINIO_VERSION}
 
@@ -18,4 +19,4 @@ RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
 RUN apk update && \
   apk upgrade
 
-ENTRYPOINT [ "minio", "server", "/export" ]
+ENTRYPOINT [ "minio", "server", "--console-address", ":9001", "/export" ]

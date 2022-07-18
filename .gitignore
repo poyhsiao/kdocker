@@ -6,3 +6,6 @@ storage
 .vscode
 nodejs/global-packages
 .idea
+php-fpm/*.ini
+php-fpm/*.conf
+org-*

@@ -1,3 +1,4 @@
+# syntax = docker/dockerfile:experimental
 ARG POSTGIS_VERSION=10
 FROM postgis/postgis:${POSTGIS_VERSION}
 

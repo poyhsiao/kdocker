@@ -18,6 +18,7 @@ services:
         - "PUID=${PUID:-1000}"
         - "PGID=${PGID:-1000}"
         - "LINUX_USER=${LINUX_USER:-kimhsiao}"
+        - "INSTALL_PHP=${WORKSPACE_INSTALL_PHP:-true}"
         - "CANVAS_SUPPORT=${WORKSPACE_CANVAS_SUPPORT:-false}"
         - "INSTALL_MCRYPT=${PHP_FPM_INSTALL_MCRYPT:-false}"
         - "INSTALL_PDO_MYSQL=${PHP_FPM_INSTALL_PDO_MYSQL:-false}"
@@ -99,10 +100,10 @@ services:
         - "INSTALL_LARAVEL_INSTALLER=${WORKSPACE_INSTALL_LARAVEL_INSTALLER:-false}"
         - "INSTALL_DEPLOYER=${WORKSPACE_INSTALL_DEPLOYER:-false}"
         - "INSTALL_LINUXBREW=${WORKSPACE_INSTALL_LINUXBREW:-false}"
+        - "INSTALL_GOLANG=${WORKSPACE_INSTALL_GOLANG:-false}"
         - "INSTALL_MC=${WORKSPACE_INSTALL_MC:-false}"
         - "INSTALL_SYMFONY=${WORKSPACE_INSTALL_SYMFONY:-false}"
         - "INSTALL_PYTHON=${WORKSPACE_INSTALL_PYTHON:-false}"
-        - "INSTALL_PYTHON3=${WORKSPACE_INSTALL_PYTHON3:-false}"
         - "CHROME_DRIVER_VERSION=${WORKSPACE_CHROME_DRIVER_VERSION:-false}"
         - "INSTALL_DUSK_DEPS=${WORKSPACE_INSTALL_DUSK_DEPS:-false}"
         - "INSTALL_NODEJS=${WORKSPACE_INSTALL_NODEJS:-false}"
@@ -112,6 +113,13 @@ services:
         - "NODEJS_YARN_VERSION=${WORKSPACE_NODEJS_YARN_VERSION:-latest}"
         - "NODEJS_NVM_VERSION=${WORKSPACE_NODEJS_NVM_VERSION:-v0.33.8}"
         - "INSTALL_WORKSPACE_SSH=${WORKSPACE_INSTALL_WORKSPACE_SSH:-false}"
+        - "INSTALL_OPENSWOOLE=${PHP_FPM_INSTALL_OPENSWOOLE:-false}"
+        - "INSTALL_ZMQ=${PHP_FPM_INSTALL_ZMQ:-false}"
+        - "INSTALL_GEARMAN=${PHP_FPM_INSTALL_GREARMAN:-false}"
+        - "INSTALL_DECIMAL=${PHP_FPM_INSTALL_DECIMAL:-false}"
+        - "INSTALL_TRADER=${PHP_FPM_INSTALL_TRADER:-false}"
+        - "INSTALL_COMPOSER=${WORKSPACE_INSTALL_COMPOSER:-false}"
+        - "SSH_USER_PASSWORD=${WORKSPACE_SSH_USER_PASSWORD:-asdf1234}"
     volumes:
       - "${LOG_DATA_SAVE_PATH}/workspace:/var/log"
       - "./workspace/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro"
@@ -337,13 +345,18 @@ services:
         - "INSTALL_MSSQL=${PHP_FPM_INSTALL_MSSQL:-false}"
         - "INSTALL_IMAGE_OPTIMIZERS=${PHP_FPM_INSTALL_IMAGE_OPTIMIZERS:-false}"
         - "INSTALL_IMAGEMAGICK=${PHP_FPM_INSTALL_IMAGEMAGICK:-false}"
+        - "INSTALL_OPENSWOOLE=${PHP_FPM_INSTALL_OPENSWOOLE:-false}"
+        - "INSTALL_ZMQ=${PHP_FPM_INSTALL_ZMQ:-false}"
+        - "INSTALL_GEARMAN=${PHP_FPM_INSTALL_GREARMAN:-false}"
+        - "INSTALL_DECIMAL=${PHP_FPM_INSTALL_DECIMAL:-false}"
+        - "INSTALL_TRADER=${PHP_FPM_INSTALL_TRADER:-false}"
     volumes_from:
       - applications
     volumes:
       - "./php-fpm/laravel.ini:/usr/local/etc/php/php.ini:ro"
       - "${LOG_DATA_SAVE_PATH}/php-fpm:/var/log"
-      - "./php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro"
-      - "./php-fpm/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro"
+      # - "./php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro"
+      # - "./php-fpm/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro"
     expose:
       - "9000"
     ports:
@@ -616,8 +629,12 @@ services:
       args:
         - "TZ=${TIMEZONE:-UTC}"
         - "MONGO_VERSION=${MONGO_VERSION:-latest}"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME:-root}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD:-asdfroot}
     volumes:
       - "${DATA_SAVE_PATH}/mongo:/data/db"
+      - "${DATA_SAVE_PATH}/mongo_config:/data/config"
       - "${LOG_DATA_SAVE_PATH}/mongo:/var/log"
     ports:
       - "${MONGO_PORT:-27017}:27017"
@@ -665,9 +682,10 @@ services:
       - "${DATA_SAVE_PATH}/minio/config:/root/.minio"
     ports:
       - "${MINIO_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
     environment:
-      - "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-access}"
-      - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-secretkey}"
+      - "MINIO_ROOT_USER=${MINIO_ROOT_USER:-minio}"
+      - "MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-asdfminio}"
     networks:
       - backend
       - frontend

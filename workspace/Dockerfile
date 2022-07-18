@@ -1,1565 +1,1073 @@
-ARG PHP_VERSION=7.1
-FROM php:${PHP_VERSION}-fpm
+# syntax = docker/dockerfile:experimental
+ARG PHP_VERSION=8.1
+FROM php:${PHP_VERSION}-cli-alpine
 
-LABEL MAINTAINER="Kim Hsiao <white.shopping@gmail.com>"
+LABEL MAINTAINER "Kim Hsiao <white.shopping@gmail.com>"
 LABEL PHP_VERSION=${PHP_VERSION}
 
-##############################
-# Set global system env
-##############################
-
-ARG NPROC=1
-
-RUN apt-get update && \
-  apt-get -y upgrade && \
-  apt-get install -y --no-install-recommends \
-  locales \
-  libz-dev \
-  libssl-dev && \
-  pecl channel-update pecl.php.net
-
-### Install tools
-
-RUN apt-get install -y --no-install-recommends \
-  zip \
-  unzip \
+####################################
+# Update apk and install basic requirements
+####################################
+RUN apk update && \
+  apk upgrade && \
+  apk add ca-certificates \
   wget \
   curl \
-  git \
-  netcat \
-  vim \
-  cron
+  bash \
+  bash-completion \
+  openssl \
+  coreutils
 
-### Install canvas required packages
-
-ARG CANVAS_SUPPORT=false
-
-RUN if [ ${CANVAS_SUPPORT} = true ]; then \
-  apt-get install -y --no-install-recommends \
-  libcairo2-dev \
-  libgif-dev \
-  libpango1.0-dev \
-  ;fi
-
-##############################
-# Set global system env
-##############################
-RUN DEBIAN_FRONTEND=noninteractive
-
-RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
-  locale-gen
+####################################
+# Set global system environment:
+####################################
+USER root
 
 ENV LANGUAGE=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 ENV LC_CTYPE=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 
-RUN locale-gen
+ENV TERM=xterm
 
-ENV TERM xterm
+####################################
+# Add user:
+####################################
+USER root
 
-##############################
-# Add user
-##############################
-
-# Add a non-root user to prevent files being created with root permissions on host machine.
+# Add a non-root user:
 ARG PUID=1000
 ARG PGID=1000
 ARG LINUX_USER=kim
+ARG SSH_USER_PASSWORD=asdfasdf
 
-RUN groupadd -g ${PGID} ${LINUX_USER} && \
-  useradd -u ${PUID} -g ${LINUX_USER} -m ${LINUX_USER}
+RUN adduser -D -h /home/${LINUX_USER} -u ${PUID} -g ${PGID} ${LINUX_USER} ${LINUX_USER} && \
+  echo -e "$SSH_USER_PASSWORD\n$SSH_USER_PASSWORD" | passwd ${LINUX_USER}
 
-##############################
+####################################
 # Set Timezone
-##############################
+####################################
 USER root
 
-ARG TZ=UTC
-RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
+ENV TZ ${TZ:-UTC}
+
+RUN apk add --no-cache tzdata && \
+  ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
   echo ${TZ} > /etc/timezone
 
-##############################
-# Set PHP version
-##############################
+####################################
+# Set global system libs
+####################################
+USER root
 
-ARG PHP_VERSION=7.1
+ARG NPROC=1
+ENV NPROC ${NPROC:-1}
 
-##############################
-# Mcrypt:
-##############################
+# Preparing the npcocessor
+RUN apk add --no-cache --virtual .build-deps \
+  build-base \
+  g++ \
+  make \
+  autoconf \
+  git \
+  && \
+  echo "$(nproc)" > /etc/nproc
 
-# only install mcrypt extsion for php 7.0
-ARG INSTALL_MCRYPT=false
+####################################
+# Prepare the PHP build environment
+####################################
+USER root
 
-RUN if [ ${INSTALL_MCRYPT} = true ] && [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ]; then \
-  apt-get install -y --no-install-recommends libmcrypt-dev && \
-  docker-php-ext-install -j${NPROC} mcrypt \
+ARG INSTALL_PHP=false
+
+RUN if [ ${INSTALL_PHP} = true ]; then \
+  # Extract PHP source
+  docker-php-source extract && \
+  # Upadate pecl channel
+  pecl channel-update pecl.php.net \
   ;fi
 
-##############################
+####################################
+# Crontab:
+####################################
+USER root
+
+COPY ./crontab /etc/cron.d
+
+RUN chmod -R 644 /etc/cron.d
+
+####################################
+# MyCrypto
+# only need to install mcrypt extension for php 7.0
+####################################
+USER root
+
+ARG INSTALL_MCRYPT=false
+
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_MCRYPT} = true ] && [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ]; then \
+  apk add --no-cache --virtual .mycrypt \
+  mcrypt \
+  mcrypt-dev \
+  && \
+  docker-php-ext-install mcrypt && \
+  apk del .mycrypt \
+  ; fi
+
+####################################
 # PDO MySQL:
-##############################
+####################################
+USER root
 
 ARG INSTALL_PDO_MYSQL=false
 
-RUN if [ ${INSTALL_PDO_MYSQL} = true ]; then \
-  # pdo_mysql extension
-  docker-php-ext-install -j${NPROC} pdo_mysql \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_PDO_MYSQL} = true ]; then \
+  apk add --no-cache --virtual .mysql \
+  mysql-client && \
+  docker-php-ext-install -j${NPROC} pdo pdo_mysql && \
+  apk del .mysql \
   ;fi
 
-##############################
+####################################
 # PDO PostgreSQL:
-##############################
+####################################
+USER root
 
 ARG INSTALL_PDO_PGSQL=false
 
-RUN if [ ${INSTALL_PDO_PGSQL} = true ]; then \
-  apt-get install -y --no-install-recommends libpq-dev && \
-  # pdo_pgsql extension
-  docker-php-ext-install -j${NPROC} pdo_pgsql \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_PDO_PGSQL} = true ]; then \
+  apk add --no-cache \
+  libpq-dev && \
+  docker-php-ext-configure pgsql --with-pgsql=/user/local/pgsql && \
+  docker-php-ext-install -j${NPROC} pdo pdo_pgsql pgsql \
   ;fi
 
-##############################
-# PDO sqlite:
-##############################
-
-ARG INSTALL_PDO_SQLITE=false
-
-RUN if [ ${INSTALL_PDO_SQLITE} = true ]; then \
-  apt-get install -y --no-install-recommends libsqlite3-dev && \
-  # pdo_sqlite extension
-  docker-php-ext-install -j${NPROC} pdo_sqlite \
-  ;fi
-
-##############################
+####################################
 # GD:
-##############################
+####################################
+USER root
 
 ARG INSTALL_GD=false
 
-RUN if [ ${INSTALL_GD} = true ]; then \
-  apt-get update && \
-  apt-get install -y --no-install-recommends \
-  libjpeg62-turbo-dev \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_GD} = true ]; then \
+  apk add --no-cache \
+  libjpeg-turbo-dev \
   libpng-dev \
-  libgdchart-gd2-xpm-dev \
-  libfreetype6-dev && \
-  if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.4 ]; then \
-  # gd extension
+  libgd \
+  libxpm-dev \
+  zlib-dev \
+  libwebp-dev \
+  freetype-dev && \
+  if [ "$(printf '%s\n' "7.4" "${PHP_VERSION}" | sort -V | head -n1)" = "7.4" ]; then \
+  # greater equal 7.4
   docker-php-ext-configure gd \
+  --with-jpeg \
   --with-freetype \
   --with-xpm \
+  --with-webp \
   ;else \
-  # gd extension
+  # less than 7.4
   docker-php-ext-configure gd \
   --with-jpeg-dir=/usr/lib \
-  --with-freetype-dir=/usr/include/freetype2 \
+  --freetype-dir=/usr/include \
   --with-xpm=/usr/lib \
   ;fi && \
   docker-php-ext-install -j${NPROC} gd \
   ;fi
 
-#####################################
+####################################
 # APC:
-#####################################
+# only support under php 8.0
+####################################
+USER root
 
 ARG INSTALL_APC=false
 
-RUN if [ ${INSTALL_APC} = true ]; then \
-  if [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
-  # Install apcu
-  pecl install apcu \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_APC} = true ]; then \
+  if [ "$(printf '%s\n' "8.0" "${PHP_VERSION}" | sort -V | head -n1)" = "8.0" ]; then \
+  # greater equal 8.0
+  echo "Do not support APCu feature in PHP 8.0 and above" \
   ;else \
-  pecl install apcu-4.0.10 \
-  ;fi && \
-  echo "extension=apcu.so" >> /usr/local/etc/php/conf.d/apcu.ini \
+  # less than 8.0
+  pecl install apcu && \
+  docker-php-ext-enable apcu \
+  ;fi \
   ;fi
 
-
-#####################################
-# FTP:
-#####################################
-
-ARG INSTALL_FTP=false
-
-RUN if [ ${INSTALL_FTP} = true ]; then \
-  # Install ftp
-  docker-php-ext-install -j${NPROC} ftp \
-  ;fi
-
-
-#####################################
+####################################
 # XSL:
-#####################################
+####################################
+USER root
 
 ARG INSTALL_XSL=false
 
-RUN if [ ${INSTALL_XSL} = true ]; then \
-  # Install xsl
-  apt-get install -y --no-install-recommends libxslt-dev && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_XSL} = true ]; then \
+  apk add --no-cache \
+  libxslt-dev \
+  libxml2-dev \
+  && \
   docker-php-ext-install -j${NPROC} xsl \
   ;fi
 
-
-#####################################
-# calendar:
-#####################################
+####################################
+# Calendar:
+####################################
+USER root
 
 ARG INSTALL_CALENDAR=false
 
-RUN if [ ${INSTALL_CALENDAR} = true ]; then \
-  # Install calendar
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_CALENDAR} = true ]; then \
   docker-php-ext-install -j${NPROC} calendar \
   ;fi
 
-
-#####################################
-# ctype:
-#####################################
+####################################
+# Ctype:
+####################################
+USER root
 
 ARG INSTALL_CTYPE=false
 
-RUN if [ ${INSTALL_CTYPE} = true ]; then \
-  # Install ctype
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_CTYPE} = true ]; then \
   docker-php-ext-install -j${NPROC} ctype \
   ;fi
 
-#####################################
+####################################
 # DBA:
-#####################################
+####################################
+USER root
 
 ARG INSTALL_DBA=false
 
-RUN if [ ${INSTALL_DBA} = true ]; then \
-  # Install dba
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_DBA} = true ]; then \
   docker-php-ext-install -j${NPROC} dba \
   ;fi
 
-#####################################
-# DOM:
-#####################################
-
-ARG INSTALL_DOM=false
-
-RUN if [ ${INSTALL_DOM} = true ]; then \
-  # Install dom
-  docker-php-ext-install -j${NPROC} dom \
-  ;fi
-
-#####################################
-# json:
-#####################################
-
-ARG INSTALL_JSON=false
-
-RUN if [ ${INSTALL_JSON} = true ]; then \
-  # Install json
-  docker-php-ext-install -j${NPROC} json \
-  ;fi
-
-#####################################
-# HASH:
-#####################################
+####################################
+# Hash:
+####################################
+USER root
 
 ARG INSTALL_HASH=false
 
-RUN if [ ${INSTALL_HASH} = true ] && [ `echo ${PHP_VERSION} | cut -c1-3` != 7.4 ]; then \
-  # Install hash
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_HASH} = true ]; then \
   docker-php-ext-install -j${NPROC} hash \
   ;fi
 
-#####################################
-# SOCKETS:
-#####################################
-
-ARG INSTALL_SOCKETS=false
-
-RUN if [ ${INSTALL_SOCKETS} = true ]; then \
-  # Install sockets
-  docker-php-ext-install -j${NPROC} sockets \
-  ;fi
-
-
-#####################################
-# PDO:
-#####################################
-
-ARG INSTALL_PDO=false
-
-RUN if [ ${INSTALL_PDO} = true ]; then \
-  # Install pdo
-  docker-php-ext-install -j${NPROC} pdo \
-  ;fi
-
-#####################################
-# mbstring:
-#####################################
-
-ARG INSTALL_MBSTRING=false
-
-RUN if [ ${INSTALL_MBSTRING} = true ]; then \
-  if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.4 ]; then \
-  apt-get install -y --no-install-recommends libonig-dev \
-  ;fi && \
-  # Install mbstring
-  docker-php-ext-install -j${NPROC} mbstring \
-  ;fi
-
-#####################################
-# imap:
-#####################################
+####################################
+# IMAP:
+####################################
+USER root
 
 ARG INSTALL_IMAP=false
 
-RUN if [ ${INSTALL_IMAP} = true ]; then \
-  # Install imap
-  apt-get install -y --no-install-recommends \
-  libc-client-dev \
-  libkrb5-dev && \
-  if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.4 ]; then \
-  docker-php-ext-configure imap PHP_OPENSSL=yes --with-kerberos --with-imap-ssl \
-  ;else \
-  docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
-  ;fi && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_IMAP} = true ]; then \
+  apk add --no-cache \
+  imap-dev && \
   docker-php-ext-install -j${NPROC} imap \
   ;fi
 
-#####################################
-# curl:
-#####################################
-
-ARG INSTALL_CURL=false
-
-RUN if [ ${INSTALL_CURL} = true ]; then \
-  # Install curl
-  apt-get install -y --no-install-recommends libcurl4-openssl-dev && \
-  docker-php-ext-install -j${NPROC} curl \
-  ;fi
-
-#####################################
-# fileinfo:
-#####################################
-
-ARG INSTALL_FILEINFO=false
-
-RUN if [ ${INSTALL_FILEINFO} = true ]; then \
-  # Install fileinfo
-  docker-php-ext-install -j${NPROC} fileinfo \
-  ;fi
-
-#####################################
-# gettext:
-#####################################
+####################################
+# Gettext:
+####################################
+USER root
 
 ARG INSTALL_GETTEXT=false
 
-RUN if [ ${INSTALL_GETTEXT} = true ]; then \
-  # Install gettext
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_GETTEXT} = true ]; then \
+  apk add --no-cache \
+  gettext-dev && \
   docker-php-ext-install -j${NPROC} gettext \
   ;fi
 
-#####################################
-# iconv:
-#####################################
-
-ARG INSTALL_ICONV=false
-
-RUN if [ ${INSTALL_ICONV} = true ]; then \
-  # Install iconv
-  docker-php-ext-install -j${NPROC} iconv \
-  ;fi
-
-#####################################
-# phar:
-#####################################
-
-ARG INSTALL_PHAR=false
-
-# Install phar
-RUN if [ `echo ${PHP_VERSION} | cut -c1` = 7 ] && [ ${INSTALL_PHAR} = true ]; then \
-  docker-php-ext-install -j${NPROC} phar \
-  ;fi
-
-#####################################
-# posix:
-#####################################
-
-ARG INSTALL_POSIX=false
-
-# Install posix
-RUN if [ ${INSTALL_POSIX} = true ]; then \
-  docker-php-ext-install -j${NPROC} posix \
-  ;fi
-
-#####################################
+####################################
 # pspell:
-#####################################
+####################################
+USER root
 
 ARG INSTALL_PSPELL=false
 
-# Install pspell
-RUN if [ ${INSTALL_PSPELL} = true ]; then \
-  apt-get install -y --no-install-recommends \
-  libpspell-dev \
-  aspell-en \
-  aspell-de && \
-  docker-php-ext-configure pspell --with-pspell=/usr && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_PSPELL} = true ]; then \
+  apk add --no-cache \
+  aspell-dev && \
   docker-php-ext-install -j${NPROC} pspell \
   ;fi
 
-#####################################
-# readline:
-#####################################
-ARG INSTALL_READLINE=false
-
-# Install readline
-RUN if [ ${INSTALL_READLINE} = true ]; then \
-  apt-get install -y --no-install-recommends \
-  libedit-dev \
-  libreadline-dev && \
-  docker-php-ext-install -j${NPROC} readline \
-  ;fi
-
 ####################################
-# recode:
+# shmop:
 ####################################
-
-ARG INSTALL_RECODE=false
-
-#install recode
-RUN if [ ${INSTALL_RECODE} = true ] && [ `echo ${PHP_VERSION} | cut -c1-3` != 7.4 ]; then \
-  apt-get install -y --no-install-recommends librecode-dev && \
-  docker-php-ext-install -j${NPROC} recode \
-  ;fi
-
-#####################################
-# SHMOP:
-#####################################
+USER root
 
 ARG INSTALL_SHMOP=false
-# Install shmop
-RUN if [ ${INSTALL_SHMOP} = true ]; then \
+
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_SHMOP} = true ]; then \
   docker-php-ext-install -j${NPROC} shmop \
-  ;fi
-
-###################################
-# simplexml:
-###################################
-
-ARG INSTALL_SIMPLEXML=false
-
-# Install simplexml
-RUN if [ ${INSTALL_SIMPLEXML} = true ]; then \
-  apt-get install -y --no-install-recommends libxml2-dev && \
-  docker-php-ext-install -j${NPROC} simplexml \
   ;fi
 
 ####################################
 # SNMP:
 ####################################
+USER root
 
 ARG INSTALL_SNMP=false
 
-# Install snmp
-RUN if [ ${INSTALL_SNMP} = true ]; then \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_SNMP} = true ]; then \
+  apk add --no-cache \
+  net-snmp-dev && \
   docker-php-ext-install -j${NPROC} snmp \
   ;fi
 
-#####################################
+####################################
 # sysvmsg:
-#####################################
+####################################
+USER root
 
 ARG INSTALL_SYSVMSG=false
 
-# Install sysvmsg
-RUN if [ ${INSTALL_SYSVMSG} = true ]; then \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_SYSVMSG} = true ]; then \
   docker-php-ext-install -j${NPROC} sysvmsg \
   ;fi
 
 ####################################
-# sysvsem:
+# sysvshm:
 ####################################
-
-ARG INSTALL_SYSVSEM=false
-
-# Install sysvsem
-RUN if [ ${INSTALL_SYSVSEM} = true ]; then \
-  docker-php-ext-install -j${NPROC} sysvsem \
-  ;fi
-
-######################################
-# svshm:
-######################################
+USER root
 
 ARG INSTALL_SYSVSHM=false
 
-# Install sysvshm
-RUN if [ ${INSTALL_SYSVSHM} = true ]; then \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_SYSVSHM} = true ]; then \
   docker-php-ext-install -j${NPROC} sysvshm \
   ;fi
 
-#####################################
-# bz2:
-#####################################
-
-ARG INSTALL_BZ2=false
-
-RUN if [ ${INSTALL_BZ2} = true ]; then \
-  apt-get install -y --no-install-recommends libbz2-dev && \
-  docker-php-ext-install -j${NPROC} bz2 \
-  ;fi
-
-
-###################################
-# enchant:
-###################################
+####################################
+# Enchant:
+####################################
+USER root
 
 ARG INSTALL_ENCHANT=false
 
-RUN if [ ${INSTALL_ENCHANT} = true ]; then \
-  apt-get install -y --no-install-recommends libenchant-dev && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_ENCHANT} = true ]; then \
+  apk add --no-cache \
+  enchant2-dev && \
   docker-php-ext-install -j${NPROC} enchant \
   ;fi
 
-###################################
-# yaml:
-###################################
+####################################
+# YAML:
+####################################
+USER root
 
 ARG INSTALL_YAML=false
 
-RUN if [ ${INSTALL_YAML} = true ]; then \
-  apt-get install -y --no-install-recommends libyaml-dev && \
-  if [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
-  pecl install yaml \
-  ;else \
-  pecl install yaml-1.3.0 \
-  ;fi && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_YAML} = true ]; then \
+  apk add --no-cache \
+  yaml-dev && \
+  pecl install yaml && \
   docker-php-ext-enable yaml \
   ;fi
 
-###################################
-# tidy:
-###################################
+####################################
+# Tidy:
+####################################
+USER root
 
 ARG INSTALL_TIDY=false
 
-# Install tidy
-RUN if [ ${INSTALL_TIDY} = true ]; then \
-  apt-get install -y --no-install-recommends libtidy-dev && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_TIDY} = true ]; then \
+  apk add --no-cache \
+  tidyhtml-dev && \
   docker-php-ext-install -j${NPROC} tidy \
   ;fi
 
-###################################
-# wddx:
-###################################
-
-ARG INSTALL_WDDX=false
-
-# Install wddx
-RUN if [ ${INSTALL_WDDX} = true ] && [ `echo ${PHP_VERSION} | cut -c1-3` != 7.4 ]; then \
-  docker-php-ext-install -j${NPROC} wddx \
-  ;fi
-
-#####################################
-# xml:
-#####################################
+####################################
+# XML:
+####################################
+USER root
 
 ARG INSTALL_XML=false
 
-# Install xml
-RUN if [ ${INSTALL_XML} = true ]; then \
-  apt-get install -y --no-install-recommends libxml2-dev && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_XML} = true ]; then \
+  apk add --no-cache \
+  libxml2-dev && \
   docker-php-ext-install -j${NPROC} xml \
   ;fi
 
-#####################################
-# xmlreader:
-#####################################
-
-ARG INSTALL_XMLREADER=false
-
-# Install xmlreader
-RUN if [ ${INSTALL_XMLREADER} = true ]; then \
-  apt-get install -y libxml2-dev && \
-  docker-php-ext-install -j${NPROC} xmlreader \
-  ;fi
-
-#####################################
-# xmlrpc:
-#####################################
-
-ARG INSTALL_XMLRPC=false
-
-# Install xmlrpc
-RUN if [ ${INSTALL_XMLRPC} = true ]; then \
-  apt-get install -y --no-install-recommends libxml2-dev && \
-  docker-php-ext-install -j${NPROC} xmlrpc \
-  ;fi
-
-#####################################
-# xmlwriter:
-#####################################
-
-ARG INSTALL_XMLWRITER=false
-
-# Install xmlwriter
-RUN if [ ${INSTALL_XMLWRITER} = true ]; then \
-  apt-get install -y --no-install-recommends libxml2-dev && \
-  docker-php-ext-install -j${NPROC} xmlwriter \
-  ;fi
-
-###################################
+####################################
 # SOAP:
-###################################
+####################################
+USER root
 
 ARG INSTALL_SOAP=false
 
-# Install the soap extension
-RUN if [ ${INSTALL_SOAP} = true ]; then \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_SOAP} = true ]; then \
   docker-php-ext-install -j${NPROC} soap \
   ;fi
 
-#####################################
-# pgsql
-#####################################
+####################################
+# Pgsql:
+####################################
+USER root
 
 ARG INSTALL_PGSQL=false
 
-# Install the pgsql extension
-RUN if [ ${INSTALL_PGSQL} = true ]; then \
-  apt-get install -y --no-install-recommends libpq-dev && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_PGSQL} = true ]; then \
+  apk add --no-cache \
+  libpq-dev && \
+  docker-php-ext-configure pgsql --with-pgsql=/user/local/pgsql && \
   docker-php-ext-install -j${NPROC} pgsql \
   ;fi
 
-###################################
-# pgsql client
-###################################
-
-ARG INSTALL_PG_CLIENT=false
-
-# Install the pgsql client
-RUN if [ ${INSTALL_PG_CLIENT} = true ]; then \
-  apt-get install -yf postgresql-client \
-  ;fi
-
-#####################################
+####################################
 # xDebug:
-#####################################
+####################################
+USER root
 
 ARG INSTALL_XDEBUG=false
 
-# Install the xdebug extension
-RUN if [ ${INSTALL_XDEBUG} = true ]; then \
-  if [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
-  pecl install xdebug \
-  ;else \
-  pecl install xdebug-2.5.5 \
-  ;fi && \
-  docker-php-ext-enable xdebug \
+COPY ./xdebug.ini /tmp/xdebug.ini
+
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_XDEBUG} = true ]; then \
+  pecl install xdebug && \
+  docker-php-ext-enable xdebug && \
+  cp /tmp/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini \
   ;fi
 
-
-#####################################
-# Blackfire:
-#####################################
-
-ARG INSTALL_BLACKFIRE=false
-
-RUN if [ ${INSTALL_XDEBUG} = false -a ${INSTALL_BLACKFIRE} = true ]; then \
-  version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")  && \
-  curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/amd64/$version && \
-  tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp && \
-  mv /tmp/blackfire-*.so $(php -r "echo ini_get('extension_dir');")/blackfire.so && \
-  printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8707\n" > $PHP_INI_DIR/conf.d/blackfire.ini \
-  ;fi
-
-###################################
-# PHP REDIS EXTENSION
-#####################################
+####################################
+# Redis extension:
+####################################
+USER root
 
 ARG INSTALL_PHPREDIS=false
 
-RUN if [ ${INSTALL_PHPREDIS} = true ]; then \
-  if [ `echo ${PHP_VERSION} | cut -c1` != 7 ]; then \
-  pecl install redis-4.3.0 \
-  ;else \
-  pecl install redis \
-  ;fi && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_PHPREDIS} = true ]; then \
+  pecl install redis && \
   docker-php-ext-enable redis \
   ;fi
 
-
-#####################################
-# Swoole EXTENSION FOR PHP 7
-#####################################
+####################################
+# Swoole extension:
+# Should install greater than PHP 7.2
+# The installation guide is here:
+# https://wiki.swoole.com/#/environment
+####################################
+USER root
 
 ARG INSTALL_SWOOLE=false
 
-# install Php Swoole Extension
-RUN if [ ${INSTALL_SWOOLE} = true ] && [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
-  pecl install swoole && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_SWOOLE} = true ]; then \
+  apk add --no-cache \
+  curl-dev \
+  c-ares-dev && \
+  pecl install --configureoptions '\
+  enable-openssl="yes" \
+  enable-http2="yes" \
+  enable-swoole-json="yes" \
+  enable-swoole-curl="yes" \
+  enable-cares="yes" \
+  ' swoole && \
   docker-php-ext-enable swoole \
   ;fi
 
-#####################################
-# mongoDB:
-#####################################
+####################################
+# MongoDB:
+####################################
+USER root
 
 ARG INSTALL_MONGO=false
 
-# install mongodb extension
-RUN if [ ${INSTALL_MONGO} = true ]; then \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_MONGO} = true ]; then \
   pecl install mongodb && \
   docker-php-ext-enable mongodb \
   ;fi
 
-#####################################
+####################################
 # AMQP:
-#####################################
+####################################
+USER root
 
 ARG INSTALL_AMQP=false
 
-# install the amqp extension
-RUN if [ ${INSTALL_AMQP} = true ]; then \
-  apt-get install -y --no-install-recommends librabbitmq-dev && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_AMQP} = true ]; then \
+  apk add --no-cache \
+  rabbitmq-c-dev && \
   pecl install amqp && \
   docker-php-ext-enable amqp \
   ;fi
 
-#################################
+####################################
 # ZipArchive:
-#################################
+####################################
+USER root
 
 ARG INSTALL_ZIP_ARCHIVE=false
 
-# Install the zip extension
-RUN if [ ${INSTALL_ZIP_ARCHIVE} = true ]; then \
-  apt-get install -y --no-install-recommends libzip-dev && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_ZIP_ARCHIVE} = true ]; then \
+  apk add --no-cache \
+  libzip-dev && \
   docker-php-ext-install -j${NPROC} zip \
   ;fi
 
-######################################
+####################################
 # bcmath:
-######################################
+####################################
+USER root
 
 ARG INSTALL_BCMATH=false
 
-# install the bcmath extension
-RUN if [ ${INSTALL_BCMATH} = true ]; then \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_BCMATH} = true ]; then \
   docker-php-ext-install -j${NPROC} bcmath \
   ;fi
 
-######################################
-# GMP (GNU Multiple Precision):
-######################################
+####################################
+# GMP:
+####################################
+USER root
 
 ARG INSTALL_GMP=false
 
-# Install the GMP extension
-RUN if [ ${INSTALL_GMP} = true ]; then \
-  apt-get install -y --no-install-recommends libgmp-dev && \
-  if [ `echo ${PHP_VERSION} | cut -c1` != 7 ]; then \
-  ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
-  ;fi && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_GMP} = true ]; then \
+  apk add --no-cache \
+  gmp-dev && \
   docker-php-ext-install -j${NPROC} gmp \
   ;fi
 
-#####################################
-# PHP Memcached:
-#####################################
+####################################
+# Memcached:
+####################################
+USER root
 
 ARG INSTALL_MEMCACHED=false
 
-# Install the php memcached extension
-RUN if [ ${INSTALL_MEMCACHED} = true ]; then \
-  apt-get install -y --no-install-recommends libmemcached-dev && \
-  if [ `echo ${PHP_VERSION} | cut -c1` != 7 ]; then \
-  pecl install memcached-2.2.0 \
-  ;else \
-  pecl install memcached \
-  ;fi && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_MEMCACHED} = true ]; then \
+  apk add --no-cache \
+  libmemcached-dev && \
+  pecl install memcached && \
   docker-php-ext-enable memcached \
   ;fi
 
-#####################################
+####################################
 # Exif:
-#####################################
+####################################
+USER root
 
 ARG INSTALL_EXIF=false
 
-RUN if [ ${INSTALL_EXIF} = true ]; then \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_EXIF} = true ]; then \
   docker-php-ext-install -j${NPROC} exif \
   ;fi
 
-#####################################
-# PHP Aerospike:
-#####################################
-
-ARG INSTALL_AEROSPIKE=false
-
-COPY ./aerospike.ini /usr/local/etc/php/conf.d/aerospike.ini
-
-RUN if [ ${INSTALL_AEROSPIKE} = true ]; then \
-  # Install the php aerospike extension
-  curl -L -o /tmp/aerospike-client-php.tar.gz "https://github.com/aerospike/aerospike-client-php/archive/master.tar.gz" && \
-  mkdir -p aerospike-client-php && \
-  tar -C aerospike-client-php -zxvf /tmp/aerospike-client-php.tar.gz --strip 1 && \
-  ( \
-  cd aerospike-client-php/src \
-  && phpize \
-  && ./build.sh \
-  && make install \
-  ) && \
-  rm /tmp/aerospike-client-php.tar.gz \
-  ;else \
-  rm /usr/local/etc/php/conf.d/aerospike.ini \
-  ;fi
-
-#####################################
+####################################
 # Opcache:
-#####################################
+####################################
+USER root
 
 ARG INSTALL_OPCACHE=false
 
-RUN if [ ${INSTALL_OPCACHE} = true ]; then \
-  docker-php-ext-install -j${NPROC} opcache \
+COPY ./opcache.ini /tmp/opcache.ini
+
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_OPCACHE} = true ]; then \
+  docker-php-ext-install -j${NPROC} opcache && \
+  cp /tmp/opcache.ini /usr/local/etc/php/conf.d/opcache.ini \
   ;fi
 
-
 ####################################
-# Mysqli Modifications:
+# Mysqli:
 ####################################
+USER root
 
 ARG INSTALL_MYSQLI=false
 
-RUN if [ ${INSTALL_MYSQLI} = true ]; then \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_MYSQLI} = true ]; then \
   docker-php-ext-install -j${NPROC} mysqli \
   ;fi
 
-#####################################
-# Tokenizer Modifications:
-#####################################
-
-ARG INSTALL_TOKENIZER=false
-
-RUN if [ ${INSTALL_TOKENIZER} = true ]; then \
-  docker-php-ext-install -j${NPROC} tokenizer \
-  ;fi
-
-#####################################
-# Human Language and Character Encoding Support:
-#####################################
-
-ARG INSTALL_INTL=false
-
-# Install intl and requirements
-RUN if [ ${INSTALL_INTL} = true ]; then \
-  apt-get install -y zlib1g-dev libicu-dev g++ && \
-  docker-php-ext-configure intl && \
-  docker-php-ext-install -j${NPROC} intl \
-  ;fi
-
-#####################################
-# GHOSTCRIPT:
-#####################################
-
-ARG INSTALL_GHOSTSCRIPT=false
-
-# install the ghostscript extension
-RUN if [ ${INSTALL_GHOSTSCRIPT} = true ]; then \
-  # for PDF editing
-  apt-get update && \
-  apt-get install -y --no-install-recommends poppler-utils ghostscript \
-  ;fi
 
 ####################################
-# LDAP:
-###################################
-
-ARG INSTALL_LDAP=false
-
-RUN if [ ${INSTALL_LDAP} = true ]; then \
-  apt-get install -y --no-install-recommends libldap2-dev && \
-  docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ && \
-  docker-php-ext-install -j${NPROC} ldap \
-  ;fi
-
-###################################
 # pcntl:
-###################################
+####################################
+USER root
 
 ARG INSTALL_PCNTL=false
 
-RUN if [ ${INSTALL_PCNTL} = true ]; then \
-  docker-php-ext-install -j${NPROC} pcntl && \
-  docker-php-ext-enable pcntl \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_PCNTL} = true ]; then \
+  docker-php-ext-install -j${NPROC} pcntl \
   ;fi
 
-######################################
-# SQL SERVER:
-######################################
-USER root
-
-ARG INSTALL_MSSQL=false
-
-RUN if [ ${INSTALL_MSSQL} = true ]; then \
-  #####################################
-  # Install Depenencies:
-  #####################################
-  cd / && \
-  apt-get update -yqq && \
-  apt-get install -yf --no-install-recommends wget apt-transport-https curl freetds-common libsybdb5 freetds-bin unixodbc unixodbc-dev && \
-  #
-  #####################################
-  #  The following steps were taken from
-  #  Microsoft's github account:
-  #  https://github.com/Microsoft/msphpsql/wiki/Dockerfile-for-getting-pdo_sqlsrv-for-PHP-7.0-on-Debian-in-3-ways
-  #####################################
-  #
-  # Add PHP 7 repository
-  # for Debian jessie
-  # And System upgrade
-  #
-  cd / && \
-  echo "deb http://packages.dotdeb.org jessie all" \
-  | tee /etc/apt/sources.list.d/dotdeb.list \
-  && wget -qO- https://www.dotdeb.org/dotdeb.gpg \
-  | apt-key add - \
-  && apt-get update -yqq \
-  && apt-get upgrade -qq && \
-  #
-  # Install UnixODBC
-  # Compile odbc_config as it is not part of unixodbc package
-  cd / && \
-  apt-get update -yqq && \
-  apt-get install -y --no-install-recommends whiptail \
-  unixodbc libgss3 odbcinst devscripts debhelper dh-exec dh-autoreconf libreadline-dev libltdl-dev \
-  && dget -u -x http://http.debian.net/debian/pool/main/u/unixodbc/unixodbc_2.3.1-3.dsc \
-  && cd unixodbc-*/ \
-  && ./configure && make -j${NPROC} && make install \
-  && cp -v ./exe/odbc_config /usr/local/bin/ && \
-  #
-  # Fake uname for install.sh
-  #
-  printf '#!/bin/bash\nif [ "$*" == "-p" ]; then echo "x86_64"; else /bin/uname "$@"; fi' \
-  | tee /usr/local/bin/uname \
-  && chmod +x /usr/local/bin/uname && \
-  #
-  # Microsoft ODBC Driver 13 for Linux
-  # Note: There's a copy of this tar on my hubiC
-  #
-  cd / && \
-  wget -nv -O msodbcsql-13.0.0.0.tar.gz \
-  "https://meetsstorenew.blob.core.windows.net/contianerhd/Ubuntu%2013.0%20Tar/msodbcsql-13.0.0.0.tar.gz?st=2016-10-18T17%3A29%3A00Z&se=2022-10-19T17%3A29%3A00Z&sp=rl&sv=2015-04-05&sr=b&sig=cDwPfrouVeIQf0vi%2BnKt%2BzX8Z8caIYvRCmicDL5oknY%3D" \
-  && tar -xf msodbcsql-13.0.0.0.tar.gz \
-  && cd msodbcsql-*/ \
-  && ldd lib64/libmsodbcsql-13.0.so.0.0 \
-  && ./install.sh install --accept-license \
-  && ls -l /opt/microsoft/msodbcsql/ \
-  && odbcinst -q -d -n "ODBC Driver 13 for SQL Server" && \
-  #
-  #####################################
-  # Install sqlsrv y pdo_sqlsrv
-  # extensions:
-  #####################################
-  #
-  pecl install sqlsrv-4.0.8 && \
-  pecl install pdo_sqlsrv-4.0.8 && \
-  #
-  #####################################
-  # Set locales for the container
-  #####################################
-  #
-  apt-get install -y --no-install-recommends locales \
-  && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
-  && locale-gen \
-  && echo "extension=sqlsrv.so" > /etc/php/7.1/cli/conf.d/20-sqlsrv.ini \
-  && echo "extension=pdo_sqlsrv.so" > /etc/php/7.1/cli/conf.d/20-pdo_sqlsrv.ini \
-  ;fi
-
-#####################################
-# PHP V8JS
-#####################################
-
-ARG INSTALL_V8JS=false
-
-RUN if [ ${INSTALL_V8JS} = true ]; then \
-  apt-get install -y --no-install-recommends git && \
-  #
-  # Check https://github.com/phpv8/v8js/blob/php7/README.Linux.md to install necessary libraries
-  #
-  # Get v8 and compile it
-  #
-  apt-get install -y --no-install-recommends \
-  curl \
-  git \
-  python \
-  libglib2.0-dev \
-  patchelf && \
-  cd /tmp && \
-  git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git && \
-  export PATH=`pwd`/depot_tools:"$PATH" && \
-  #
-  # Download v8
-  #
-  fetch v8 && \
-  cd v8 && \
-  gclient sync && \
-  #
-  # Setup GN
-  #
-  tools/dev/v8gen.py -vv x64.release -- is_component_build=true && \
-  #
-  # Build
-  #
-  ninja -l${NPROC} -C out.gn/x64.release/ && \
-  #
-  # Install to /opt/v8
-  #
-  mkdir -p /opt/v8/lib && \
-  mkdir -p /opt/v8/include && \
-  cp out.gn/x64.release/lib*.so out.gn/x64.release/*_blob.bin \
-  out.gn/x64.release/icudtl.dat /opt/v8/lib/ && \
-  cp -R include/* /opt/v8/include/ && \
-  #
-  # only on debian
-  #
-  for A in /opt/v8/lib/*.so; do patchelf --set-rpath '$ORIGIN' $A; done \
-  ;fi
-
-#
-# Compile php-v8js itself
-#
-RUN if [ ${INSTALL_V8JS} = true ]; then \
-  # cp /opt/v8/natives_blob /usr/bin && \
-  # cp /opt/v8/bin,snapshot_blob.bin /usr/bin && \
-  ls -alh /opt/v8 && \
-  cd /opt/v8/obj && \
-  ar rcsDT libv8_libplatform.a v8_libplatform/*.o && \
-  cd /tmp && \
-  git clone https://github.com/phpv8/v8js.git && \
-  cd v8js && \
-  phpize && \
-  ./configure --with-v8js=/opt/v8 LDFLAGS="-lstdc++" && \
-  make -j${NPROC} && \
-  make test && \
-  make install && \
-  mkdir -p /etc/php/${PHP_VERSION}/cli && \
-  echo "extension=v8js.so" >> /usr/local/etc/php/conf.d/v8js.ini \
-  ;fi
-
-#####################################
-# libevent:
-#####################################
-
-ARG INSTALL_EVENT=false
-
-RUN if [ ${INSTALL_EVENT} = true ]; then \
-  apt-get install -y --no-install-recommends libevent-dev && \
-  pecl install event && \
-  docker-php-ext-enable event \
-  ;fi
-
-#####################################
-# Image optimizers:
-#####################################
-
-ARG INSTALL_IMAGE_OPTIMIZERS=false
-
-RUN if [ ${INSTALL_IMAGE_OPTIMIZERS} = true ]; then \
-  apt-get install -yf --no-install-recommends jpegoptim optipng pngquant gifsicle \
-  ;fi
-
-#####################################
-# ImageMagick:
-#####################################
-
-ARG INSTALL_IMAGEMAGICK=false
-
-RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
-  apt-get update && \
-  apt-get install -y --no-install-recommends libmagickwand-dev imagemagick && \
-  pecl install imagick && \
-  docker-php-ext-enable imagick \
-  ;fi
-
-
-#####################################
-# Suhosin:
-#####################################
-
-ARG INSTALL_SUHOSIN=false
-
-RUN if [ ${INSTALL_SUHOSIN} = true ]; then \
-  if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.0 ] || [ `echo ${PHP_VERSION} | cut -c1-3` = 7.1 ]; then \
-  cd /tmp && \
-  git clone https://github.com/sektioneins/suhosin7.git suhosin && \
-  cd suhosin && \
-  phpize && \
-  ./configure && \
-  make -j${NPROC} && \
-  make install && \
-  echo "extension=suhosin.so" >> /usr/local/etc/php/conf.d/suhosin.ini \
-  ;fi \
-  ;fi
-
-#####################################
+####################################
 # Inotify:
-#####################################
+####################################
+USER root
 
 ARG INSTALL_INOTIFY=false
 
-RUN if [ ${INSTALL_INOTIFY} = true ]; then \
-  if [ `echo ${PHP_VERSION} | cut -c1` != 7 ]; then \
-  pecl install inotify-0.1.6 \
-  ;else \
-  pecl install inotify \
-  ;fi && \
-  echo "extension=inotify.so" >> /usr/local/etc/php/conf.d/inotify.ini \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_INOTIFY} = true ]; then \
+  pecl install inotify && \
+  docker-php-ext-enable inotify \
   ;fi
 
-#####################################
+####################################
 # OpenCC:
-#####################################
+# Check the official github page for more information:
+# https://github.com/nauxliu/opencc4php
+####################################
+USER root
 
 ARG INSTALL_OPENCC=false
 
-RUN if [ ${INSTALL_OPENCC} = true ] && [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
-  apt-get install -y --no-install-recommends libopencc-dev git && \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_OPENCC} = true ]; then \
+  # Preparing the compiler:
+  apk add --no-cache --virtual .mods \
+  cmake \
+  doxygen && \
+  # Install OpenCC package:
   cd /tmp && \
-  git clone https://github.com/nauxliu/opencc4php.git --depth 1 && \
+  mkdir opencc && \
+  cd opencc && \
+  git clone https://github.com/BYVoid/OpenCC.git --depth 1 && \
+  cd OpenCC && \
+  make && \
+  make install && \
+  # Install OpenCC4php extension:
+  cd /tmp/opencc && \
+  git clone https://github.com/NauxLiu/opencc4php.git --depth 1 && \
   cd opencc4php && \
   phpize && \
   ./configure && \
   make && \
   make install && \
-  echo "extension=opencc.so" >> /usr/local/etc/php/conf.d/opencc.ini && \
-  apt-get remove -y git \
+  # Enable opencc extension:
+  docker-php-ext-enable opencc && \
+  # Clean up:
+  cd /tmp && \
+  rm -rf opencc &&\
+  apk del .mods \
   ;fi
 
-
-#####################################
-# gRpc:
-#
+####################################
+# GRPC:
+# Check the official github page for more information:
 # url: https://cloud.google.com/php/grpc
-#####################################
+#
+# Will install protobuf extension as well
+# url: https://github.com/protocolbuffers/protobuf/tree/master/php
+####################################
+USER root
 
 ARG INSTALL_GRPC=false
 
-RUN if [ ${INSTALL_GRPC} = true ]; then \
-  pecl install grpc && \
-  echo "extension=grpc.so" >> /usr/local/etc/php/conf.d/grpc.ini \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_GRPC} = true ]; then \
+  pecl install grpc protobuf && \
+  docker-php-ext-enable grpc protobuf \
   ;fi
 
-#####################################
-# Protobuf:
-#
-# pecl: https://pecl.php.net/package/protobuf
-# github: https://github.com/protocolbuffers/protobuf/tree/master/php
-#####################################
-
-ARG INSTALL_PROTOBUF=false
-
-RUN if [ ${INSTALL_PROTOBUF} = true ]; then \
-  pecl install protobuf && \
-  echo "extension=protobuf.so" >> /usr/local/etc/php/conf.d/protobuf.ini \
-  ;fi
-
-#####################################
-# PHP Composer:
-#####################################
-
+####################################
+# Intl:
+# Human language and
+# Character encoding support.
+####################################
 USER root
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-ENV PATH="$PATH:/usr/local/bin"
+ARG INSTALL_INTL=false
 
-ADD ./composer.json /root/.composer/composer.json
-
-RUN composer global install && \
-  rm /root/.composer/composer.json
-
-RUN if [ ${INSTALL_GRPC} = true ]; then \
-  composer global --verbose require "grpc/grpc:^v1.27.0" \
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_INTL} = true ]; then \
+  apk add --no-cache \
+  icu-dev && \
+  docker-php-ext-install -j${NPROC} intl \
   ;fi
+
+####################################
+# wddx:
+# only work under PHP 7.4
+####################################
+USER root
+
+ARG INSTALL_WDDX=false
+
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_WDDX} = true ]; then \
+  if [ "$(printf '%s\n' "7.4" "${PHP_VERSION}" | sort -V | head -n1)" = "7.4" ]; then \
+  # greater equal 7.4
+  echo "Wddx is only work under PHP 7.4" \
+  ;else \
+  # less than 7.4
+  docker-php-ext-install -j${NPROC} wddx \
+  ;fi \
+  ;fi
+
+####################################
+# LDAP:
+####################################
+USER root
+
+ARG INSTALL_LDAP=false
+
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_LDAP} = true ]; then \
+  apk add --no-cache \
+  openldap-dev && \
+  docker-php-ext-install -j${NPROC} ldap \
+  ;fi
+
+####################################
+# Imagmagick:
+####################################
+USER root
+
+ARG INSTALL_IMAGEMAGICK=false
+
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_IMAGEMAGICK} = true ]; then \
+  apk add --no-cache \
+  imagemagick-dev && \
+  pecl install imagick && \
+  docker-php-ext-enable imagick \
+  ;fi
+
+####################################
+# SQL server:
+####################################
+USER root
+
+ARG INSTALL_MSSQL=false
+
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_MSSQL} = true ]; then \
+  #####################################
+  # Ref from https://github.com/Microsoft/msphpsql/wiki/Dockerfile-for-adding-pdo_sqlsrv-and-sqlsrv-to-official-php-image
+  #
+  # But only ODBC is required.
+  #####################################
+  # Install requireddriver for Microsoft ODBC driver:
+  apk add --no-cache \
+  unixodbc-dev && \
+  # Install sqlsrv extension:
+  pecl install pdo_sqlsrv sqlsrv && \
+  docker-php-ext-enable pdo_sqlsrv sqlsrv \
+  ;fi
+
+####################################
+# OpenSwoole:
+####################################
+USER root
+
+ARG INSTALL_OPENSWOOLE=false
+
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_OPENSWOOLE} = true ]; then \
+  if [ "$(printf '%s\n' "7.3" "${PHP_VERSION}" | sort -V | head -n1)" = "7.3" ]; then \
+  # greater equal 7.3
+  pecl install openswoole && \
+  docker-php-ext-enable openswoole \
+  ;else \
+  # less than 7.3
+  echo "OpenSwoole is only work PHP 7.3 and later" \
+  ;fi \
+  ;fi
+
+####################################
+# ZMQ:
+####################################
+USER root
+
+ARG INSTALL_ZMQ=false
+
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_ZMQ} = true ]; then \
+  apk add --no-cache \
+  czmq-dev && \
+  # install the ZMQ from source:
+  cd /tmp && \
+  git clone https://github.com/zeromq/php-zmq.git && \
+  cd php-zmq && \
+  phpize && \
+  ./configure && \
+  make && \
+  make install && \
+  # clean the source:
+  cd /tmp && \
+  rm -rf php-zmq && \
+  # install the extension:
+  docker-php-ext-enable zmq \
+  ;fi
+
+####################################
+# Decimal:
+####################################
+USER root
+
+ARG INSTALL_DECIMAL=false
+
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_DECIMAL} = true ]; then \
+  apk add --no-cache \
+  mpdecimal-dev && \
+  pecl install decimal && \
+  docker-php-ext-enable decimal \
+  ;fi
+
+####################################
+# Trader:
+####################################
+USER root
+
+ARG INSTALL_TRADER=false
+
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_TRADER} = true ]; then \
+  pecl install trader && \
+  docker-php-ext-enable trader \
+  ;fi
+
+####################################
+# Gearman:
+####################################
+# USER root
+
+# ARG INSTALL_GEARMAN=false
+
+# RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_GEARMAN} = true ]; then \
+#   # Prepar the extraction packages
+#   apk add --no-cache --virtual .zip \
+#   tar \
+#   gzip \
+#   zip && \
+#   # Prepare the requirements:
+#   apk add --no-cache --virtual .mods \
+#   boost-dev \
+#   gperf && \
+#   # Install gearman:
+#   cd /tmp && \
+#   curl -L -o gearman.tar.gz https://github.com/gearman/gearmand/releases/download/1.1.19.1/gearmand-1.1.19.1.tar.gz && \
+#   tar zxvf gearman.tar.gz && \
+#   cd gearmand-1.1.19.1 && \
+#   ./configure && \
+#   make && \
+#   make install && \
+#   # Install gearman extension:
+#   pecl install gearman && \
+#   docker-php-ext-enable gearman && \
+#   # Clean up:
+#   cd /tmp && \
+#   rm -rf gearmand-1.1.19.1 && \
+#   apk del .zip && \
+#   apk del .mods \
+#   ;fi
+
+####################################
+# PHP Composer:
+####################################
+USER root
+
+ARG INSTALL_COMPOSER=false
 
 ARG INSTALL_PHP_CODE_QUALITY_TOOLS=false
 
-RUN if [ ${INSTALL_PHP_CODE_QUALITY_TOOLS} = true ]; then \
-  composer global --verbose require "squizlabs/php_codesniffer=*" && \
-  composer global --verbose require "friendsofphp/php-cs-fixer" && \
-  composer global --verbose require "phpmd/phpmd" \
+RUN mkdir -p /usr/local/bin && \
+  mkdir -p /root/.composer/vendor/bin
+
+ENV PATH="$PATH:/usr/local/bin"
+
+ADD ./composer.json /tmp/composer.json
+
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_COMPOSER} = true ]; then \
+  # Install composer:
+  curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
   ;fi
 
 
-#####################################
-# Drush:
-#####################################
-USER root
-
-ARG INSTALL_DRUSH=false
-
-ARG DRUSH_VERSION=8.1.2
-
-RUN if [ ${INSTALL_DRUSH} = true ]; then \
-  apt-get -y install mysql-client && \
-  # Install Drush 8 with the phar file.
-  curl -fsSL -o /usr/local/bin/drush https://github.com/drush-ops/drush/releases/download/$DRUSH_VERSION/drush.phar | bash && \
-  chmod +x /usr/local/bin/drush && \
-  drush core-status \
-  ;fi
-
-#####################################
-# Drupal Console:
-#####################################
-USER root
-
-ARG INSTALL_DRUPAL_CONSOLE=false
-
-RUN if [ ${INSTALL_DRUPAL_CONSOLE} = true ]; then \
-  apt-get -y install --no-install-recommends mysql-client && \
-  curl https://drupalconsole.com/installer -L -o drupal.phar && \
-  mv drupal.phar /usr/local/bin/drupal && \
-  chmod +x /usr/local/bin/drupal \
-  ;fi
-
-#####################################
-# Non-root user : PHPUnit path
-#####################################
-
-# add ./vendor/bin to non-root user's bashrc (needed for phpunit)
 USER ${LINUX_USER}
 
-RUN echo "" >> ~/.bashrc && \
-  echo 'export PATH="/var/www/vendor/bin:$PATH"' >> ~/.bashrc
+# Install the pre-defined composer packages:
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_COMPOSER} = true ]; then \
+  mkdir -p /home/${LINUX_USER}/.composer && \
+  cp /tmp/composer.json /home/${LINUX_USER}/.composer/composer.json && \
+  cd /home/${LINUX_USER} && \
+  composer global install \
+  ;fi
 
-#####################################
-# Laravel Envoy:
-#####################################
 USER ${LINUX_USER}
 
-ARG INSTALL_LARAVEL_ENVOY=false
-
-RUN if [ ${INSTALL_LARAVEL_ENVOY} = true ]; then \
-  # Install the Laravel Envoy
-  composer global --verbose require "laravel/envoy=~1.0" \
+# Install global packages (GRPC):
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_COMPOSER} = true ] && [ ${INSTALL_GRPC} = true ]; then \
+  composer global --verbose require "grpc/grpc" \
   ;fi
 
-#####################################
-# Laravel Installer:
-#####################################
 USER ${LINUX_USER}
 
-ARG INSTALL_LARAVEL_INSTALLER=false
-
-RUN if [ ${INSTALL_LARAVEL_INSTALLER} = true ]; then \
-  # Install the Laravel Installer
-  composer global require "laravel/installer" \
+# Install global packages (Quality tools):
+RUN if [ ${INSTALL_PHP} = true ] && [ ${INSTALL_COMPOSER} = true ] && [ ${INSTALL_PHP_CODE_QUALITY_TOOLS} = true ]; then \
+  composer global --verbose require \
+  "phpmd/phpmd" \
+  "squizlabs/php_codesniffer" \
+  "friendsofphp/php-cs-fixer" \
   ;fi
 
-#####################################
-# Deployer:
-#####################################
-USER ${LINUX_USER}
-
-ARG INSTALL_DEPLOYER=false
-
-RUN if [ ${INSTALL_DEPLOYER} = true ]; then \
-  # Install the Deployer
-  composer global require "deployer/deployer" \
-  ;fi
-
-#####################################
-# Linuxbrew:
-#####################################
 USER root
 
-ARG INSTALL_LINUXBREW=false
+# Add the composer global packages to the PATH:
+ENV PATH="$PATH:/home/${LINUX_USER}/.composer/vendor/bin"
 
-RUN if [ ${INSTALL_LINUXBREW} = true ]; then \
-  # Preparation
-  apt-get upgrade -y && \
-  apt-get install -y --no-install-recommends build-essential make cmake scons curl git \
-  ruby autoconf automake autoconf-archive \
-  gettext libtool flex bison \
-  libbz2-dev libcurl4-openssl-dev \
-  libexpat-dev libncurses-dev && \
-  #
-  # Install the Linuxbrew
-  #
-  git clone --depth=1 https://github.com/Homebrew/linuxbrew.git ~/.linuxbrew && \
-  echo "" >> ~/.bashrc && \
-  echo 'export PKG_CONFIG_PATH"=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig:/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib64/pkgconfig:/usr/share/pkgconfig:$PKG_CONFIG_PATH"' >> ~/.bashrc && \
-  #
-  # Setup linuxbrew
-  #
-  echo 'export LINUXBREWHOME="$HOME/.linuxbrew"' >> ~/.bashrc && \
-  echo 'export PATH="$LINUXBREWHOME/bin:$PATH"' >> ~/.bashrc && \
-  echo 'export MANPATH="$LINUXBREWHOME/man:$MANPATH"' >> ~/.bashrc && \
-  echo 'export PKG_CONFIG_PATH="$LINUXBREWHOME/lib64/pkgconfig:$LINUXBREWHOME/lib/pkgconfig:$PKG_CONFIG_PATH"' >> ~/.bashrc && \
-  echo 'export LD_LIBRARY_PATH="$LINUXBREWHOME/lib64:$LINUXBREWHOME/lib:$LD_LIBRARY_PATH"' >> ~/.bashrc \
-  ;fi
-
-#####################################
-# Minio:
-#####################################
-USER root
-
-ARG INSTALL_MC=false
-
-COPY mc/config.json /root/.mc/config.json
-
-RUN if [ ${INSTALL_MC} = true ]; then\
-  curl -fsSL -o /usr/local/bin/mc https://dl.minio.io/client/mc/release/linux-amd64/mc && \
-  chmod +x /usr/local/bin/mc \
-  ;fi
-
-#####################################
-# Symfony:
-#####################################
-USER root
-
-ARG INSTALL_SYMFONY=false
-
-RUN if [ ${INSTALL_SYMFONY} = true ]; then \
-  mkdir -p /usr/local/bin \
-  && curl -LsS https://symfony.com/installer -o /usr/local/bin/symfony \
-  && chmod a+x /usr/local/bin/symfony \
-  #
-  #  Symfony 3 alias
-  #
-  && echo 'alias dev="php bin/console -e=dev"' >> ~/.bashrc \
-  && echo 'alias prod="php bin/console -e=prod"' >> ~/.bashrc \
-  #
-  #  Symfony 2 alias
-  #  && echo 'alias dev="php app/console -e=dev"' >> ~/.bashrc \
-  #  && echo 'alias prod="php app/console -e=prod"' >> ~/.bashrc \
-  #
-  ;fi
-
-#####################################
-# PYTHON:
-#####################################
-USER root
-
-ARG INSTALL_PYTHON=false
-
-ARG INSTALL_PYTHON3=false
-
-RUN if [ ${INSTALL_PYTHON} = true ]; then \
-  apt-get update && \
-  apt-get install -y --no-install-recommends \
-  python \
-  python-pip \
-  python-dev \
-  python-virtualenv \
-  ;fi
-
-RUN if [ ${INSTALL_PYTHON3} = true ] && [ `echo ${PHP_VERSION} | cut -c1` = 7 ]; then \
-  if [ `echo ${PHP_VERSION} | cut -c1-3` = 7.3 ] || [ `echo ${PHP_VERSION} | cut -c1-3` = 7.4 ]; then \
-  export PYTHON3_VERSION=3.7 \
-  ;elif [ `echo ${PHP_VERSION} | cut -c1-3` = 7.2 ]; then \
-  export PYTHON3_VERSION=3.5 \
-  ;else \
-  export PYTHON3_VERSION=3.4 \
-  ;fi && \
-  apt-get install -y --no-install-recommends \
-  libpython$PYTHON3_VERSION \
-  libpython$PYTHON3_VERSION-dev \
-  python$PYTHON3_VERSION \
-  python3-pip \
-  python3-virtualenv \
-  python$PYTHON3_VERSION-dev \
-  ;fi
-
-#####################################
-# Terraform:
-#####################################
-USER root
-
-ARG INSTALL_TERRAFORM=false
-
-RUN if [ ${INSTALL_TERRAFORM} = true ]; then \
-  curl -O https://releases.hashicorp.com/terraform/0.10.6/terraform_0.10.6_linux_amd64.zip && \
-  unzip terraform_0.10.6_linux_amd64.zip && \
-  mv terraform /usr/local/bin && \
-  rm terraform_0.10.6_linux_amd64.zip \
-  ;fi
-
-#####################################
-# Dusk Dependencies:
-#####################################
-USER root
-
-ARG CHROME_DRIVER_VERSION=stable
-
-ARG INSTALL_DUSK_DEPS=false
-
-RUN if [ ${INSTALL_DUSK_DEPS} = true ]; then \
-  apt-get -y --no-install-recommends install xdg-utils \
-  libxpm4 \
-  libxrender1 \
-  libgtk2.0-0 \
-  libnss3 \
-  libgconf-2-4 \
-  xvfb \
-  gtk2-engines-pixbuf \
-  xfonts-cyrillic \
-  xfonts-100dpi \
-  xfonts-75dpi \
-  xfonts-base \
-  xfonts-scalable \
-  x11-apps && \
-  curl -O https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-  dpkg -i --force-depends google-chrome-stable_current_amd64.deb && \
-  apt-get install -yf --no-install-recommends && \
-  dpkg -i --force-depends google-chrome-stable_current_amd64.deb && \
-  rm google-chrome-stable_current_amd64.deb && \
-  curl -O https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/chromedriver_linux64.zip && \
-  unzip chromedriver_linux64.zip && \
-  mv chromedriver /usr/local/bin/ && \
-  rm chromedriver_linux64.zip \
-  ;fi
-
-#########################
-# Node / NVM:
-#########################
-
-# Check if nvm needs to be installed
+####################################
+# Nodejs / NVM:
+####################################
 ARG INSTALL_NODEJS=false
 ARG NODEJS_VERSION=stable
 ARG NODEJS_VERSION_BACKUP=false
 
-ENV NVM_DIR /home/${LINUX_USER}/.nvm
+ENV NVM_DIR=/home/${LINUX_USER}/.nvm
 
-ARG NODEJS_NVM_VERSION=v0.33.5
+ARG NODEJS_NVM_VERSION=v0.39.1
 
-# Install nvm
-USER ${LINUX_USER}
+# Prepre the node build environment:
+USER root
 
 RUN if [ ${INSTALL_NODEJS} = true ]; then \
-  #
-  # set nvm default environment
-  #
-  mkdir -p ${NVM_DIR} && \
+  apk add --no-cache --virtual .nodejs \
+  linux-headers \
+  python3 \
+  ;fi
+
+# Install NVM and NodeJS:
+USER ${LINUX_USER}
+
+# install default nodejs:
+RUN if [ ${INSTALL_NODEJS} = true ]; then \
+  cd /home/${LINUX_USER} && \
   curl -o- https://raw.githubusercontent.com/creationix/nvm/${NODEJS_NVM_VERSION}/install.sh | bash && \
   . $NVM_DIR/nvm.sh && \
-  nvm install ${NODEJS_VERSION} && \
+  # Install nodejs from source:
+  nvm install -s ${NODEJS_VERSION} && \
   nvm use ${NODEJS_VERSION} && \
   nvm alias default ${NODEJS_VERSION} && \
-  npm install -g nodemon pm2 eslint gulp mocha node-gyp && \
-  #
-  # install backup node version
-  #
-  if [ NODEJS_VERSION_BACKUP != false ]; then \
-  nvm install ${NODEJS_VERSION_BACKUP} && \
+  # Install pre-defined nodejs packages:
+  nvm use default && \
+  npm install -g \
+  nodemon \
+  pm2 \
+  eslint \
+  mocha \
+  node-gyp \
+  typescript \
+  tsc && \
+  # install backup nodejs:
+  if  [ ${NODEJS_VERSION_BACKUP} != false ]; then \
+  cd /home/${LINUX_USER} && \
+  # Install nodejs from source:
+  nvm install -s ${NODEJS_VERSION_BACKUP} && \
   nvm alias backup ${NODEJS_VERSION_BACKUP} && \
-  npm install -g nodemon pm2 eslint gulp mocha node-gyp \
-  ;fi && \
-  nvm use default \
+  # Install from backup nodejs:
+  nvm use backup && \
+  npm install -g \
+  nodemon \
+  pm2 \
+  eslint \
+  mocha \
+  node-gyp \
+  typescript \
+  tsc \
+  ;fi \
   ;fi
 
 # Install nvm setting to bashrc setting
+USER ${LINUX_USER}
+
 RUN if [ ${INSTALL_NODEJS} = true ]; then \
   echo "" >> ~/.bashrc && \
-  echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc && \
-  echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm' >> ~/.bashrc \
+  echo "export NVM_DIR=\"\$HOME/.nvm\"" >> ~/.bashrc && \
+  echo "[ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\" # This load nvm" >> ~/.bashrc \
   ;fi
 
 # Add nvm binaries to root's .bashrc
 USER root
 
-ENV ROOT_NVM_COMMAND "export NVM_DIR=\"${NVM_DIR}\""
+# ENV ROOT_NVM_COMMAND "export NVM_DIR=\"${NVM_DIR}\""
 
 RUN if [ ${INSTALL_NODEJS} = true ]; then \
   echo "" >> ~/.bashrc && \
-  echo $ROOT_NVM_COMMAND >> ~/.bashrc && \
-  echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm' >> ~/.bashrc \
+  # echo $ROOT_NVM_COMMAND >> ~/.bashrc && \
+  echo "[ -s \"${NVM_DIR}/nvm.sh\" ] && . \"${NVM_DIR}/nvm.sh\" # This loads nvm" >> ~/.bashrc && \
+  # set the default nodejs version:
+  echo "${NODEJS_VERSION}" > ~/.nvmrc \
   ;fi
 
-#########################
-# YARN:
-#########################
-
-USER ${LINUX_USER}
-
-ARG INSTALL_YARN=false
-
-ARG YARN_VERSION=latest
-
-RUN if [ ${INSTALL_NODEJS} = true ] && [ ${INSTALL_YARN} = true ]; then \
-  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
-  #
-  # set yarn version
-  #
-  if [ ${YARN_VERSION} = latest ]; then \
-  curl -o- -L https://yarnpkg.com/install.sh | bash \
-  ;else \
-  curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version ${YARN_VERSION} \
-  ;fi && \
-  echo "" >> ~/.bashrc && \
-  echo 'export PATH=$HOME/yarn/bin:$PATH' >> ~/.bashrc \
-  ;fi
-
-# ADD YARN binaries to root's .bashrc
+# Remove the dev packages for building nodejs:
 USER root
 
-ENV YARN_PATH /home/${USER}/.yarn
-ENV ROOT_YARN_COMMAND "export YARN_DIR=\"/home/${USER}/.yarn\""
-
-RUN if [ ${INSTALL_NODEJS} = true ] && [ ${INSTALL_YARN} = true ]; then \
-  echo "" >> ~/.bashrc && \
-  echo $ROOT_NVM_COMMAND >> ~/.bashrc && \
-  echo 'export PATH="/home/$YARN_DIR/bin:$PATH"' >> ~/.bashrc \
+RUN if [ ${INSTALL_NODEJS} = true ]; then \
+  apk del .nodejs \
   ;fi
 
+####################################
+# Python 3:
+# Python2 is no longer available
+####################################
+USER root
 
-#####################################
-# ssh:
-#####################################
-ARG INSTALL_WORKSPACE_SSH=false
+ARG INSTALL_PYTHON=false
 
-ADD insecure_id_rsa /tmp/id_rsa
-ADD insecure_id_rsa.pub /tmp/id_rsa.pub
-
-RUN if [ ${INSTALL_WORKSPACE_SSH} = true ]; then \
-  rm -f /etc/service/sshd/down && \
-  cat /tmp/id_rsa.pub >> /root/.ssh/authorized_keys \
-  && cat /tmp/id_rsa.pub >> /root/.ssh/id_rsa.pub \
-  && cat /tmp/id_rsa >> /root/.ssh/id_rsa \
-  && rm -f /tmp/id_rsa* \
-  && chmod 644 /root/.ssh/authorized_keys /root/.ssh/id_rsa.pub \
-  && chmod 400 /root/.ssh/id_rsa \
-  && cp -rf /root/.ssh /home/laradock \
-  && chown -R laradock:laradock /home/laradock/.ssh \
+RUN if [ ${INSTALL_PYTHON} = true ]; then \
+  apk add --no-cache \
+  python3 \
+  py3-pip && \
+  # update pip and install virtualenv:
+  pip3 install --upgrade pip && \
+  pip3 install --upgrade virtualenv \
   ;fi
 
-#####################################
-# Crontab
-#####################################
+####################################
+# Install Golang:
+####################################
 USER root
 
-COPY ./crontab/* /etc/cron.d/
+ARG INSTALL_GOLANG=false
 
-RUN chmod -R 644 /etc/cron.d && \
-  crontab /etc/cron.d/*
+RUN if [ ${INSTALL_GOLANG} = true ]; then \
+  apk add --no-cache \
+  go \
+  ;fi
 
-##############################
-# Final step
-##############################
+####################################
+# Image Optimizers:
+####################################
 USER root
 
-# change user shell as bash by default
-RUN chsh -s /bin/bash ${USER}
+ARG INSTALL_IMAGE_OPTIMIZERS=false
 
-# Remove unnecessary packages
-RUN apt-get -y autoremove && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN if [ ${INSTALL_IMAGE_OPTIMIZERS} = true ]; then \
+  apk add --no-cache \
+  optipng \
+  pngquant \
+  gifsicle \
+  jpegoptim \
+  ;fi
+
+####################################
+# SSH server:
+####################################
+USER root
+
+ARG INSTALL_SSH=false
+
+RUN apk add --no-cache \
+  openssh && \
+  # Generate a new SSH key:
+  ssh-keygen -A && \
+  echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config
+
+####################################
+# Fininal Touch
+####################################
+USER root
+
+ARG PGID=1000
+
+ADD ./laravel.ini /usr/local/etc/php/conf.d
+ADD ./laravel.pool.conf /usr/local/etc/php-fpm.d/laravel.pool.conf
+
+# Remove the PHP source
+RUN docker-php-source delete && \
+  rm -rf /usr/src/php && \
+  rm -rf /usr/src/php-src
+
+# Remove all virtual packages and tmp files
+RUN apk del .build-deps && \
+  rm -rf /tmp/* && \
+  rm /var/cache/apk/*
+
+USER root
 
 WORKDIR /var/www
 
-EXPOSE 22 9000 9001
+EXPOSE 9000 9001
 
-CMD ["php-fpm"]
+CMD [ "/usr/sbin/sshd", "-D" ]

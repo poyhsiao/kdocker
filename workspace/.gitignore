@@ -1,3 +1,5 @@
-*.ini
-*.json
+*
 !.gitignore
+!*.example
+!Dockerfile
+crontab
