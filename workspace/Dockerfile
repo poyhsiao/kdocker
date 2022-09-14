@@ -901,6 +901,7 @@ ENV PATH="$PATH:/home/${LINUX_USER}/.composer/vendor/bin"
 # Nodejs / NVM:
 ####################################
 ARG INSTALL_NODEJS=false
+ARG INSTALL_NODEJS_FROM_SOURCE=false
 ARG NODEJS_VERSION=stable
 ARG NODEJS_VERSION_BACKUP=false
 
@@ -926,7 +927,11 @@ RUN if [ ${INSTALL_NODEJS} = true ]; then \
   curl -o- https://raw.githubusercontent.com/creationix/nvm/${NODEJS_NVM_VERSION}/install.sh | bash && \
   . $NVM_DIR/nvm.sh && \
   # Install nodejs from source:
-  nvm install -s ${NODEJS_VERSION} && \
+  if [ ${INSTALL_NODEJS_FROM_SOURCE} = true ]; then \
+  nvm install -s ${NODEJS_VERSION} \
+  ;else \
+  nvm install ${NODEJS_VERSION} \
+  ;fi && \
   nvm use ${NODEJS_VERSION} && \
   nvm alias default ${NODEJS_VERSION} && \
   # Install pre-defined nodejs packages:
@@ -943,7 +948,11 @@ RUN if [ ${INSTALL_NODEJS} = true ]; then \
   if  [ ${NODEJS_VERSION_BACKUP} != false ]; then \
   cd /home/${LINUX_USER} && \
   # Install nodejs from source:
-  nvm install -s ${NODEJS_VERSION_BACKUP} && \
+  if [ ${INSTALL_NODEJS_FROM_SOURCE} = true ]; then \
+  nvm install -s ${NODEJS_VERSION_BACKUP} \
+  ;else \
+  nvm install ${NODEJS_VERSION_BACKUP} \
+  ;fi && \
   nvm alias backup ${NODEJS_VERSION_BACKUP} && \
   # Install from backup nodejs:
   nvm use backup && \
